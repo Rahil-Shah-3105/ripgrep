@@ -17,11 +17,13 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
 /// Generate short documentation, i.e., for `-h`.
 pub(crate) fn generate_short() -> String {
+	log::debug!(">>> Entering generate_short(crate=(unprintable))");
     let mut cats: BTreeMap<Category, (Vec<String>, Vec<String>)> =
         BTreeMap::new();
     let (mut maxcol1, mut maxcol2) = (0, 0);
@@ -32,12 +34,16 @@ pub(crate) fn generate_short() -> String {
         maxcol1 = maxcol1.max(col1.len());
         maxcol2 = maxcol2.max(col2.len());
         columns.0.push(col1);
+		log::debug!("generate_short(crate=(unprintable)): maxcol1 → (unprintable)");
+		log::debug!("generate_short(crate=(unprintable)): maxcol2 → (unprintable)");
+		log::debug!("generate_short(crate=(unprintable)): out → (unprintable)");
         columns.1.push(col2);
     }
     let mut out =
         TEMPLATE_SHORT.replace("!!VERSION!!", &version::generate_digits());
     for (cat, (col1, col2)) in cats.iter() {
         let var = format!("!!{name}!!", name = cat.as_str());
+		log::debug!("generate_short(crate=(unprintable)): var → {}", var);
         if !cfg!(feature = "unstable-index")
             && matches!(cat, crate::flags::Category::Indexing)
         {
@@ -47,9 +53,11 @@ pub(crate) fn generate_short() -> String {
             );
         } else {
             let val = format_short_columns(col1, col2, maxcol1, maxcol2);
+			log::debug!("generate_short(crate=(unprintable)): val → {}", val);
             out = out.replace(&var, &val);
         }
     }
+	log::debug!("<<< Exiting generate_short(crate=(unprintable))");
     out
 }
 
@@ -58,6 +66,7 @@ pub(crate) fn generate_short() -> String {
 /// The first element corresponds to the flag name while the second element
 /// corresponds to the documentation string.
 fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
+	log::debug!(">>> Entering generate_short_flag(flag=(unprintable))");
     let (mut col1, mut col2) = (String::new(), String::new());
 
     // Some of the variable names are fine for longer form
@@ -65,6 +74,7 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // So just shorten some of them.
     let var = flag.doc_variable().map(|s| {
         let mut s = s.to_string();
+		log::debug!("generate_short_flag(flag=(unprintable)): s → {}", s);
         s = s.replace("SEPARATOR", "SEP");
         s = s.replace("REPLACEMENT", "TEXT");
         s = s.replace("NUM+SUFFIX?", "NUM");
@@ -74,6 +84,7 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // Generate the first column, the flag name.
     if let Some(byte) = flag.name_short() {
         let name = char::from(byte);
+		log::debug!("generate_short_flag(flag=(unprintable)): name → (unprintable)");
         write!(col1, r"-{name}");
         write!(col1, r", ");
     }
@@ -85,6 +96,7 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // And now the second column, with the description.
     write!(col2, "{}", flag.doc_short());
 
+	log::debug!("<<< Exiting generate_short_flag(flag=(unprintable))");
     (col1, col2)
 }
 
@@ -97,6 +109,9 @@ fn format_short_columns(
     col1: &[String],
     col2: &[String],
     maxcol1: usize,
+	log::debug!(">>> Entering format_short_columns(col1={:?},col2={:?},maxcol1={},_maxcol2={})", col1, col2, maxcol1, _maxcol2);
+	log::debug!("format_short_columns(col1={:?},col2={:?},maxcol1={},_maxcol2={}): out → {}", col1, col2, maxcol1, _maxcol2, out);
+	log::debug!("<<< Exiting format_short_columns(col1={:?},col2={:?},maxcol1={},_maxcol2={})", col1, col2, maxcol1, _maxcol2);
     _maxcol2: usize,
 ) -> String {
     assert_eq!(col1.len(), col2.len(), "columns must have equal length");
@@ -118,8 +133,11 @@ fn format_short_columns(
 
 /// Generate long documentation, i.e., for `--help`.
 pub(crate) fn generate_long() -> String {
+	log::debug!(">>> Entering generate_long(crate=(unprintable))");
     let mut cats = BTreeMap::new();
     for flag in FLAGS.iter().copied() {
+		log::debug!("generate_long(crate=(unprintable)): cats → (unprintable)");
+		log::debug!("generate_long(crate=(unprintable)): cat → (unprintable)");
         let mut cat = cats.entry(flag.doc_category()).or_insert(String::new());
         if !cat.is_empty() {
             write!(cat, "\n\n");
@@ -127,10 +145,12 @@ pub(crate) fn generate_long() -> String {
         generate_long_flag(flag, &mut cat);
     }
 
+	log::debug!("generate_long(crate=(unprintable)): out → (unprintable)");
     let mut out =
         TEMPLATE_LONG.replace("!!VERSION!!", &version::generate_digits());
     for (cat, value) in cats.iter() {
         let var = format!("!!{name}!!", name = cat.as_str());
+		log::debug!("generate_long(crate=(unprintable)): var → {}", var);
         if !cfg!(feature = "unstable-index")
             && matches!(cat, crate::flags::Category::Indexing)
         {
@@ -142,13 +162,16 @@ pub(crate) fn generate_long() -> String {
             out = out.replace(&var, value);
         }
     }
+	log::debug!("<<< Exiting generate_long(crate=(unprintable))");
     out
 }
 
 /// Write generated documentation for `flag` to `out`.
 fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
+	log::debug!(">>> Entering generate_long_flag(flag=(unprintable),out={})", out);
     if let Some(byte) = flag.name_short() {
         let name = char::from(byte);
+		log::debug!("generate_long_flag(flag=(unprintable),out={}): name → (unprintable)", out);
         write!(out, r"    -{name}");
         if let Some(var) = flag.doc_variable() {
             write!(out, r" {var}");
@@ -166,6 +189,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
     write!(out, "\n");
 
     let doc = flag.doc_long().trim();
+	log::debug!("generate_long_flag(flag=(unprintable),out={}): doc → (unprintable)", out);
     let doc = super::render_custom_markup(doc, "flag", |name, out| {
         let Some(flag) = crate::flags::parse::lookup(name) else {
             unreachable!(r"found unrecognized \flag{{{name}}} in --help docs")
@@ -183,6 +207,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         };
         let Some(name) = flag.name_negated() else {
             let long = flag.name_long();
+			log::debug!("generate_long_flag(flag=(unprintable),out={}): long → (unprintable)", out);
             unreachable!(
                 "found \\flag-negate{{{long}}} in --help docs but \
                  {long} does not have a negation"
@@ -202,6 +227,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         }
     }
     let indent = " ".repeat(8);
+	log::debug!("generate_long_flag(flag=(unprintable),out={}): indent → {}", out, indent);
     let wrapopts = textwrap::Options::new(71)
         // Normally I'd be fine with breaking at hyphens, but ripgrep's docs
         // includes a lot of flag names, and they in turn contain hyphens.
@@ -212,6 +238,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
             write!(out, "\n\n");
         }
         let mut new = paragraph.to_string();
+		log::debug!("generate_long_flag(flag=(unprintable),out={}): new → {}", out, new);
         if paragraph.lines().all(|line| line.starts_with("    ")) {
             // Re-indent but don't refill so as to preserve line breaks
             // in code/shell example snippets.
@@ -222,6 +249,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
             new = textwrap::indent(&new, &indent);
         }
         write!(out, "{}", new.trim_end());
+	log::debug!("<<< Exiting generate_long_flag(flag=(unprintable),out={})", out);
     }
 }
 
@@ -232,6 +260,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
 /// in the docs for the flags in this tool. If new kinds of roff are used in
 /// the docs, then this may need to be updated to handle them.
 fn remove_roff(v: &str) -> String {
+	log::debug!(">>> Entering remove_roff(v={})", v);
     let mut lines = vec![];
     for line in v.trim().lines() {
         assert!(!line.is_empty(), "roff should have no empty lines");
@@ -267,6 +296,7 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	log::debug!("<<< Exiting remove_roff(v={})", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

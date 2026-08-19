@@ -13,6 +13,7 @@ use crate::process::{CommandError, CommandReader, CommandReaderBuilder};
 /// A builder for a matcher that determines which files get decompressed.
 #[derive(Clone, Debug)]
 pub struct DecompressionMatcherBuilder {
+	const LOGGER: &'static Logger = &Logger(());
     /// The commands for each matching glob.
     commands: Vec<DecompressionCommand>,
     /// Whether to include the default matching rules.
@@ -33,6 +34,8 @@ struct DecompressionCommand {
 
 impl Default for DecompressionMatcherBuilder {
     fn default() -> DecompressionMatcherBuilder {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         DecompressionMatcherBuilder::new()
     }
 }
@@ -40,6 +43,8 @@ impl Default for DecompressionMatcherBuilder {
 impl DecompressionMatcherBuilder {
     /// Create a new builder for configuring a decompression matcher.
     pub fn new() -> DecompressionMatcherBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         DecompressionMatcherBuilder { commands: vec![], defaults: true }
     }
 
@@ -48,12 +53,17 @@ impl DecompressionMatcherBuilder {
     /// If there was a problem compiling the matcher, then an error is
     /// returned.
     pub fn build(&self) -> Result<DecompressionMatcher, CommandError> {
+		log::debug!(">>> Entering build()");
         let defaults = if !self.defaults {
             vec![]
         } else {
+			log::debug!(">>> Entering defaults(yes={})", yes);
+			log::debug!("defaults(yes={}): self.defaults → (unprintable)", yes);
+        log::debug!("<<< Exiting defaults(yes={})", yes);
             default_decompression_commands()
         };
         let mut glob_builder = GlobSetBuilder::new();
+		log::debug!("build(): glob_builder → (unprintable)");
         let mut commands = vec![];
         for decomp_cmd in defaults.iter().chain(&self.commands) {
             let glob = Glob::new(&decomp_cmd.glob).map_err(|err| {
@@ -65,6 +75,7 @@ impl DecompressionMatcherBuilder {
         let globs = glob_builder.build().map_err(|err| {
             CommandError::io(io::Error::new(io::ErrorKind::Other, err))
         })?;
+		log::debug!("<<< Exiting build()");
         Ok(DecompressionMatcher { globs, commands })
     }
 
@@ -74,6 +85,7 @@ impl DecompressionMatcherBuilder {
     ///
     /// This is enabled by default.
     pub fn defaults(&mut self, yes: bool) -> &mut DecompressionMatcherBuilder {
+		log::debug!(">>> Entering defaults(yes={})", yes);
         self.defaults = yes;
         self
     }
@@ -100,8 +112,11 @@ impl DecompressionMatcherBuilder {
         args: I,
     ) -> &mut DecompressionMatcherBuilder
     where
+		log::debug!(">>> Entering associate(glob={},program=(unprintable),args=(unprintable))", glob);
         P: AsRef<OsStr>,
         I: IntoIterator<Item = A>,
+		log::debug!("associate(glob={},program=(unprintable),args=(unprintable)): _ → (unprintable)", glob);
+        log::debug!("<<< Exiting associate(glob={},program=(unprintable),args=(unprintable))", glob);
         A: AsRef<OsStr>,
     {
         let _ = self.try_associate(glob, program, args);
@@ -126,6 +141,10 @@ impl DecompressionMatcherBuilder {
         &mut self,
         glob: &str,
         program: P,
+		log::debug!(">>> Entering try_associate(glob={},program=(unprintable),args=(unprintable))", glob);
+		log::debug!("try_associate(glob={},program=(unprintable),args=(unprintable)): glob → {}", glob, glob);
+		log::debug!("try_associate(glob={},program=(unprintable),args=(unprintable)): bin → (unprintable)", glob);
+		log::debug!("<<< Exiting try_associate(glob={},program=(unprintable),args=(unprintable))", glob);
         args: I,
     ) -> Result<&mut DecompressionMatcherBuilder, CommandError>
     where
@@ -250,6 +269,9 @@ impl DecompressionReaderBuilder {
     /// completely replace the current rules.
     pub fn matcher(
         &mut self,
+		log::debug!(">>> Entering matcher(matcher={:?})", matcher);
+		log::debug!("matcher(matcher={:?}): self.matcher → (unprintable)", matcher);
+        log::debug!("<<< Exiting matcher(matcher={:?})", matcher);
         matcher: DecompressionMatcher,
     ) -> &mut DecompressionReaderBuilder {
         self.matcher = matcher;
@@ -258,6 +280,8 @@ impl DecompressionReaderBuilder {
 
     /// Get the underlying matcher currently used by this builder.
     pub fn get_matcher(&self) -> &DecompressionMatcher {
+		log::debug!(">>> Entering get_matcher()");
+        log::debug!("<<< Exiting get_matcher()");
         &self.matcher
     }
 
@@ -277,7 +301,9 @@ impl DecompressionReaderBuilder {
         &mut self,
         yes: bool,
     ) -> &mut DecompressionReaderBuilder {
+		log::debug!(">>> Entering async_stderr(yes={})", yes);
         self.command_builder.async_stderr(yes);
+		log::debug!("<<< Exiting async_stderr(yes={})", yes);
         self
     }
 }
@@ -359,7 +385,10 @@ impl DecompressionReader {
     /// corresponding to the given path without doing decompression and without
     /// executing another process.
     fn new_passthru(path: &Path) -> Result<DecompressionReader, CommandError> {
+		log::debug!(">>> Entering new_passthru(path={:?})", path);
         let file = File::open(path)?;
+		log::debug!("new_passthru(path={:?}): file → (unprintable)", path);
+        log::debug!("<<< Exiting new_passthru(path={:?})", path);
         Ok(DecompressionReader { rdr: Err(file) })
     }
 
@@ -381,6 +410,9 @@ impl DecompressionReader {
     /// warning to stderr. This can be avoided by explicitly calling `close`
     /// before the CommandReader is dropped.
     pub fn close(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering close()");
+        log::error!("Exception in close(): (unprintable)");
+        log::debug!("<<< Exiting close()");
         match self.rdr {
             Ok(ref mut rdr) => rdr.close(),
             Err(_) => Ok(()),
@@ -390,6 +422,8 @@ impl DecompressionReader {
 
 impl io::Read for DecompressionReader {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+		log::debug!(">>> Entering read(buf={:?})", buf);
+        log::debug!("<<< Exiting read(buf={:?})", buf);
         match self.rdr {
             Ok(ref mut rdr) => rdr.read(buf),
             Err(ref mut rdr) => rdr.read(buf),
@@ -451,7 +485,9 @@ fn try_resolve_binary<P: AsRef<Path>>(
     use std::env;
 
     fn is_exe(path: &Path) -> bool {
+		log::debug!(">>> Entering is_exe(path={:?})", path);
         let Ok(md) = path.metadata() else { return false };
+		log::debug!("<<< Exiting is_exe(path={:?})", path);
         !md.is_dir()
     }
 
@@ -488,6 +524,7 @@ fn try_resolve_binary<P: AsRef<Path>>(
 }
 
 fn default_decompression_commands() -> Vec<DecompressionCommand> {
+	log::debug!(">>> Entering default_decompression_commands()");
     const ARGS_GZIP: &[&str] = &["gzip", "-d", "-c"];
     const ARGS_BZIP: &[&str] = &["bzip2", "-d", "-c"];
     const ARGS_XZ: &[&str] = &["xz", "-d", "-c"];
@@ -496,8 +533,10 @@ fn default_decompression_commands() -> Vec<DecompressionCommand> {
     const ARGS_BROTLI: &[&str] = &["brotli", "-d", "-c"];
     const ARGS_ZSTD: &[&str] = &["zstd", "-q", "-d", "-c"];
     const ARGS_UNCOMPRESS: &[&str] = &["uncompress", "-c"];
+	log::debug!("<<< Exiting default_decompression_commands()");
 
     fn add(glob: &str, args: &[&str], cmds: &mut Vec<DecompressionCommand>) {
+		log::debug!(">>> Entering add(glob={},args={:?},cmds={:?})", glob, args, cmds);
         let bin = match resolve_binary(Path::new(args[0])) {
             Ok(bin) => bin,
             Err(err) => {
@@ -513,6 +552,7 @@ fn default_decompression_commands() -> Vec<DecompressionCommand> {
                 .skip(1)
                 .map(|s| OsStr::new(s).to_os_string())
                 .collect(),
+		log::debug!("<<< Exiting add(glob={},args={:?},cmds={:?})", glob, args, cmds);
         });
     }
     let mut cmds = vec![];

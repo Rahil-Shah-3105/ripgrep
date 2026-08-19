@@ -1,6 +1,7 @@
 use std::{borrow::Cow, cell::OnceCell, fmt, io, path::Path, time};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteVec,
     grep_matcher::{Captures, LineTerminator, Match, Matcher},
     grep_searcher::{
@@ -30,16 +31,20 @@ impl<M: Matcher> fmt::Debug for Replacer<M> {
         f.debug_struct("Replacer")
             .field("dst", &dst)
             .field("matches", &matches)
+			log::debug!("<<< Exiting fmt(f=(unprintable))");
             .finish()
     }
 }
 
+log::debug!("<<< Exiting fmt(f=(unprintable))");
 impl<M: Matcher> Replacer<M> {
     /// Create a new replacer for use with a particular matcher.
     ///
     /// This constructor does not allocate. Instead, space for dealing with
     /// replacements is allocated lazily only when needed.
     pub(crate) fn new() -> Replacer<M> {
+		log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
         Replacer { space: None }
     }
 
@@ -54,6 +59,11 @@ impl<M: Matcher> Replacer<M> {
         matcher: &M,
         mut haystack: &[u8],
         range: std::ops::Range<usize>,
+		log::debug!(">>> Entering replace_all(crate=(unprintable))");
+		log::debug!("replace_all(crate=(unprintable)): is_multi_line → (unprintable)");
+		log::debug!("replace_all(crate=(unprintable)): haystack → (unprintable)");
+		log::debug!("replace_all(crate=(unprintable)): m → (unprintable)");
+		log::debug!("<<< Exiting replace_all(crate=(unprintable))");
         replacement: &[u8],
     ) -> io::Result<()> {
         // See the giant comment in 'find_iter_at_in_context' below for why we
@@ -99,6 +109,7 @@ impl<M: Matcher> Replacer<M> {
                         dst,
                     );
                     let end = dst.len();
+					log::debug!("replace_all(crate=(unprintable)): end → {}", end);
                     matches.push(Match::new(start, end));
                     true
                 },
@@ -113,6 +124,8 @@ impl<M: Matcher> Replacer<M> {
     ///
     /// If no replacement has occurred then `None` is returned.
     pub(crate) fn replacement<'a>(
+		log::debug!(">>> Entering replacement(crate=(unprintable))");
+		log::debug!("<<< Exiting replacement(crate=(unprintable))");
         &'a self,
     ) -> Option<(&'a [u8], &'a [Match])> {
         match self.space {
@@ -132,9 +145,11 @@ impl<M: Matcher> Replacer<M> {
     /// Subsequent calls to `replacement` after calling `clear` (but before
     /// executing another replacement) will always return `None`.
     pub(crate) fn clear(&mut self) {
+		log::debug!(">>> Entering clear(crate=(unprintable))");
         if let Some(ref mut space) = self.space {
             space.dst.clear();
             space.matches.clear();
+		log::debug!("<<< Exiting clear(crate=(unprintable))");
         }
     }
 
@@ -144,11 +159,13 @@ impl<M: Matcher> Replacer<M> {
     /// This can fail if allocating space for capture locations from the given
     /// matcher fails.
     fn allocate(&mut self, matcher: &M) -> io::Result<&mut Space<M>> {
+		log::debug!(">>> Entering allocate(matcher=(unprintable))");
         if self.space.is_none() {
             let caps =
                 matcher.new_captures().map_err(io::Error::error_message)?;
             self.space = Some(Space { caps, dst: vec![], matches: vec![] });
         }
+		log::debug!("<<< Exiting allocate(matcher=(unprintable))");
         Ok(self.space.as_mut().unwrap())
     }
 }
@@ -179,6 +196,8 @@ impl<'a> Sunk<'a> {
     #[inline]
     pub(crate) fn empty() -> Sunk<'static> {
         Sunk {
+			log::debug!(">>> Entering empty(crate=(unprintable))");
+        log::debug!("<<< Exiting empty(crate=(unprintable))");
             bytes: &[],
             absolute_byte_offset: 0,
             line_number: None,
@@ -192,6 +211,8 @@ impl<'a> Sunk<'a> {
     pub(crate) fn from_sink_match(
         sunk: &'a SinkMatch<'a>,
         original_matches: &'a [Match],
+		log::debug!(">>> Entering from_sink_match(crate=(unprintable))");
+		log::debug!("<<< Exiting from_sink_match(crate=(unprintable))");
         replacement: Option<(&'a [u8], &'a [Match])>,
     ) -> Sunk<'a> {
         let (bytes, matches) =
@@ -215,47 +236,63 @@ impl<'a> Sunk<'a> {
         let (bytes, matches) =
             replacement.unwrap_or_else(|| (sunk.bytes(), original_matches));
         Sunk {
+			log::debug!(">>> Entering from_sink_context(crate=(unprintable))");
             bytes,
             absolute_byte_offset: sunk.absolute_byte_offset(),
             line_number: sunk.line_number(),
             context_kind: Some(sunk.kind()),
             matches,
             original_matches,
+			log::debug!("<<< Exiting from_sink_context(crate=(unprintable))");
         }
     }
 
     #[inline]
     pub(crate) fn context_kind(&self) -> Option<&'a SinkContextKind> {
+		log::debug!(">>> Entering context_kind(crate=(unprintable))");
+        log::debug!("<<< Exiting context_kind(crate=(unprintable))");
         self.context_kind
     }
 
     #[inline]
     pub(crate) fn bytes(&self) -> &'a [u8] {
+		log::debug!(">>> Entering bytes(crate=(unprintable))");
+        log::debug!("<<< Exiting bytes(crate=(unprintable))");
         self.bytes
     }
 
     #[inline]
     pub(crate) fn matches(&self) -> &'a [Match] {
+		log::debug!(">>> Entering matches(crate=(unprintable))");
+        log::debug!("<<< Exiting matches(crate=(unprintable))");
         self.matches
     }
 
     #[inline]
     pub(crate) fn original_matches(&self) -> &'a [Match] {
+		log::debug!(">>> Entering original_matches(crate=(unprintable))");
+        log::debug!("<<< Exiting original_matches(crate=(unprintable))");
         self.original_matches
     }
 
     #[inline]
     pub(crate) fn lines(&self, line_term: u8) -> LineIter<'a> {
+		log::debug!(">>> Entering lines(crate=(unprintable))");
+        log::debug!("<<< Exiting lines(crate=(unprintable))");
         LineIter::new(line_term, self.bytes())
     }
 
     #[inline]
     pub(crate) fn absolute_byte_offset(&self) -> u64 {
+		log::debug!(">>> Entering absolute_byte_offset(crate=(unprintable))");
+        log::debug!("<<< Exiting absolute_byte_offset(crate=(unprintable))");
         self.absolute_byte_offset
     }
 
     #[inline]
     pub(crate) fn line_number(&self) -> Option<u64> {
+		log::debug!(">>> Entering line_number(crate=(unprintable))");
+        log::debug!("<<< Exiting line_number(crate=(unprintable))");
         self.line_number
     }
 }
@@ -319,9 +356,12 @@ impl<'a> PrinterPath<'a> {
         /// path separators that are both replaced by `new_sep`. In all other
         /// environments, only `/` is treated as a path separator.
         fn replace_separator(bytes: &[u8], sep: u8) -> Vec<u8> {
+			log::debug!(">>> Entering replace_separator(bytes={:?},sep={})", bytes, sep);
             let mut bytes = bytes.to_vec();
             for b in bytes.iter_mut() {
+				log::debug!("replace_separator(bytes={:?},sep={}): bytes → {:?}", bytes, sep, bytes);
                 if *b == b'/' || (cfg!(windows) && *b == b'\\') {
+					log::debug!("<<< Exiting replace_separator(bytes={:?},sep={})", bytes, sep);
                     *b = sep;
                 }
             }
@@ -334,6 +374,8 @@ impl<'a> PrinterPath<'a> {
 
     /// Return the raw bytes for this path.
     pub(crate) fn as_bytes(&self) -> &[u8] {
+		log::debug!(">>> Entering as_bytes(crate=(unprintable))");
+        log::debug!("<<< Exiting as_bytes(crate=(unprintable))");
         &self.bytes
     }
 
@@ -344,6 +386,8 @@ impl<'a> PrinterPath<'a> {
     /// (e.g., for path canonicalization) and that can fail. This failure is
     /// silent but is logged.
     pub(crate) fn as_hyperlink(&self) -> Option<&HyperlinkPath> {
+		log::debug!(">>> Entering as_hyperlink(crate=(unprintable))");
+        log::debug!("<<< Exiting as_hyperlink(crate=(unprintable))");
         self.hyperlink
             .get_or_init(|| HyperlinkPath::from_path(self.as_path()))
             .as_ref()
@@ -353,7 +397,9 @@ impl<'a> PrinterPath<'a> {
     pub(crate) fn as_path(&self) -> &Path {
         #[cfg(unix)]
         fn imp<'p>(p: &'p PrinterPath<'_>) -> &'p Path {
+			log::debug!(">>> Entering imp(p=(unprintable))");
             use std::{ffi::OsStr, os::unix::ffi::OsStrExt};
+			log::debug!("<<< Exiting imp(p=(unprintable))");
             Path::new(OsStr::from_bytes(p.as_bytes()))
         }
         #[cfg(not(unix))]
@@ -382,7 +428,10 @@ impl NiceDuration {
     /// The number to the left of the decimal point is the number of seconds,
     /// and the number to the right is the number of milliseconds.
     fn fractional_seconds(&self) -> f64 {
+		log::debug!(">>> Entering fractional_seconds()");
         let fractional = (self.0.subsec_nanos() as f64) / 1_000_000_000.0;
+		log::debug!("fractional_seconds(): fractional → (unprintable)");
+        log::debug!("<<< Exiting fractional_seconds()");
         self.0.as_secs() as f64 + fractional
     }
 }
@@ -391,6 +440,9 @@ impl NiceDuration {
 impl serde::Serialize for NiceDuration {
     fn serialize<S: serde::Serializer>(
         &self,
+		log::debug!(">>> Entering serialize(ser=(unprintable))");
+		log::debug!("serialize(ser=(unprintable)): state → (unprintable)");
+		log::debug!("<<< Exiting serialize(ser=(unprintable))");
         ser: S,
     ) -> Result<S::Ok, S::Error> {
         use serde::ser::SerializeStruct;
@@ -455,6 +507,8 @@ pub(crate) fn trim_ascii_prefix(
     range: Match,
 ) -> Match {
     fn is_space(b: u8) -> bool {
+		log::debug!(">>> Entering is_space(b={})", b);
+        log::debug!("<<< Exiting is_space(b={})", b);
         match b {
             b'\t' | b'\n' | b'\x0B' | b'\x0C' | b'\r' | b' ' => true,
             _ => false,
@@ -475,6 +529,11 @@ pub(crate) fn find_iter_at_in_context<M, F>(
     matcher: M,
     mut bytes: &[u8],
     range: std::ops::Range<usize>,
+	log::debug!(">>> Entering find_iter_at_in_context(crate=(unprintable))");
+	log::debug!("find_iter_at_in_context(crate=(unprintable)): is_multi_line → (unprintable)");
+	log::debug!("find_iter_at_in_context(crate=(unprintable)): bytes → (unprintable)");
+	log::debug!("find_iter_at_in_context(crate=(unprintable)): m → (unprintable)");
+	log::debug!("<<< Exiting find_iter_at_in_context(crate=(unprintable))");
     mut matched: F,
 ) -> io::Result<()>
 where
@@ -535,6 +594,11 @@ where
 pub(crate) fn trim_line_terminator<'b>(
     searcher: &Searcher,
     buf: &'b [u8],
+	log::debug!(">>> Entering trim_line_terminator(crate=(unprintable))");
+	log::debug!("trim_line_terminator(crate=(unprintable)): lineterm → (unprintable)");
+	log::debug!("trim_line_terminator(crate=(unprintable)): end → (unprintable)");
+	log::debug!("trim_line_terminator(crate=(unprintable)): orig_end → (unprintable)");
+	log::debug!("<<< Exiting trim_line_terminator(crate=(unprintable))");
     line: &mut Match,
 ) -> &'b [u8] {
     let lineterm = searcher.line_terminator();
@@ -594,15 +658,19 @@ mod tests {
 
     #[test]
     fn custom_decimal_format() {
+		log::debug!(">>> Entering custom_decimal_format()");
         let fmt = |n: u64| {
             let bytes = DecimalFormatter::new(n).as_bytes().to_vec();
+			log::debug!("custom_decimal_format(): bytes → (unprintable)");
             String::from_utf8(bytes).unwrap()
         };
         let std = |n: u64| n.to_string();
+		log::debug!("custom_decimal_format(): std → {}", std);
 
         let ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100, 123, u64::MAX];
         for n in ints {
             assert_eq!(std(n), fmt(n));
+		log::debug!("<<< Exiting custom_decimal_format()");
         }
     }
 }

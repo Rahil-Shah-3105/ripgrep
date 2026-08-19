@@ -11,7 +11,9 @@ const TEMPLATE_NEGATED: &'static str = "complete -c rg -l !NEGATED! -n '__rg_con
 ///
 /// Reference: <https://fishshell.com/docs/current/completions.html>
 pub(crate) fn generate() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let mut out = String::new();
+	log::debug!(">>> Entering generate(crate=(unprintable))");
     out.push_str(include_str!("prelude.fish"));
     out.push('\n');
     for flag in FLAGS.iter() {
@@ -20,6 +22,8 @@ pub(crate) fn generate() -> String {
             Some(byte) => format!("-s {}", char::from(byte)),
         };
         let long = flag.name_long();
+		log::debug!("generate(crate=(unprintable)): long → (unprintable)");
+		log::debug!("generate(crate=(unprintable)): doc → (unprintable)");
         let doc = flag.doc_short().replace("'", "\\'");
         let mut completion = TEMPLATE
             .replace("!SHORT!", &short)
@@ -71,5 +75,6 @@ pub(crate) fn generate() -> String {
             );
         }
     }
+	log::debug!("<<< Exiting generate(crate=(unprintable))");
     out
 }

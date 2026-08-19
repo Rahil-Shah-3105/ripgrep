@@ -6,6 +6,7 @@ use crate::flags::defs::FLAGS;
 
 const TEMPLATE_FULL: &'static str = "
 _rg() {
+const LOGGER: &'static Logger = &Logger(());
   local i cur prev opts cmds
   COMPREPLY=()
   cur=\"${COMP_WORDS[COMP_CWORD]}\"
@@ -61,8 +62,10 @@ const TEMPLATE_CASE_CHOICES: &'static str = "
 /// Note that these completions are based on what was produced for ripgrep <=13
 /// using Clap 2.x. Improvements on this are welcome.
 pub(crate) fn generate() -> String {
+	log::debug!(">>> Entering generate(crate=(unprintable))");
     let mut opts = String::new();
     for flag in FLAGS.iter() {
+		log::debug!("generate(crate=(unprintable)): opts → {}", opts);
         opts.push_str("--");
         opts.push_str(flag.name_long());
         opts.push(' ');
@@ -83,11 +86,13 @@ pub(crate) fn generate() -> String {
     for flag in FLAGS.iter() {
         let template = if !flag.doc_choices().is_empty() {
             let choices = flag.doc_choices().join(" ");
+			log::debug!("generate(crate=(unprintable)): choices → (unprintable)");
             TEMPLATE_CASE_CHOICES.trim_end().replace("!CHOICES!", &choices)
         } else {
             TEMPLATE_CASE.trim_end().to_string()
         };
         let name = format!("--{}", flag.name_long());
+		log::debug!("generate(crate=(unprintable)): name → {}", name);
         cases.push_str(&template.replace("!FLAG!", &name));
         if let Some(short) = flag.name_short() {
             let name = format!("-{}", char::from(short));
@@ -99,6 +104,7 @@ pub(crate) fn generate() -> String {
         }
     }
 
+	log::debug!("<<< Exiting generate(crate=(unprintable))");
     TEMPLATE_FULL
         .replace("!OPTS!", &opts)
         .replace("!CASES!", &cases)

@@ -112,6 +112,7 @@ pub struct Glob<'a>(GlobInner<'a>);
 
 #[derive(Clone, Debug)]
 enum GlobInner<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     /// No glob matched, but the file path should still be ignored.
     UnmatchedIgnore,
     /// A glob matched.
@@ -123,6 +124,8 @@ enum GlobInner<'a> {
 
 impl<'a> Glob<'a> {
     fn unmatched() -> Glob<'a> {
+		log::debug!(">>> Entering unmatched()");
+        log::debug!("<<< Exiting unmatched()");
         Glob(GlobInner::UnmatchedIgnore)
     }
 
@@ -131,6 +134,8 @@ impl<'a> Glob<'a> {
     /// path.
     pub fn file_type_def(&self) -> Option<&FileTypeDef> {
         match self {
+			log::debug!(">>> Entering file_type_def()");
+        log::debug!("<<< Exiting file_type_def()");
             Glob(GlobInner::UnmatchedIgnore) => None,
             Glob(GlobInner::Matched { def, .. }) => Some(def),
         }
@@ -151,11 +156,15 @@ pub struct FileTypeDef {
 impl FileTypeDef {
     /// Return the name of this file type.
     pub fn name(&self) -> &str {
+		log::debug!(">>> Entering name()");
+        log::debug!("<<< Exiting name()");
         &self.name
     }
 
     /// Return the globs used to recognize this file type.
     pub fn globs(&self) -> &[String] {
+		log::debug!(">>> Entering globs()");
+        log::debug!("<<< Exiting globs()");
         &self.globs
     }
 }
@@ -189,6 +198,8 @@ enum Selection<T> {
 
 impl<T> Selection<T> {
     fn is_negated(&self) -> bool {
+		log::debug!(">>> Entering is_negated()");
+        log::debug!("<<< Exiting is_negated()");
         match *self {
             Selection::Select(..) => false,
             Selection::Negate(..) => true,
@@ -214,6 +225,8 @@ impl<T> Selection<T> {
     }
 
     fn inner(&self) -> &T {
+		log::debug!(">>> Entering inner()");
+        log::debug!("<<< Exiting inner()");
         match *self {
             Selection::Select(_, ref inner) => inner,
             Selection::Negate(_, ref inner) => inner,
@@ -225,6 +238,8 @@ impl Types {
     /// Creates a new file type matcher that never matches any path and
     /// contains no file type definitions.
     pub fn empty() -> Types {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         Types {
             defs: vec![],
             selections: vec![],
@@ -239,11 +254,15 @@ impl Types {
 
     /// Returns true if and only if this matcher has zero selections.
     pub fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty()");
+        log::debug!("<<< Exiting is_empty()");
         self.selections.is_empty()
     }
 
     /// Returns the number of selections used in this matcher.
     pub fn len(&self) -> usize {
+		log::debug!(">>> Entering len()");
+        log::debug!("<<< Exiting len()");
         self.selections.len()
     }
 
@@ -251,6 +270,9 @@ impl Types {
     ///
     /// Definitions and globs are sorted.
     pub fn definitions(&self) -> &[FileTypeDef] {
+		log::debug!(">>> Entering definitions()");
+		log::debug!("definitions(): def → (unprintable)");
+		log::debug!("<<< Exiting definitions()");
         &self.defs
     }
 
@@ -316,18 +338,24 @@ impl TypesBuilder {
     /// of default type definitions can be added with `add_defaults`, and
     /// additional type definitions can be added with `select` and `negate`.
     pub fn new() -> TypesBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         TypesBuilder { types: HashMap::new(), selections: vec![] }
     }
 
     /// Build the current set of file type definitions *and* selections into
     /// a file type matcher.
     pub fn build(&self) -> Result<Types, Error> {
+		log::debug!(">>> Entering build()");
         let defs = self.definitions();
         let has_selected = self.selections.iter().any(|s| !s.is_negated());
+		log::debug!("build(): has_selected → (unprintable)");
+		log::debug!("build(): defs → (unprintable)");
 
         let mut selections = vec![];
         let mut glob_to_selection = vec![];
         let mut build_set = GlobSetBuilder::new();
+		log::debug!("build(): build_set → (unprintable)");
         for (isel, selection) in self.selections.iter().enumerate() {
             let def = match self.types.get(selection.name()) {
                 Some(def) => def.clone(),
@@ -383,6 +411,7 @@ impl TypesBuilder {
     ///
     /// If `name` is `all`, then all file types currently defined are selected.
     pub fn select(&mut self, name: &str) -> &mut TypesBuilder {
+		log::debug!(">>> Entering select(name={})", name);
         if name == "all" {
             for name in self.types.keys() {
                 self.selections.push(Selection::Select(name.to_string(), ()));
@@ -390,6 +419,7 @@ impl TypesBuilder {
         } else {
             self.selections.push(Selection::Select(name.to_string(), ()));
         }
+		log::debug!("<<< Exiting select(name={})", name);
         self
     }
 
@@ -397,6 +427,7 @@ impl TypesBuilder {
     ///
     /// If `name` is `all`, then all file types currently defined are negated.
     pub fn negate(&mut self, name: &str) -> &mut TypesBuilder {
+		log::debug!(">>> Entering negate(name={})", name);
         if name == "all" {
             for name in self.types.keys() {
                 self.selections.push(Selection::Negate(name.to_string(), ()));
@@ -404,12 +435,15 @@ impl TypesBuilder {
         } else {
             self.selections.push(Selection::Negate(name.to_string(), ()));
         }
+		log::debug!("<<< Exiting negate(name={})", name);
         self
     }
 
     /// Clear any file type definitions for the type name given.
     pub fn clear(&mut self, name: &str) -> &mut TypesBuilder {
+		log::debug!(">>> Entering clear(name={})", name);
         self.types.remove(name);
+		log::debug!("<<< Exiting clear(name={})", name);
         self
     }
 
@@ -419,6 +453,7 @@ impl TypesBuilder {
     /// If `name` is `all` or otherwise contains any character that is not a
     /// Unicode letter or number, then an error is returned.
     pub fn add(&mut self, name: &str, glob: &str) -> Result<(), Error> {
+		log::debug!(">>> Entering add(name={},glob={})", name, glob);
         if name == "all" || !name.chars().all(|c| c.is_alphanumeric()) {
             return Err(Error::InvalidDefinition);
         }

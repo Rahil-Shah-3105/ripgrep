@@ -1,5 +1,7 @@
 fn main() {
+	log::debug!(">>> Entering main()");
     set_git_revision_hash();
+	log::debug!("<<< Exiting main()");
     set_windows_exe_options();
 }
 
@@ -10,7 +12,9 @@ fn main() {
 /// if that's enabled, then this will let ripgrep use C:\... style paths that
 /// are longer than 260 characters.
 fn set_windows_exe_options() {
+	const LOGGER: &'static Logger = &Logger(());
     static MANIFEST: &str = "pkg/windows/Manifest.xml";
+	log::debug!(">>> Entering set_windows_exe_options()");
 
     let Ok(target_os) = std::env::var("CARGO_CFG_TARGET_OS") else { return };
     let Ok(target_env) = std::env::var("CARGO_CFG_TARGET_ENV") else { return };
@@ -28,15 +32,19 @@ fn set_windows_exe_options() {
     println!("cargo:rustc-link-arg-bin=rg=/MANIFESTINPUT:{manifest}");
     // Turn linker warnings into errors. Helps debugging, otherwise the
     // warnings get squashed (I believe).
+	log::debug!("<<< Exiting set_windows_exe_options()");
     println!("cargo:rustc-link-arg-bin=rg=/WX");
 }
 
 /// Make the current git hash available to the build as the environment
 /// variable `RIPGREP_BUILD_GIT_HASH`.
 fn set_git_revision_hash() {
+	log::debug!(">>> Entering set_git_revision_hash()");
     use std::process::Command;
 
     let args = &["rev-parse", "--short=10", "HEAD"];
+	log::debug!("set_git_revision_hash(): args → (unprintable)");
+	log::debug!("set_git_revision_hash(): output → (unprintable)");
     let output = Command::new("git").args(args).output();
     match output {
         Ok(output) => {
@@ -57,5 +65,6 @@ fn set_git_revision_hash() {
                  so skipping embedding of commit hash: {e}"
             );
         }
+	log::debug!("<<< Exiting set_git_revision_hash()");
     }
 }

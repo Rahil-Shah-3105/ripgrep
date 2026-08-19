@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -170,6 +171,8 @@ pub(crate) enum Mode {
 
 impl Default for Mode {
     fn default() -> Mode {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Mode::Search(SearchMode::Standard)
     }
 }
@@ -179,6 +182,7 @@ impl Mode {
     /// semantics. For example, a search mode cannot override a non-search
     /// mode.
     pub(crate) fn update(&mut self, new: Mode) {
+		log::debug!(">>> Entering update(crate=(unprintable))");
         match *self {
             // If we're in a search mode, then anything can override it.
             Mode::Search(_) => *self = new,
@@ -190,6 +194,7 @@ impl Mode {
                     *self = new;
                 }
             }
+		log::debug!("<<< Exiting update(crate=(unprintable))");
         }
     }
 }
@@ -336,6 +341,8 @@ pub(crate) enum ColorChoice {
 impl ColorChoice {
     /// Convert this color choice to the corresponding termcolor type.
     pub(crate) fn to_termcolor(&self) -> termcolor::ColorChoice {
+		log::debug!(">>> Entering to_termcolor(crate=(unprintable))");
+        log::debug!("<<< Exiting to_termcolor(crate=(unprintable))");
         match *self {
             ColorChoice::Never => termcolor::ColorChoice::Never,
             ColorChoice::Auto => termcolor::ColorChoice::Auto,
@@ -369,8 +376,10 @@ impl ContextMode {
     /// of limited context with the given value for "before" and `0` for
     /// "after."
     pub(crate) fn set_before(&mut self, lines: usize) {
+		log::debug!(">>> Entering set_before(crate=(unprintable))");
         match *self {
             ContextMode::Passthru => {
+				log::debug!("<<< Exiting set_before(crate=(unprintable))");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -390,8 +399,10 @@ impl ContextMode {
     /// of limited context with the given value for "after" and `0` for
     /// "before."
     pub(crate) fn set_after(&mut self, lines: usize) {
+		log::debug!(">>> Entering set_after(crate=(unprintable))");
         match *self {
             ContextMode::Passthru => {
+				log::debug!("<<< Exiting set_after(crate=(unprintable))");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -410,8 +421,10 @@ impl ContextMode {
     /// of limited context with the given value for "both" and `None` for
     /// "before" and "after".
     pub(crate) fn set_both(&mut self, lines: usize) {
+		log::debug!(">>> Entering set_both(crate=(unprintable))");
         match *self {
             ContextMode::Passthru => {
+				log::debug!("<<< Exiting set_both(crate=(unprintable))");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +441,8 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		log::debug!(">>> Entering get_limited(crate=(unprintable))");
+        log::debug!("<<< Exiting get_limited(crate=(unprintable))");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -462,16 +477,20 @@ impl ContextModeLimited {
     ///
     /// By default, this returns `(0, 0)`.
     pub(crate) fn get(&self) -> (usize, usize) {
+		log::debug!(">>> Entering get(crate=(unprintable))");
         let (mut before, mut after) =
             self.both.map(|lines| (lines, lines)).unwrap_or((0, 0));
         // --before and --after always override --context, regardless
         // of where they appear relative to each other.
         if let Some(lines) = self.before {
+			log::debug!("get(crate=(unprintable)): before → (unprintable)");
             before = lines;
         }
         if let Some(lines) = self.after {
+			log::debug!("get(crate=(unprintable)): after → (unprintable)");
             after = lines;
         }
+		log::debug!("<<< Exiting get(crate=(unprintable))");
         (before, after)
     }
 }
@@ -499,12 +518,16 @@ impl ContextSeparator {
                  to provide a separator that is not valid UTF-8)"
             )
         };
+		log::debug!(">>> Entering new(crate=(unprintable))");
+		log::debug!("<<< Exiting new(crate=(unprintable))");
         Ok(ContextSeparator(Some(Vec::unescape_bytes(string).into())))
     }
 
     /// Creates a new separator that instructs the printer to disable contextual
     /// separators entirely.
     pub(crate) fn disabled() -> ContextSeparator {
+		log::debug!(">>> Entering disabled(crate=(unprintable))");
+        log::debug!("<<< Exiting disabled(crate=(unprintable))");
         ContextSeparator(None)
     }
 
@@ -514,6 +537,8 @@ impl ContextSeparator {
     ///
     /// Note that this may return a `Some` variant with zero bytes.
     pub(crate) fn into_bytes(self) -> Option<Vec<u8>> {
+		log::debug!(">>> Entering into_bytes(crate=(unprintable))");
+        log::debug!("<<< Exiting into_bytes(crate=(unprintable))");
         self.0.map(|sep| sep.into())
     }
 }
@@ -687,6 +712,7 @@ impl SortMode {
     /// Checks whether the selected sort mode is supported. If it isn't, an
     /// error (hopefully explaining why) is returned.
     pub(crate) fn supported(&self) -> anyhow::Result<()> {
+		log::debug!(">>> Entering supported(crate=(unprintable))");
         match self.kind {
             SortModeKind::Path => Ok(()),
             SortModeKind::LastModified => {
@@ -714,6 +740,7 @@ impl SortMode {
                 let Err(err) = md else { return Ok(()) };
                 anyhow::bail!(
                     "sorting by creation time isn't supported: {err}"
+				log::debug!("<<< Exiting supported(crate=(unprintable))");
                 );
             }
         }

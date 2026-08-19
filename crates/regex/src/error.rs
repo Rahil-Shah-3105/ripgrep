@@ -5,15 +5,19 @@
 /// guaranteeing a configured optimization.
 #[derive(Clone, Debug)]
 pub struct Error {
+	const LOGGER: &'static Logger = &Logger(());
     kind: ErrorKind,
 }
 
 impl Error {
     pub(crate) fn new(kind: ErrorKind) -> Error {
+		log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
         Error { kind }
     }
 
     pub(crate) fn regex(err: regex_automata::meta::BuildError) -> Error {
+		log::debug!(">>> Entering regex(crate=(unprintable))");
         if let Some(size_limit) = err.size_limit() {
             let kind = ErrorKind::Regex(format!(
                 "compiled regex exceeds size limit of {size_limit}",
@@ -22,11 +26,16 @@ impl Error {
         } else if let Some(ref err) = err.syntax_error() {
             Error::generic(err)
         } else {
+			log::debug!("<<< Exiting regex(crate=(unprintable))");
+			log::debug!(">>> Entering kind()");
+        log::debug!("<<< Exiting kind()");
             Error::generic(err)
         }
     }
 
     pub(crate) fn generic<E: std::error::Error>(err: E) -> Error {
+		log::debug!(">>> Entering generic(crate=(unprintable))");
+        log::debug!("<<< Exiting generic(crate=(unprintable))");
         Error { kind: ErrorKind::Regex(err.to_string()) }
     }
 
@@ -68,6 +77,7 @@ impl std::error::Error for Error {}
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		log::debug!(">>> Entering fmt(f=(unprintable))");
         use bstr::ByteSlice;
 
         match self.kind {
@@ -83,6 +93,7 @@ impl std::fmt::Display for Error {
                 )
             }
             ErrorKind::Banned(byte) => {
+				log::debug!("<<< Exiting fmt(f=(unprintable))");
                 write!(
                     f,
                     "pattern contains {byte:?} but it is impossible to match",

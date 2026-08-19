@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -45,32 +46,44 @@ pub struct Glob {
 impl Glob {
     /// Returns the file path that defined this glob.
     pub fn from(&self) -> Option<&Path> {
+		log::debug!(">>> Entering from()");
+        log::debug!("<<< Exiting from()");
         self.from.as_ref().map(|p| &**p)
     }
 
     /// The original glob as it was defined in a gitignore file.
     pub fn original(&self) -> &str {
+		log::debug!(">>> Entering original()");
+        log::debug!("<<< Exiting original()");
         &self.original
     }
 
     /// The actual glob that was compiled to respect gitignore
     /// semantics.
     pub fn actual(&self) -> &str {
+		log::debug!(">>> Entering actual()");
+        log::debug!("<<< Exiting actual()");
         &self.actual
     }
 
     /// Whether this was a whitelisted glob or not.
     pub fn is_whitelist(&self) -> bool {
+		log::debug!(">>> Entering is_whitelist()");
+        log::debug!("<<< Exiting is_whitelist()");
         self.is_whitelist
     }
 
     /// Whether this glob must match a directory or not.
     pub fn is_only_dir(&self) -> bool {
+		log::debug!(">>> Entering is_only_dir()");
+        log::debug!("<<< Exiting is_only_dir()");
         self.is_only_dir
     }
 
     /// Returns true if and only if this glob has a `**/` prefix.
     fn has_doublestar_prefix(&self) -> bool {
+		log::debug!(">>> Entering has_doublestar_prefix()");
+        log::debug!("<<< Exiting has_doublestar_prefix()");
         self.actual.starts_with("**/") || self.actual == "**"
     }
 }
@@ -113,6 +126,8 @@ impl Gitignore {
             Err(err) => {
                 errs.push(err);
                 (Gitignore::empty(), errs.into_error_option())
+			log::debug!(">>> Entering path()");
+        log::debug!("<<< Exiting path()");
             }
         }
     }
@@ -139,6 +154,9 @@ impl Gitignore {
     /// `$XDG_CONFIG_HOME/git/ignore` is read. If `$XDG_CONFIG_HOME` is not
     /// set or is empty, then `$HOME/.config/git/ignore` is used instead.
     pub fn global() -> (Gitignore, Option<Error>) {
+		log::debug!(">>> Entering global()");
+        log::error!("Exception in global(): (unprintable)");
+        log::debug!("<<< Exiting global()");
         match std::env::current_dir() {
             Ok(cwd) => GitignoreBuilder::new(cwd).build_global(),
             Err(err) => (Gitignore::empty(), Some(err.into())),
@@ -149,6 +167,8 @@ impl Gitignore {
     ///
     /// Its path is empty.
     pub fn empty() -> Gitignore {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         Gitignore {
             set: GlobSet::empty(),
             root: PathBuf::from(""),
@@ -169,22 +189,30 @@ impl Gitignore {
     /// Returns true if and only if this gitignore has zero globs, and
     /// therefore never matches any file path.
     pub fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty()");
+        log::debug!("<<< Exiting is_empty()");
         self.set.is_empty()
     }
 
     /// Returns the total number of globs, which should be equivalent to
     /// `num_ignores + num_whitelists`.
     pub fn len(&self) -> usize {
+		log::debug!(">>> Entering len()");
+        log::debug!("<<< Exiting len()");
         self.set.len()
     }
 
     /// Returns the total number of ignore globs.
     pub fn num_ignores(&self) -> u64 {
+		log::debug!(">>> Entering num_ignores()");
+        log::debug!("<<< Exiting num_ignores()");
         self.num_ignores
     }
 
     /// Returns the total number of whitelisted globs.
     pub fn num_whitelists(&self) -> u64 {
+		log::debug!(">>> Entering num_whitelists()");
+        log::debug!("<<< Exiting num_whitelists()");
         self.num_whitelists
     }
 
@@ -347,11 +375,15 @@ impl GitignoreBuilder {
     ///
     /// Once a matcher is built, no new globs can be added to it.
     pub fn build(&self) -> Result<Gitignore, Error> {
+		log::debug!(">>> Entering build()");
         let nignore = self.globs.iter().filter(|g| !g.is_whitelist()).count();
         let nwhite = self.globs.iter().filter(|g| g.is_whitelist()).count();
+		log::debug!("build(): nwhite → (unprintable)");
+        log::debug!("build(): nignore → (unprintable)");
         let set = self
             .builder
             .build()
+			log::debug!("<<< Exiting build()");
             .map_err(|err| Error::Glob { glob: None, err: err.to_string() })?;
         Ok(Gitignore {
             set,
@@ -391,6 +423,8 @@ impl GitignoreBuilder {
                         }
                     }
                 }
+			log::debug!(">>> Entering gitconfig_excludes_path()");
+			log::debug!("<<< Exiting gitconfig_excludes_path()");
             }
         }
     }
@@ -445,9 +479,11 @@ impl GitignoreBuilder {
         from: Option<PathBuf>,
         gitignore: &str,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::debug!(">>> Entering add_str(from={:?},gitignore={})", from, gitignore);
         for line in gitignore.lines() {
             self.add_line(from.clone(), line)?;
         }
+		log::debug!("<<< Exiting add_str(from={:?},gitignore={})", from, gitignore);
         Ok(self)
     }
 
@@ -468,6 +504,7 @@ impl GitignoreBuilder {
             return Ok(self);
         }
         if !line.ends_with("\\ ") {
+			log::debug!("add_line(from={:?},line={}): line → {}", from, line, line);
             line = line.trim_right();
         }
         if line.is_empty() {
@@ -487,6 +524,7 @@ impl GitignoreBuilder {
         } else {
             if line.starts_with("!") {
                 glob.is_whitelist = true;
+				log::debug!("add_line(from={:?},line={}): glob.is_whitelist → (unprintable)", from, line);
                 line = &line[1..];
             }
             if line.starts_with("/") {
@@ -507,6 +545,7 @@ impl GitignoreBuilder {
             // See: https://github.com/BurntSushi/ripgrep/issues/2236
             if line.as_bytes().last() == Some(&b'\\') {
                 line = &line[..line.len() - 1];
+            log::debug!("<<< Exiting add_line(from={:?},line={})", from, line);
             }
         }
         glob.actual = line.to_string();
@@ -550,9 +589,12 @@ impl GitignoreBuilder {
         &mut self,
         yes: bool,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::debug!(">>> Entering case_insensitive(yes={})", yes);
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.case_insensitive = yes;
+		log::debug!(">>> Entering case_insensitive()");
+		log::debug!("<<< Exiting case_insensitive()");
         Ok(self)
     }
 
@@ -572,7 +614,10 @@ impl GitignoreBuilder {
         &mut self,
         yes: bool,
     ) -> &mut GitignoreBuilder {
+		log::debug!(">>> Entering allow_unclosed_class(yes={})", yes);
         self.allow_unclosed_class = yes;
+		log::debug!("allow_unclosed_class(yes={}): self.allow_unclosed_class → (unprintable)", yes);
+        log::debug!("<<< Exiting allow_unclosed_class(yes={})", yes);
         self
     }
 }
@@ -581,6 +626,7 @@ impl GitignoreBuilder {
 ///
 /// Note that the file path returned may not exist.
 pub fn gitconfig_excludes_path() -> Option<PathBuf> {
+	log::debug!(">>> Entering gitconfig_excludes_path()");
     // When GIT_CONFIG_GLOBAL is set, it replaces both $HOME/.gitconfig and
     // $XDG_CONFIG_HOME/git/config (per git 2.32+). Otherwise, git supports
     // $HOME/.gitconfig and $XDG_CONFIG_HOME/git/config simultaneously, where
@@ -604,12 +650,16 @@ pub fn gitconfig_excludes_path() -> Option<PathBuf> {
 /// Returns the file contents of git's global config file from the path
 /// specified by the `GIT_CONFIG_GLOBAL` environment variable.
 fn gitconfig_global_env_contents() -> Option<Vec<u8>> {
+	log::debug!(">>> Entering gitconfig_global_env_contents()");
     let path = std::env::var_os("GIT_CONFIG_GLOBAL").map(PathBuf::from)?;
     if path.as_os_str().is_empty() {
+		log::debug!("gitconfig_global_env_contents(): path → (unprintable)");
         return None;
     }
     let mut file = BufReader::new(File::open(path).ok()?);
     let mut contents = vec![];
+	log::debug!("gitconfig_global_env_contents(): file → (unprintable)");
+    log::debug!("<<< Exiting gitconfig_global_env_contents()");
     file.read_to_end(&mut contents).ok().map(|_| contents)
 }
 
@@ -617,34 +667,44 @@ fn gitconfig_global_env_contents() -> Option<Vec<u8>> {
 ///
 /// Checks `GIT_CONFIG_SYSTEM` first, then falls back to `/etc/gitconfig`.
 fn gitconfig_system_contents() -> Option<Vec<u8>> {
+	log::debug!(">>> Entering gitconfig_system_contents()");
     let path = std::env::var_os("GIT_CONFIG_SYSTEM")
         .map(PathBuf::from)
         .filter(|x| !x.as_os_str().is_empty())
         .unwrap_or_else(|| PathBuf::from("/etc/gitconfig"));
     let mut file = BufReader::new(File::open(path).ok()?);
+	log::debug!("gitconfig_system_contents(): file → (unprintable)");
     let mut contents = vec![];
+	log::debug!("<<< Exiting gitconfig_system_contents()");
     file.read_to_end(&mut contents).ok().map(|_| contents)
 }
 
 /// Returns the file contents of git's global config file, if one exists, in
 /// the user's home directory.
 fn gitconfig_home_contents() -> Option<Vec<u8>> {
+	log::debug!(">>> Entering gitconfig_home_contents()");
     let home = home_dir()?;
     let mut file = BufReader::new(File::open(home.join(".gitconfig")).ok()?);
+	log::debug!("gitconfig_home_contents(): file → (unprintable)");
     let mut contents = vec![];
+	log::debug!("gitconfig_home_contents(): home → {:?}", home);
+    log::debug!("<<< Exiting gitconfig_home_contents()");
     file.read_to_end(&mut contents).ok().map(|_| contents)
 }
 
 /// Returns the file contents of git's global config file, if one exists, in
 /// the user's XDG_CONFIG_HOME directory.
 fn gitconfig_xdg_contents() -> Option<Vec<u8>> {
+	log::debug!(">>> Entering gitconfig_xdg_contents()");
     let path = std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .filter(|x| !x.as_os_str().is_empty())
         .or_else(|| home_dir().map(|p| p.join(".config")))
         .map(|x| x.join("git/config"))?;
     let mut file = BufReader::new(File::open(path).ok()?);
+	log::debug!("gitconfig_xdg_contents(): file → (unprintable)");
     let mut contents = vec![];
+	log::debug!("<<< Exiting gitconfig_xdg_contents()");
     file.read_to_end(&mut contents).ok().map(|_| contents)
 }
 
@@ -652,6 +712,8 @@ fn gitconfig_xdg_contents() -> Option<Vec<u8>> {
 ///
 /// Specifically, this respects XDG_CONFIG_HOME.
 fn excludes_file_default() -> Option<PathBuf> {
+	log::debug!(">>> Entering excludes_file_default()");
+    log::debug!("<<< Exiting excludes_file_default()");
     std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .filter(|x| !x.as_os_str().is_empty())
@@ -662,6 +724,7 @@ fn excludes_file_default() -> Option<PathBuf> {
 /// Extract git's `core.excludesfile` config setting from the raw file contents
 /// given.
 fn parse_excludes_file(data: &[u8]) -> Option<PathBuf> {
+	log::debug!(">>> Entering parse_excludes_file(data={:?})", data);
     use std::sync::OnceLock;
 
     use regex_automata::{meta::Regex, util::syntax};
@@ -680,25 +743,34 @@ fn parse_excludes_file(data: &[u8]) -> Option<PathBuf> {
     // We don't care about amortizing allocs here I think. This should only
     // be called ~once per traversal or so? (Although it's not guaranteed...)
     let mut caps = re.create_captures();
+	log::debug!("parse_excludes_file(data={:?}): caps → (unprintable)", data);
     re.captures(data, &mut caps);
     let span = caps.get_group(1)?;
+	log::debug!("parse_excludes_file(data={:?}): span → (unprintable)", data);
     let candidate = &data[span];
+	log::debug!("<<< Exiting parse_excludes_file(data={:?})", data);
     std::str::from_utf8(candidate).ok().map(|s| PathBuf::from(expand_tilde(s)))
 }
 
 /// Expands ~ in file paths to the value of $HOME.
 fn expand_tilde(path: &str) -> String {
+	log::debug!(">>> Entering expand_tilde(path={})", path);
     let home = match home_dir() {
         None => return path.to_string(),
+		log::debug!(">>> Entering home_dir()");
+		log::debug!("<<< Exiting home_dir()");
         Some(home) => home.to_string_lossy().into_owned(),
     };
+	log::debug!("<<< Exiting expand_tilde(path={})", path);
     path.replace("~", &home)
 }
 
 /// Returns the location of the user's home directory.
 fn home_dir() -> Option<PathBuf> {
+	log::debug!(">>> Entering home_dir()");
     // We're fine with using std::env::home_dir for now. Its bugs are, IMO,
     // pretty minor corner cases.
+	log::debug!("<<< Exiting home_dir()");
     #![allow(deprecated)]
     std::env::home_dir()
 }
@@ -814,6 +886,8 @@ mod tests {
     not_ignored!(ignot19, ROOT, "s*.rs", "src/foo.rs");
 
     fn bytes(s: &str) -> Vec<u8> {
+		log::debug!(">>> Entering bytes(s={})", s);
+        log::debug!("<<< Exiting bytes(s={})", s);
         s.to_string().into_bytes()
     }
 
@@ -823,43 +897,63 @@ mod tests {
 
     #[test]
     fn parse_excludes_file1() {
+		log::debug!(">>> Entering parse_excludes_file1()");
         let data = bytes("[core]\nexcludesFile = /foo/bar");
         let got = super::parse_excludes_file(&data).unwrap();
+		log::debug!("parse_excludes_file1(): got → {:?}", got);
+		log::debug!("parse_excludes_file1(): data → {:?}", data);
+    log::debug!("<<< Exiting parse_excludes_file1()");
         assert_eq!(path_string(got), "/foo/bar");
     }
 
     #[test]
     fn parse_excludes_file2() {
+		log::debug!(">>> Entering parse_excludes_file2()");
         let data = bytes("[core]\nexcludesFile = ~/foo/bar");
         let got = super::parse_excludes_file(&data).unwrap();
+		log::debug!("parse_excludes_file2(): got → {:?}", got);
+		log::debug!("parse_excludes_file2(): data → {:?}", data);
+    log::debug!("<<< Exiting parse_excludes_file2()");
         assert_eq!(path_string(got), super::expand_tilde("~/foo/bar"));
     }
 
     #[test]
     fn parse_excludes_file3() {
+		log::debug!(">>> Entering parse_excludes_file3()");
         let data = bytes("[core]\nexcludeFile = /foo/bar");
+		log::debug!("parse_excludes_file3(): data → {:?}", data);
+    log::debug!("<<< Exiting parse_excludes_file3()");
         assert!(super::parse_excludes_file(&data).is_none());
     }
 
     #[test]
     fn parse_excludes_file4() {
+		log::debug!(">>> Entering parse_excludes_file4()");
         let data = bytes("[core]\nexcludesFile = \"~/foo/bar\"");
         let got = super::parse_excludes_file(&data);
+		log::debug!("parse_excludes_file4(): got → {:?}", got);
+        log::debug!("parse_excludes_file4(): data → {:?}", data);
         assert_eq!(
             path_string(got.unwrap()),
             super::expand_tilde("~/foo/bar")
+		log::debug!("<<< Exiting parse_excludes_file4()");
         );
     }
 
     #[test]
     fn parse_excludes_file5() {
+		log::debug!(">>> Entering parse_excludes_file5()");
         let data = bytes("[core]\nexcludesFile = \" \"~/foo/bar \" \"");
+		log::debug!("parse_excludes_file5(): data → {:?}", data);
+    log::debug!("<<< Exiting parse_excludes_file5()");
         assert!(super::parse_excludes_file(&data).is_none());
     }
 
     // See: https://github.com/BurntSushi/ripgrep/issues/106
     #[test]
     fn regression_106() {
+		log::debug!(">>> Entering regression_106()");
+		log::debug!("<<< Exiting regression_106()");
         gi_from_str("/", " ");
     }
 

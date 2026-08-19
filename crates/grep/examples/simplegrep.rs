@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -12,13 +13,16 @@ use {
 };
 
 fn main() {
+	log::debug!(">>> Entering main()");
     if let Err(err) = try_main() {
         eprintln!("{}", err);
         process::exit(1);
+	log::debug!("<<< Exiting main()");
     }
 }
 
 fn try_main() -> Result<(), Box<dyn Error>> {
+	log::debug!(">>> Entering try_main()");
     let mut args: Vec<OsString> = env::args_os().collect();
     if args.len() < 2 {
         return Err("Usage: simplegrep <pattern> [<path> ...]".into());
@@ -30,6 +34,7 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 }
 
 fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
+	log::debug!(">>> Entering search(pattern={},paths={:?})", pattern, paths);
     let matcher = RegexMatcher::new_line_matcher(&pattern)?;
     let mut searcher = SearcherBuilder::new()
         .binary_detection(BinaryDetection::quit(b'\x00'))
@@ -65,5 +70,6 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	log::debug!("<<< Exiting search(pattern={},paths={:?})", pattern, paths);
     Ok(())
 }

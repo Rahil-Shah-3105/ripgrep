@@ -12,6 +12,7 @@ const TEMPLATE: &'static str = include_str!("template.rg.1");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -25,8 +26,11 @@ macro_rules! writeln {
 /// Returns a `roff` formatted string corresponding to ripgrep's entire man
 /// page.
 pub(crate) fn generate() -> String {
+	log::debug!(">>> Entering generate(crate=(unprintable))");
     let mut cats = BTreeMap::new();
     for flag in FLAGS.iter().copied() {
+		log::debug!("generate(crate=(unprintable)): cats → (unprintable)");
+		log::debug!("generate(crate=(unprintable)): cat → (unprintable)");
         let mut cat = cats.entry(flag.doc_category()).or_insert(String::new());
         if !cat.is_empty() {
             writeln!(cat, ".sp");
@@ -35,8 +39,10 @@ pub(crate) fn generate() -> String {
     }
 
     let mut out = TEMPLATE.replace("!!VERSION!!", &version::generate_digits());
+	log::debug!("generate(crate=(unprintable)): out → (unprintable)");
     for (cat, value) in cats.iter() {
         let var = format!("!!{name}!!", name = cat.as_str());
+		log::debug!("generate(crate=(unprintable)): var → {}", var);
         if !cfg!(feature = "unstable-index")
             && matches!(cat, crate::flags::Category::Indexing)
         {
@@ -45,17 +51,21 @@ pub(crate) fn generate() -> String {
             out = out.replace(&var, value);
         }
     }
+	log::debug!("<<< Exiting generate(crate=(unprintable))");
     out
 }
 
 /// Writes `roff` formatted documentation for `flag` to `out`.
 fn generate_flag(flag: &'static dyn Flag, out: &mut String) {
     if let Some(byte) = flag.name_short() {
+		log::debug!(">>> Entering generate_flag(flag=(unprintable),out={})", out);
+		log::debug!("generate_flag(flag=(unprintable),out={}): name → (unprintable)", out);
         let name = char::from(byte);
         write!(out, r"\fB\-{name}\fP");
         if let Some(var) = flag.doc_variable() {
             write!(out, r" \fI{var}\fP");
         }
+		log::debug!("<<< Exiting generate_flag(flag=(unprintable),out={})", out);
         write!(out, r", ");
     }
 

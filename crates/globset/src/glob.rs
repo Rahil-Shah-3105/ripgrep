@@ -49,6 +49,7 @@ pub(crate) enum MatchStrategy {
 impl MatchStrategy {
     /// Returns a matching strategy for the given pattern.
     pub(crate) fn new(pat: &Glob) -> MatchStrategy {
+		log::debug!(">>> Entering new(crate=(unprintable))");
         if let Some(lit) = pat.basename_literal() {
             MatchStrategy::BasenameLiteral(lit)
         } else if let Some(lit) = pat.literal() {
@@ -62,6 +63,7 @@ impl MatchStrategy {
         } else if let Some(ext) = pat.required_ext() {
             MatchStrategy::RequiredExtension(ext)
         } else {
+			log::debug!("<<< Exiting new(crate=(unprintable))");
             MatchStrategy::Regex
         }
     }
@@ -82,19 +84,25 @@ pub struct Glob {
 
 impl AsRef<Glob> for Glob {
     fn as_ref(&self) -> &Glob {
+		log::debug!(">>> Entering as_ref()");
+        log::debug!("<<< Exiting as_ref()");
         self
     }
 }
 
 impl PartialEq for Glob {
     fn eq(&self, other: &Glob) -> bool {
+		log::debug!(">>> Entering eq(other={})", other);
+        log::debug!("<<< Exiting eq(other={})", other);
         self.glob == other.glob && self.opts == other.opts
     }
 }
 
 impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+		log::debug!(">>> Entering hash(state=(unprintable))");
         self.glob.hash(state);
+		log::debug!("<<< Exiting hash(state=(unprintable))");
         self.opts.hash(state);
     }
 }
@@ -102,11 +110,13 @@ impl std::hash::Hash for Glob {
 impl std::fmt::Debug for Glob {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if f.alternate() {
+			log::debug!(">>> Entering fmt(f=(unprintable))");
             f.debug_struct("Glob")
                 .field("glob", &self.glob)
                 .field("re", &self.re)
                 .field("opts", &self.opts)
                 .field("tokens", &self.tokens)
+			log::debug!("<<< Exiting fmt(f=(unprintable))");
                 .finish()
         } else {
             f.debug_tuple("Glob").field(&self.glob).finish()
@@ -124,6 +134,8 @@ impl std::str::FromStr for Glob {
     type Err = Error;
 
     fn from_str(glob: &str) -> Result<Self, Self::Err> {
+		log::debug!(">>> Entering from_str(glob={})", glob);
+        log::debug!("<<< Exiting from_str(glob={})", glob);
         Self::new(glob)
     }
 }
@@ -145,11 +157,18 @@ impl GlobMatcher {
 
     /// Tests whether the given path matches this pattern or not.
     pub fn is_match_candidate(&self, path: &Candidate<'_>) -> bool {
+		log::debug!(">>> Entering is_match_candidate(path=(unprintable))");
+        log::debug!("<<< Exiting is_match_candidate(path=(unprintable))");
+		log::debug!(">>> Entering is_match_candidate(candidate=(unprintable))");
+		log::debug!("is_match_candidate(candidate=(unprintable)): ext → (unprintable)");
+                log::debug!("<<< Exiting is_match_candidate(candidate=(unprintable))");
         self.re.is_match(&path.path)
     }
 
     /// Returns the `Glob` used to compile this matcher.
     pub fn glob(&self) -> &Glob {
+		log::debug!(">>> Entering glob()");
+        log::debug!("<<< Exiting glob()");
         &self.pat
     }
 }
@@ -238,6 +257,8 @@ struct GlobOptions {
 
 impl GlobOptions {
     fn default() -> GlobOptions {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         GlobOptions {
             case_insensitive: false,
             literal_separator: false,
@@ -255,12 +276,16 @@ struct Tokens(Vec<Token>);
 impl std::ops::Deref for Tokens {
     type Target = Vec<Token>;
     fn deref(&self) -> &Vec<Token> {
+		log::debug!(">>> Entering deref()");
+        log::debug!("<<< Exiting deref()");
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Tokens {
     fn deref_mut(&mut self) -> &mut Vec<Token> {
+		log::debug!(">>> Entering deref_mut()");
+        log::debug!("<<< Exiting deref_mut()");
         &mut self.0
     }
 }
@@ -268,6 +293,7 @@ impl std::ops::DerefMut for Tokens {
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 enum Token {
+	const LOGGER: &'static Logger = &Logger(());
     Literal(char),
     Any,
     ZeroOrMore,
@@ -281,12 +307,16 @@ enum Token {
 impl Glob {
     /// Builds a new pattern with default options.
     pub fn new(glob: &str) -> Result<Glob, Error> {
+		log::debug!(">>> Entering new(glob={})", glob);
+        log::debug!("<<< Exiting new(glob={})", glob);
         GlobBuilder::new(glob).build()
     }
 
     /// Returns a matcher for this pattern.
     pub fn compile_matcher(&self) -> GlobMatcher {
+		log::debug!(">>> Entering compile_matcher()");
         let re =
+			log::debug!("<<< Exiting compile_matcher()");
             new_regex(&self.re).expect("regex compilation shouldn't fail");
         GlobMatcher { pat: self.clone(), re }
     }
@@ -298,8 +328,11 @@ impl Glob {
     /// is faster, then GlobMatcher should do it automatically.
     #[cfg(test)]
     fn compile_strategic_matcher(&self) -> GlobStrategic {
+		log::debug!(">>> Entering compile_strategic_matcher()");
+		log::debug!("compile_strategic_matcher(): strategy → (unprintable)");
         let strategy = MatchStrategy::new(self);
         let re =
+			log::debug!("<<< Exiting compile_strategic_matcher()");
             new_regex(&self.re).expect("regex compilation shouldn't fail");
         GlobStrategic { strategy, re }
     }
@@ -324,6 +357,8 @@ impl Glob {
     /// [`bytes::Regex`](https://docs.rs/regex/*/regex/bytes/struct.Regex.html)
     /// API is suitable for this.
     pub fn regex(&self) -> &str {
+		log::debug!(">>> Entering regex()");
+        log::debug!("<<< Exiting regex()");
         &self.re
     }
 
@@ -332,6 +367,7 @@ impl Glob {
     ///
     /// The basic format of these patterns is `{literal}`.
     fn literal(&self) -> Option<String> {
+		log::debug!(">>> Entering literal()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -351,6 +387,7 @@ impl Glob {
     /// the '.'. Also, paths like `.rs` are considered to have an extension
     /// of `.rs`.
     fn ext(&self) -> Option<String> {
+		log::debug!(">>> Entering ext()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -388,6 +425,7 @@ impl Glob {
     /// to imply a match. Namely, if an extension is returned, then it is
     /// necessary but not sufficient for a match.
     fn required_ext(&self) -> Option<String> {
+		log::debug!(">>> Entering required_ext()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -410,6 +448,7 @@ impl Glob {
             None
         } else {
             ext.reverse();
+			log::debug!("<<< Exiting required_ext()");
             Some(ext.into_iter().collect())
         }
     }
@@ -417,6 +456,7 @@ impl Glob {
     /// Returns a literal prefix of this pattern if the entire pattern matches
     /// if the literal prefix matches.
     fn prefix(&self) -> Option<String> {
+		log::debug!(">>> Entering prefix()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -460,6 +500,7 @@ impl Glob {
     /// When this returns true, the suffix literal is guaranteed to start with
     /// a `/`.
     fn suffix(&self) -> Option<(String, bool)> {
+		log::debug!(">>> Entering suffix()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -508,6 +549,7 @@ impl Glob {
     /// doesn't *always* match when a file path has a basename of `foo`. e.g.,
     /// `foo` doesn't match `abc/foo`.
     fn basename_tokens(&self) -> Option<&[Token]> {
+		log::debug!(">>> Entering basename_tokens()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -557,12 +599,15 @@ impl Glob {
     /// The basic format of these patterns is `**/{literal}`, where `{literal}`
     /// does not contain a path separator.
     fn basename_literal(&self) -> Option<String> {
+		log::debug!(">>> Entering basename_literal()");
         let tokens = self.basename_tokens()?;
         let mut lit = String::new();
+		log::debug!("basename_literal(): tokens → {:?}", tokens);
         for t in tokens {
             let Token::Literal(c) = *t else { return None };
             lit.push(c);
         }
+		log::debug!("<<< Exiting basename_literal()");
         Some(lit)
     }
 }
@@ -577,6 +622,7 @@ impl<'a> GlobBuilder<'a> {
 
     /// Parses and builds the pattern.
     pub fn build(&self) -> Result<Glob, Error> {
+		log::debug!(">>> Entering build()");
         let mut p = Parser {
             glob: &self.glob,
             alternates_stack: Vec::new(),
@@ -600,6 +646,8 @@ impl<'a> GlobBuilder<'a> {
             })
         } else {
             let tokens = p.branches.pop().unwrap();
+			log::debug!("build(): tokens → (unprintable)");
+            log::debug!("<<< Exiting build()");
             Ok(Glob {
                 glob: self.glob.to_string(),
                 re: tokens.to_regex_with(&self.opts),
@@ -621,6 +669,8 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// By default this is false: `*` and `?` will match `/`.
     pub fn literal_separator(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		log::debug!(">>> Entering literal_separator(yes={})", yes);
+        log::debug!("<<< Exiting literal_separator(yes={})", yes);
         self.opts.literal_separator = yes;
         self
     }
@@ -634,6 +684,8 @@ impl<'a> GlobBuilder<'a> {
     /// path separator and disabled by default on platforms where `\`
     /// is a path separator.
     pub fn backslash_escape(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		log::debug!(">>> Entering backslash_escape(yes={})", yes);
+        log::debug!("<<< Exiting backslash_escape(yes={})", yes);
         self.opts.backslash_escape = yes;
         self
     }
@@ -645,6 +697,8 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// By default this is false.
     pub fn empty_alternates(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		log::debug!(">>> Entering empty_alternates(yes={})", yes);
+        log::debug!("<<< Exiting empty_alternates(yes={})", yes);
         self.opts.empty_alternates = yes;
         self
     }
@@ -662,6 +716,8 @@ impl<'a> GlobBuilder<'a> {
     /// implementations) is more important than good error messages.
     pub fn allow_unclosed_class(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
         self.opts.allow_unclosed_class = yes;
+		log::debug!(">>> Entering allow_unclosed_class(yes={})", yes);
+		log::debug!("<<< Exiting allow_unclosed_class(yes={})", yes);
         self
     }
 }
@@ -672,6 +728,7 @@ impl Tokens {
     /// glob pattern and the options given.
     fn to_regex_with(&self, options: &GlobOptions) -> String {
         let mut re = String::new();
+		log::debug!(">>> Entering to_regex_with(options={:?})", options);
         re.push_str("(?-u)");
         if options.case_insensitive {
             re.push_str("(?i)");
@@ -695,6 +752,7 @@ impl Tokens {
         tokens: &[Token],
         re: &mut String,
     ) {
+		log::debug!(">>> Entering tokens_to_regex(options={:?},tokens=<redacted>,re={})", options, re);
         for tok in tokens.iter() {
             match *tok {
                 Token::Literal(c) => {
@@ -759,6 +817,7 @@ impl Tokens {
                     }
                 }
             }
+		log::debug!("<<< Exiting tokens_to_regex(options={:?},tokens=<redacted>,re={})", options, re);
         }
     }
 }
@@ -766,14 +825,18 @@ impl Tokens {
 /// Convert a Unicode scalar value to an escaped string suitable for use as
 /// a literal in a non-Unicode regex.
 fn char_to_escaped_literal(c: char) -> String {
+	log::debug!(">>> Entering char_to_escaped_literal(c={})", c);
     let mut buf = [0; 4];
     let bytes = c.encode_utf8(&mut buf).as_bytes();
+	log::debug!("char_to_escaped_literal(c={}): bytes → (unprintable)", c);
+    log::debug!("<<< Exiting char_to_escaped_literal(c={})", c);
     bytes_to_escaped_literal(bytes)
 }
 
 /// Converts an arbitrary sequence of bytes to a UTF-8 string. All non-ASCII
 /// code units are converted to their escaped form.
 fn bytes_to_escaped_literal(bs: &[u8]) -> String {
+	log::debug!(">>> Entering bytes_to_escaped_literal(bs={:?})", bs);
     let mut s = String::with_capacity(bs.len());
     for &b in bs {
         if b <= 0x7F {
@@ -785,6 +848,7 @@ fn bytes_to_escaped_literal(bs: &[u8]) -> String {
             write!(&mut s, "\\x{:02x}", b).unwrap();
         }
     }
+	log::debug!("<<< Exiting bytes_to_escaped_literal(bs={:?})", bs);
     s
 }
 
@@ -817,10 +881,13 @@ struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     fn error(&self, kind: ErrorKind) -> Error {
+		log::debug!(">>> Entering error(kind=(unprintable))");
+        log::debug!("<<< Exiting error(kind=(unprintable))");
         Error { glob: Some(self.glob.to_string()), kind }
     }
 
     fn parse(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering parse()");
         while let Some(c) = self.bump() {
             match c {
                 '?' => self.push_token(Token::Any)?,
@@ -833,26 +900,33 @@ impl<'a> Parser<'a> {
                 c => self.push_token(Token::Literal(c))?,
             }
         }
+		log::debug!("<<< Exiting parse()");
         Ok(())
     }
 
     fn push_alternate(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering push_alternate()");
         self.alternates_stack.push(self.branches.len());
         self.branches.push(Tokens::default());
+		log::debug!("<<< Exiting push_alternate()");
         Ok(())
     }
 
     fn pop_alternate(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering pop_alternate()");
         let Some(start) = self.alternates_stack.pop() else {
             return Err(self.error(ErrorKind::UnopenedAlternates));
         };
         assert!(start <= self.branches.len());
         let alts = Token::Alternates(self.branches.drain(start..).collect());
         self.push_token(alts)?;
+		log::debug!("pop_alternate(): alts → (unprintable)");
+        log::debug!("<<< Exiting pop_alternate()");
         Ok(())
     }
 
     fn push_token(&mut self, tok: Token) -> Result<(), Error> {
+		log::debug!(">>> Entering push_token(tok={:?})", tok);
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.push(tok));
         }
@@ -860,6 +934,7 @@ impl<'a> Parser<'a> {
     }
 
     fn pop_token(&mut self) -> Result<Token, Error> {
+		log::debug!(">>> Entering pop_token()");
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.pop().unwrap());
         }
@@ -867,6 +942,8 @@ impl<'a> Parser<'a> {
     }
 
     fn have_tokens(&self) -> Result<bool, Error> {
+		log::debug!(">>> Entering have_tokens()");
+        log::debug!("<<< Exiting have_tokens()");
         match self.branches.last() {
             None => Err(self.error(ErrorKind::UnopenedAlternates)),
             Some(ref pat) => Ok(!pat.is_empty()),
@@ -874,17 +951,20 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_comma(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering parse_comma()");
         // If we aren't inside a group alternation, then don't
         // treat commas specially. Otherwise, we need to start
         // a new alternate branch.
         if self.alternates_stack.is_empty() {
             self.push_token(Token::Literal(','))
         } else {
+			log::debug!("<<< Exiting parse_comma()");
             Ok(self.branches.push(Tokens::default()))
         }
     }
 
     fn parse_backslash(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering parse_backslash()");
         if self.opts.backslash_escape {
             match self.bump() {
                 None => Err(self.error(ErrorKind::DanglingEscape)),
@@ -894,11 +974,13 @@ impl<'a> Parser<'a> {
             // Normalize all patterns to use / as a separator.
             self.push_token(Token::Literal('/'))
         } else {
+			log::debug!("<<< Exiting parse_backslash()");
             self.push_token(Token::Literal('\\'))
         }
     }
 
     fn parse_star(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering parse_star()");
         let prev = self.prev;
         if self.peek() != Some('*') {
             self.push_token(Token::ZeroOrMore)?;
@@ -960,8 +1042,10 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_class(&mut self) -> Result<(), Error> {
+		log::debug!(">>> Entering parse_class()");
         // Save parser state for potential rollback to literal '[' parsing.
         let saved_chars = self.chars.clone();
+		log::debug!("parse_class(): saved_chars → (unprintable)");
         let saved_prev = self.prev;
         let saved_cur = self.cur;
 
@@ -970,6 +1054,7 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			log::debug!(">>> Entering add_to_last_range(glob={},r={:?},add={})", glob, r, add);
             r.1 = add;
             if r.1 < r.0 {
                 Err(Error {
@@ -977,6 +1062,7 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				log::debug!("<<< Exiting add_to_last_range(glob={},r={:?},add={})", glob, r, add);
                 Ok(())
             }
         }
@@ -1041,6 +1127,9 @@ impl<'a> Parser<'a> {
                     in_range = false;
                 }
             }
+			log::debug!(">>> Entering bump()");
+			log::debug!("bump(): self.prev → (unprintable)");
+        log::debug!("<<< Exiting bump()");
             first = false;
         }
         if in_range {
@@ -1048,27 +1137,34 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		log::debug!("<<< Exiting parse_class()");
         self.push_token(Token::Class { negated, ranges })
     }
 
     fn bump(&mut self) -> Option<char> {
+		log::debug!(">>> Entering bump()");
         self.prev = self.cur;
         self.cur = self.chars.next();
         self.cur
     }
 
     fn peek(&mut self) -> Option<char> {
+		log::debug!(">>> Entering peek()");
+        log::debug!("<<< Exiting peek()");
         self.chars.peek().copied()
     }
 }
 
 #[cfg(test)]
 fn starts_with(needle: &[u8], haystack: &[u8]) -> bool {
+	log::debug!(">>> Entering starts_with(needle={:?},haystack={:?})", needle, haystack);
+    log::debug!("<<< Exiting starts_with(needle={:?},haystack={:?})", needle, haystack);
     needle.len() <= haystack.len() && needle == &haystack[..needle.len()]
 }
 
 #[cfg(test)]
 fn ends_with(needle: &[u8], haystack: &[u8]) -> bool {
+	log::debug!(">>> Entering ends_with(needle={:?},haystack={:?})", needle, haystack);
     if needle.len() > haystack.len() {
         return false;
     }
@@ -1203,22 +1299,32 @@ mod tests {
     }
 
     fn s(string: &str) -> String {
+		log::debug!(">>> Entering s(string={})", string);
+        log::debug!("<<< Exiting s(string={})", string);
         string.to_string()
     }
 
     fn class(s: char, e: char) -> Token {
+		log::debug!(">>> Entering class(s={},e={})", s, e);
+        log::debug!("<<< Exiting class(s={},e={})", s, e);
         Class { negated: false, ranges: vec![(s, e)] }
     }
 
     fn classn(s: char, e: char) -> Token {
+		log::debug!(">>> Entering classn(s={},e={})", s, e);
+        log::debug!("<<< Exiting classn(s={},e={})", s, e);
         Class { negated: true, ranges: vec![(s, e)] }
     }
 
     fn rclass(ranges: &[(char, char)]) -> Token {
+		log::debug!(">>> Entering rclass(ranges={:?})", ranges);
+        log::debug!("<<< Exiting rclass(ranges={:?})", ranges);
         Class { negated: false, ranges: ranges.to_vec() }
     }
 
     fn rclassn(ranges: &[(char, char)]) -> Token {
+		log::debug!(">>> Entering rclassn(ranges={:?})", ranges);
+        log::debug!("<<< Exiting rclassn(ranges={:?})", ranges);
         Class { negated: true, ranges: ranges.to_vec() }
     }
 

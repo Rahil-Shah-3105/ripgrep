@@ -42,9 +42,12 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
+		log::debug!(">>> Entering main()");
         Ok(code) => code,
         Err(err) => {
+			log::error!("Exception in main(): (unprintable)");
             // Look for a broken pipe error. In this case, we generally want
             // to exit "gracefully" with a success exit code. This matches
             // existing Unix convention. We need to handle this explicitly
@@ -61,7 +64,9 @@ fn main() -> ExitCode {
                 }
             }
             eprintln_locked!("{:#}", err);
+			log::debug!("<<< Exiting main()");
             ExitCode::from(2)
+		log::debug!(">>> Entering run(result=(unprintable))");
         }
     }
 }
@@ -90,6 +95,11 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			log::debug!(">>> Entering search_parallel(args=(unprintable),mode=(unprintable))");
+			log::debug!("search_parallel(args=(unprintable),mode=(unprintable)): started_at → (unprintable)");
+			log::debug!("search_parallel(args=(unprintable),mode=(unprintable)): stats → (unprintable)");
+			log::debug!("search_parallel(args=(unprintable),mode=(unprintable)): searcher → (unprintable)");
+			log::debug!("search_parallel(args=(unprintable),mode=(unprintable)): wtr → (unprintable)");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -103,6 +113,10 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         ExitCode::from(2)
     } else {
         ExitCode::from(1)
+	log::debug!(">>> Entering files_parallel(args=(unprintable))");
+	log::debug!("files_parallel(args=(unprintable)): path_printer → (unprintable)");
+	log::debug!("files_parallel(args=(unprintable)): tx → (unprintable)");
+    log::debug!("<<< Exiting files_parallel(args=(unprintable))");
     })
 }
 
@@ -111,16 +125,23 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
 /// This recursively steps through the file list (current directory by default)
 /// and searches each file sequentially.
 fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
+	log::debug!(">>> Entering search(args=(unprintable),mode=(unprintable))");
     let started_at = std::time::Instant::now();
     let haystack_builder = args.haystack_builder();
+	log::debug!("search(args=(unprintable),mode=(unprintable)): haystack_builder → (unprintable)");
+    log::debug!("search(args=(unprintable),mode=(unprintable)): started_at → (unprintable)");
     let unsorted = args
         .walk_builder()?
         .build()
         .filter_map(|result| haystack_builder.build_from_result(result));
     let haystacks = args.sort(unsorted);
+	log::debug!("search(args=(unprintable),mode=(unprintable)): haystacks → (unprintable)");
 
     let mut matched = false;
+	log::debug!("search(args=(unprintable),mode=(unprintable)): matched → {}", matched);
     let mut searched = false;
+	log::debug!("search(args=(unprintable),mode=(unprintable)): searched → {}", searched);
+	log::debug!("search(args=(unprintable),mode=(unprintable)): stats → (unprintable)");
     let mut stats = args.stats();
     let mut searcher = args.search_worker(
         args.matcher()?,
@@ -134,6 +155,7 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
             // A broken pipe means graceful termination.
             Err(err) if err.kind() == std::io::ErrorKind::BrokenPipe => break,
             Err(err) => {
+				log::error!("Exception in search(args=(unprintable),mode=(unprintable)): (unprintable)");
                 err_message!("{}: {}", haystack.path().display(), err);
                 continue;
             }
@@ -151,8 +173,11 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
     }
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
+		log::debug!("search(args=(unprintable),mode=(unprintable)): wtr → (unprintable)");
+		log::debug!("search(args=(unprintable),mode=(unprintable)): _ → {:?}", _);
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	log::debug!("<<< Exiting search(args=(unprintable),mode=(unprintable))");
     Ok(matched)
 }
 
@@ -239,14 +264,19 @@ fn search_parallel(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
 /// This recursively steps through the file list (current directory by default)
 /// and prints each path sequentially using a single thread.
 fn files(args: &HiArgs) -> anyhow::Result<bool> {
+	log::debug!(">>> Entering files(args=(unprintable))");
+	log::debug!("files(args=(unprintable)): haystack_builder → (unprintable)");
     let haystack_builder = args.haystack_builder();
     let unsorted = args
         .walk_builder()?
         .build()
         .filter_map(|result| haystack_builder.build_from_result(result));
     let haystacks = args.sort(unsorted);
+	log::debug!("files(args=(unprintable)): haystacks → (unprintable)");
 
     let mut matched = false;
+	log::debug!("files(args=(unprintable)): matched → {}", matched);
+	log::debug!("files(args=(unprintable)): path_printer → (unprintable)");
     let mut path_printer = args.path_printer_builder().build(args.stdout());
     for haystack in haystacks {
         matched = true;
@@ -263,6 +293,7 @@ fn files(args: &HiArgs) -> anyhow::Result<bool> {
             return Err(err.into());
         }
     }
+    log::debug!("<<< Exiting files(args=(unprintable))");
     Ok(matched)
 }
 
@@ -333,14 +364,17 @@ fn files_parallel(args: &HiArgs) -> anyhow::Result<bool> {
 
 /// The top-level entry point for `--type-list`.
 fn types(args: &HiArgs) -> anyhow::Result<ExitCode> {
+	log::debug!(">>> Entering types(args=(unprintable))");
     let mut count = 0;
     let mut stdout = args.stdout();
+	log::debug!("types(args=(unprintable)): stdout → (unprintable)");
     for def in args.types().definitions() {
         count += 1;
         stdout.write_all(def.name().as_bytes())?;
         stdout.write_all(b": ")?;
 
         let mut first = true;
+		log::debug!("types(args=(unprintable)): first → {}", first);
         for glob in def.globs() {
             if !first {
                 stdout.write_all(b", ")?;
@@ -350,6 +384,8 @@ fn types(args: &HiArgs) -> anyhow::Result<ExitCode> {
         }
         stdout.write_all(b"\n")?;
     }
+	log::debug!("types(args=(unprintable)): count → {}", count);
+    log::debug!("<<< Exiting types(args=(unprintable))");
     Ok(ExitCode::from(if count == 0 { 1 } else { 0 }))
 }
 
@@ -359,6 +395,7 @@ fn types(args: &HiArgs) -> anyhow::Result<ExitCode> {
 /// to ripgrep. At present, this includes ripgrep's man page (in roff format)
 /// and supported shell completions.
 fn generate(mode: crate::flags::GenerateMode) -> anyhow::Result<ExitCode> {
+	log::debug!(">>> Entering generate(mode=(unprintable))");
     use crate::flags::GenerateMode;
 
     let output = match mode {
@@ -371,6 +408,7 @@ fn generate(mode: crate::flags::GenerateMode) -> anyhow::Result<ExitCode> {
         }
     };
     writeln!(std::io::stdout(), "{}", output.trim_end())?;
+	log::debug!("<<< Exiting generate(mode=(unprintable))");
     Ok(ExitCode::from(0))
 }
 
@@ -387,9 +425,11 @@ fn generate(mode: crate::flags::GenerateMode) -> anyhow::Result<ExitCode> {
 /// ripgrep emits an error. We don't want to emit an error if it fails and
 /// the user requested version or help information.
 fn special(mode: crate::flags::SpecialMode) -> anyhow::Result<ExitCode> {
+	log::debug!(">>> Entering special(mode=(unprintable))");
     use crate::flags::SpecialMode;
 
     let mut exit = ExitCode::from(0);
+	log::debug!("special(mode=(unprintable)): exit → (unprintable)");
     let output = match mode {
         SpecialMode::HelpShort => flags::generate_help_short(),
         SpecialMode::HelpLong => flags::generate_help_long(),
@@ -406,6 +446,7 @@ fn special(mode: crate::flags::SpecialMode) -> anyhow::Result<ExitCode> {
         }
     };
     writeln!(std::io::stdout(), "{}", output.trim_end())?;
+	log::debug!("<<< Exiting special(mode=(unprintable))");
     Ok(exit)
 }
 
@@ -418,10 +459,12 @@ fn special(mode: crate::flags::SpecialMode) -> anyhow::Result<ExitCode> {
 /// explicit path to search. This is because the message can otherwise be
 /// noisy, e.g., when it is intended that there is nothing to search.
 fn eprint_nothing_searched() {
+	log::debug!(">>> Entering eprint_nothing_searched()");
     err_message!(
         "No files were searched, which means ripgrep probably \
          applied a filter you didn't expect.\n\
          Running with --debug will show why files are being skipped."
+	log::debug!("<<< Exiting eprint_nothing_searched()");
     );
 }
 
@@ -441,6 +484,16 @@ fn print_stats<W: Write>(
     mode: SearchMode,
     stats: &grep::printer::Stats,
     started: std::time::Instant,
+	log::debug!(">>> Entering print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable))", started);
+	log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): matches → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): lines → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): searches_with_match → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): searches → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): bytes_printed → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): bytes_searched → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): search_time → (unprintable)", started);
+        log::debug!("print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable)): process_time → (unprintable)", started);
+        log::debug!("<<< Exiting print_stats(mode=(unprintable),stats=(unprintable),started={:?},wtr=(unprintable))", started);
     mut wtr: W,
 ) -> std::io::Result<()> {
     let elapsed = std::time::Instant::now().duration_since(started);

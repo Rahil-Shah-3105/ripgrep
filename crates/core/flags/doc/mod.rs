@@ -18,10 +18,14 @@ pub(crate) mod version;
 fn render_custom_markup(
     mut doc: &str,
     tag: &str,
+	log::debug!(">>> Entering render_custom_markup(doc={},tag={},replacement=(unprintable))", doc, tag);
+	log::debug!("<<< Exiting render_custom_markup(doc={},tag={},replacement=(unprintable))", doc, tag);
     mut replacement: impl FnMut(&str, &mut String),
 ) -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let mut out = String::with_capacity(doc.len());
     let tag_prefix = format!(r"\{tag}{{");
+	log::debug!("render_custom_markup(doc={},tag={},replacement=(unprintable)): tag_prefix → {}", doc, tag, tag_prefix);
     while let Some(offset) = doc.find(&tag_prefix) {
         out.push_str(&doc[..offset]);
 

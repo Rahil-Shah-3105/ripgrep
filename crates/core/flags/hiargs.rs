@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -112,6 +113,7 @@ impl HiArgs {
     /// This process can fail for a variety of reasons. For example, invalid
     /// globs or some kind of environment issue.
     pub(crate) fn from_low_args(mut low: LowArgs) -> anyhow::Result<HiArgs> {
+		log::debug!(">>> Entering from_low_args(crate=(unprintable))");
         // Callers should not be trying to convert low-level arguments when
         // a short-circuiting special mode is present.
         assert_eq!(None, low.special, "special mode demands short-circuiting");
@@ -150,10 +152,19 @@ impl HiArgs {
         }
 
         let mut state = State::new()?;
+		log::debug!("from_low_args(crate=(unprintable)): patterns → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): paths → (unprintable)");
         let patterns = Patterns::from_low_args(&mut state, &mut low)?;
         let paths = Paths::from_low_args(&mut state, &patterns, &mut low)?;
 
         let binary = BinaryDetection::from_low_args(&state, &low);
+		log::debug!("from_low_args(crate=(unprintable)): binary → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): colors → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): hyperlink_config → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): stats → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): types → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): globs → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): pre_globs → (unprintable)");
         let colors = take_color_specs(&mut state, &mut low);
         let hyperlink_config = take_hyperlink_config(&mut state, &mut low)?;
         let stats = stats(&low);
@@ -168,18 +179,23 @@ impl HiArgs {
             _ => low.color,
         };
         let column = low.column.unwrap_or(low.vimgrep);
+		log::debug!("from_low_args(crate=(unprintable)): column → (unprintable)");
         let heading = match low.heading {
             None => !low.vimgrep && state.is_terminal_stdout,
             Some(false) => false,
             Some(true) => !low.vimgrep,
         };
         let path_terminator = if low.null { Some(b'\x00') } else { None };
+		log::debug!("from_low_args(crate=(unprintable)): path_terminator → (unprintable)");
+		log::debug!("from_low_args(crate=(unprintable)): quit_after_match → (unprintable)");
         let quit_after_match = stats.is_none() && low.quiet;
         let threads = if low.sort.is_some() || paths.is_one_file {
             1
         } else if let Some(threads) = low.threads {
             threads
         } else {
+			log::debug!(">>> Entering threads(crate=(unprintable))");
+        log::debug!("<<< Exiting threads(crate=(unprintable))");
             std::thread::available_parallelism().map_or(1, |n| n.get()).min(12)
         };
         log::debug!("using {threads} thread(s)");
@@ -242,6 +258,7 @@ impl HiArgs {
             let maybe = unsafe { grep::searcher::MmapChoice::auto() };
             let never = grep::searcher::MmapChoice::never();
             match low.mmap {
+				log::debug!("from_low_args(crate=(unprintable)): maybe → (unprintable)");
                 MmapMode::Auto => {
                     if paths.paths.len() <= 10
                         && paths.paths.iter().all(|p| p.is_file())
@@ -258,6 +275,8 @@ impl HiArgs {
             }
         };
 
+		log::debug!("from_low_args(crate=(unprintable)): never → (unprintable)");
+        log::debug!("<<< Exiting from_low_args(crate=(unprintable))");
         Ok(HiArgs {
             mode: low.mode,
             patterns,
@@ -329,6 +348,7 @@ impl HiArgs {
             types,
             vimgrep: low.vimgrep,
             with_filename,
+		log::debug!(">>> Entering from_low_args(state={:?},low=(unprintable))", state);
         })
     }
 
@@ -340,9 +360,11 @@ impl HiArgs {
     /// complete, a buffer can be given to the buffer writer to write to
     /// stdout.
     pub(crate) fn buffer_writer(&self) -> termcolor::BufferWriter {
+		log::debug!(">>> Entering buffer_writer(crate=(unprintable))");
         let mut wtr =
             termcolor::BufferWriter::stdout(self.color.to_termcolor());
         wtr.separator(self.file_separator.clone());
+		log::debug!("<<< Exiting buffer_writer(crate=(unprintable))");
         wtr
     }
 
@@ -358,6 +380,8 @@ impl HiArgs {
     /// explicit file paths since otherwise the warning would likely be too
     /// aggressive.
     pub(crate) fn has_implicit_path(&self) -> bool {
+		log::debug!(">>> Entering has_implicit_path(crate=(unprintable))");
+        log::debug!("<<< Exiting has_implicit_path(crate=(unprintable))");
         self.paths.has_implicit_path
     }
 
@@ -366,8 +390,11 @@ impl HiArgs {
     /// The builder can be used to turn a directory entry (from the `ignore`
     /// crate) into something that can be searched.
     pub(crate) fn haystack_builder(&self) -> HaystackBuilder {
+		log::debug!(">>> Entering haystack_builder(crate=(unprintable))");
         let mut builder = HaystackBuilder::new();
         builder.strip_dot_prefix(self.paths.has_implicit_path);
+		log::debug!("haystack_builder(crate=(unprintable)): builder → {:?}", builder);
+        log::debug!("<<< Exiting haystack_builder(crate=(unprintable))");
         builder
     }
 
@@ -377,10 +404,12 @@ impl HiArgs {
     /// If there was a problem building the matcher (e.g., a syntax error),
     /// then this returns an error.
     pub(crate) fn matcher(&self) -> anyhow::Result<PatternMatcher> {
+		log::debug!(">>> Entering matcher(crate=(unprintable))");
         match self.engine {
             EngineChoice::Default => match self.matcher_rust() {
                 Ok(m) => Ok(m),
                 Err(err) => {
+					log::error!("Exception in matcher(crate=(unprintable)): (unprintable)");
                     anyhow::bail!(suggest_other_engine(err.to_string()));
                 }
             },
@@ -399,6 +428,7 @@ impl HiArgs {
                     Err(err) => err,
                 };
                 let divider = "~".repeat(79);
+				log::debug!("matcher(crate=(unprintable)): divider → {}", divider);
                 anyhow::bail!(
                     "regex could not be compiled with either the default \
                      regex engine or with PCRE2.\n\n\
@@ -407,6 +437,7 @@ impl HiArgs {
                      {rust_err}\n\
                      {divider}\n\n\
                      PCRE2 regex engine error:\n{pcre_err}",
+				log::debug!("<<< Exiting matcher(crate=(unprintable))");
                 );
             }
         }
@@ -420,6 +451,7 @@ impl HiArgs {
     /// If the `pcre2` feature is not enabled then this always returns an
     /// error.
     fn matcher_pcre2(&self) -> anyhow::Result<PatternMatcher> {
+		log::debug!(">>> Entering matcher_pcre2()");
         #[cfg(feature = "pcre2")]
         {
             let mut builder = grep::pcre2::RegexMatcherBuilder::new();
@@ -455,10 +487,12 @@ impl HiArgs {
                 builder.crlf(true);
             }
             let m = builder.build_many(&self.patterns.patterns)?;
+			log::debug!("matcher_pcre2(): m → (unprintable)");
             Ok(PatternMatcher::PCRE2(m))
         }
         #[cfg(not(feature = "pcre2"))]
         {
+			log::debug!("<<< Exiting matcher_pcre2()");
             Err(anyhow::anyhow!(
                 "PCRE2 is not available in this build of ripgrep"
             ))
@@ -470,6 +504,7 @@ impl HiArgs {
     /// If there was a problem building the matcher (such as a regex syntax
     /// error), then an error is returned.
     fn matcher_rust(&self) -> anyhow::Result<PatternMatcher> {
+		log::debug!(">>> Entering matcher_rust()");
         let mut builder = grep::regex::RegexMatcherBuilder::new();
         builder
             .multi_line(true)
@@ -518,9 +553,11 @@ impl HiArgs {
         let m = match builder.build_many(&self.patterns.patterns) {
             Ok(m) => m,
             Err(err) => {
+				log::error!("Exception in matcher_rust(): (unprintable)");
                 anyhow::bail!(suggest_text(suggest_multiline(err.to_string())))
             }
         };
+		log::debug!("<<< Exiting matcher_rust()");
         Ok(PatternMatcher::RustRegex(m))
     }
 
@@ -530,6 +567,7 @@ impl HiArgs {
     /// When this returns false, it is impossible for ripgrep to ever report
     /// a match.
     pub(crate) fn matches_possible(&self) -> bool {
+		log::debug!(">>> Entering matches_possible(crate=(unprintable))");
         if self.patterns.patterns.is_empty() && !self.invert_match {
             return false;
         }
@@ -545,6 +583,8 @@ impl HiArgs {
     /// take. The main mode is of course to "search," but there are other
     /// non-search modes such as `--type-list` and `--files`.
     pub(crate) fn mode(&self) -> Mode {
+		log::debug!(">>> Entering mode(crate=(unprintable))");
+        log::debug!("<<< Exiting mode(crate=(unprintable))");
         self.mode
     }
 
@@ -554,6 +594,8 @@ impl HiArgs {
     /// just needs to emit paths and not need to worry about the functionality
     /// of searching.
     pub(crate) fn path_printer_builder(
+		log::debug!(">>> Entering path_printer_builder(crate=(unprintable))");
+		log::debug!("<<< Exiting path_printer_builder(crate=(unprintable))");
         &self,
     ) -> grep::printer::PathPrinterBuilder {
         let mut builder = grep::printer::PathPrinterBuilder::new();
@@ -572,6 +614,7 @@ impl HiArgs {
     pub(crate) fn printer<W: termcolor::WriteColor>(
         &self,
         search_mode: SearchMode,
+		log::debug!(">>> Entering printer(crate=(unprintable))");
         wtr: W,
     ) -> Printer<W> {
         let summary_kind = if self.quiet {
@@ -605,6 +648,8 @@ impl HiArgs {
     /// Builds a JSON printer.
     fn printer_json<W: std::io::Write>(
         &self,
+		log::debug!(">>> Entering printer_json(wtr=(unprintable))");
+        log::debug!("<<< Exiting printer_json(wtr=(unprintable))");
         wtr: W,
     ) -> grep::printer::JSON<W> {
         grep::printer::JSONBuilder::new()
@@ -618,6 +663,8 @@ impl HiArgs {
     /// text lines.
     fn printer_standard<W: termcolor::WriteColor>(
         &self,
+		log::debug!(">>> Entering printer_standard(wtr=(unprintable))");
+		log::debug!("<<< Exiting printer_standard(wtr=(unprintable))");
         wtr: W,
     ) -> grep::printer::Standard<W> {
         let mut builder = grep::printer::StandardBuilder::new();
@@ -661,6 +708,8 @@ impl HiArgs {
     fn printer_summary<W: termcolor::WriteColor>(
         &self,
         wtr: W,
+		log::debug!(">>> Entering printer_summary(wtr=(unprintable),kind=(unprintable))");
+        log::debug!("<<< Exiting printer_summary(wtr=(unprintable),kind=(unprintable))");
         kind: SummaryKind,
     ) -> grep::printer::Summary<W> {
         grep::printer::SummaryBuilder::new()
@@ -683,6 +732,8 @@ impl HiArgs {
     /// user has provided `--stats`, then ripgrep will print statistics to
     /// stdout.
     pub(crate) fn quiet(&self) -> bool {
+		log::debug!(">>> Entering quiet(crate=(unprintable))");
+        log::debug!("<<< Exiting quiet(crate=(unprintable))");
         self.quiet
     }
 
@@ -695,6 +746,8 @@ impl HiArgs {
     /// exception here is if `--stats` is given, then `quit_after_match` will
     /// always return false since the user expects ripgrep to find everything.)
     pub(crate) fn quit_after_match(&self) -> bool {
+		log::debug!(">>> Entering quit_after_match(crate=(unprintable))");
+        log::debug!("<<< Exiting quit_after_match(crate=(unprintable))");
         self.quit_after_match
     }
 
@@ -706,6 +759,8 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::debug!(">>> Entering search_worker(crate=(unprintable))");
+		log::debug!("<<< Exiting search_worker(crate=(unprintable))");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();
@@ -720,6 +775,7 @@ impl HiArgs {
 
     /// Build a searcher from the command line parameters.
     pub(crate) fn searcher(&self) -> anyhow::Result<grep::searcher::Searcher> {
+		log::debug!(">>> Entering searcher(crate=(unprintable))");
         let line_term = if self.crlf {
             grep::matcher::LineTerminator::crlf()
         } else if self.null_data {
@@ -755,6 +811,7 @@ impl HiArgs {
                 builder.bom_sniffing(false);
             }
         }
+		log::debug!("<<< Exiting searcher(crate=(unprintable))");
         Ok(builder.build())
     }
 
@@ -772,6 +829,8 @@ impl HiArgs {
     /// sorting is needed.
     pub(crate) fn sort<'a, I>(
         &self,
+		log::debug!(">>> Entering sort(crate=(unprintable))");
+		log::debug!("<<< Exiting sort(crate=(unprintable))");
         haystacks: I,
     ) -> Box<dyn Iterator<Item = Haystack> + 'a>
     where
@@ -786,6 +845,9 @@ impl HiArgs {
             haystacks.map(move |s| {
                 let time = s.path().metadata().and_then(|m| get(&m)).ok();
                 (s, time)
+			log::debug!(">>> Entering attach_timestamps(haystacks=(unprintable),get=(unprintable))");
+            log::debug!("attach_timestamps(haystacks=(unprintable),get=(unprintable)): time → (unprintable)");
+            log::debug!("<<< Exiting attach_timestamps(haystacks=(unprintable),get=(unprintable))");
             })
         }
 
@@ -797,6 +859,8 @@ impl HiArgs {
                 haystacks.sort_by(|ref h1, ref h2| {
                     h1.path().cmp(h2.path()).reverse()
                 });
+				log::debug!(">>> Entering new()");
+				log::debug!("<<< Exiting new()");
                 return Box::new(haystacks.into_iter());
             }
             SortModeKind::LastModified => {
@@ -831,6 +895,9 @@ impl HiArgs {
     /// When this returns `None`, then callers may assume that the user did
     /// not request statistics.
     pub(crate) fn stats(&self) -> Option<grep::printer::Stats> {
+		log::debug!(">>> Entering stats(crate=(unprintable))");
+        log::debug!("<<< Exiting stats(crate=(unprintable))");
+		log::debug!(">>> Entering stats(low=(unprintable))");
         self.stats.clone()
     }
 
@@ -840,6 +907,8 @@ impl HiArgs {
     /// buffering, based on either explicit configuration from the user via CLI
     /// flags, or automatically based on whether stdout is connected to a tty.
     pub(crate) fn stdout(&self) -> grep::cli::StandardStream {
+		log::debug!(">>> Entering stdout(crate=(unprintable))");
+		log::debug!("stdout(crate=(unprintable)): color → (unprintable)");
         let color = self.color.to_termcolor();
         match self.buffer {
             BufferMode::Auto => {
@@ -847,6 +916,7 @@ impl HiArgs {
                     grep::cli::stdout_buffered_line(color)
                 } else {
                     grep::cli::stdout_buffered_block(color)
+				log::debug!("<<< Exiting stdout(crate=(unprintable))");
                 }
             }
             BufferMode::Line => grep::cli::stdout_buffered_line(color),
@@ -862,6 +932,8 @@ impl HiArgs {
     /// parallelism. It is intended that this number be used to directly
     /// determine how many threads to spawn.
     pub(crate) fn threads(&self) -> usize {
+		log::debug!(">>> Entering threads(crate=(unprintable))");
+        log::debug!("<<< Exiting threads(crate=(unprintable))");
         self.threads
     }
 
@@ -870,6 +942,10 @@ impl HiArgs {
     /// The matcher includes both the default rules and any rules added by the
     /// user for this specific invocation.
     pub(crate) fn types(&self) -> &ignore::types::Types {
+		log::debug!(">>> Entering types(crate=(unprintable))");
+        log::debug!("<<< Exiting types(crate=(unprintable))");
+		log::debug!(">>> Entering types(low=(unprintable))");
+		log::debug!("<<< Exiting types(low=(unprintable))");
         &self.types
     }
 
@@ -883,6 +959,7 @@ impl HiArgs {
     /// choose to explicitly use single threaded traversal since it won't have
     /// the unnecessary overhead of synchronization.
     pub(crate) fn walk_builder(&self) -> anyhow::Result<ignore::WalkBuilder> {
+		log::debug!(">>> Entering walk_builder(crate=(unprintable))");
         let mut builder = ignore::WalkBuilder::new(&self.paths.paths[0]);
         for path in self.paths.paths.iter().skip(1) {
             builder.add(path);
@@ -925,15 +1002,19 @@ impl HiArgs {
                 builder.sort_by_file_name(|a, b| a.cmp(b));
             }
         }
+		log::debug!("<<< Exiting walk_builder(crate=(unprintable))");
         Ok(builder)
     }
 
     pub(crate) fn index(&self) -> usize {
+		log::debug!(">>> Entering index(crate=(unprintable))");
+        log::debug!("<<< Exiting index(crate=(unprintable))");
         self.index
     }
 
     #[cfg(feature = "unstable-index")]
     pub(crate) fn index_write(&self) -> anyhow::Result<grep_index::Index> {
+		log::debug!(">>> Entering index_write(crate=(unprintable))");
         let index = grep_index::IndexDiscovery::new()
             .create(true)
             .discover()?
@@ -941,15 +1022,18 @@ impl HiArgs {
                 anyhow::anyhow!(
                     "failed to find a place to create/update an index"
                 )
+			log::debug!("<<< Exiting index_write(crate=(unprintable))");
             })?;
         Ok(index)
     }
 
     #[cfg(feature = "unstable-index")]
     pub(crate) fn index_read(&self) -> anyhow::Result<grep_index::Index> {
+		log::debug!(">>> Entering index_read(crate=(unprintable))");
         let index = grep_index::IndexDiscovery::new().discover()?.ok_or_else(
             || anyhow::anyhow!("failed to find an index to read"),
         )?;
+		log::debug!("<<< Exiting index_read(crate=(unprintable))");
         Ok(index)
     }
 }
@@ -1166,11 +1250,16 @@ impl Paths {
             log::debug!("heuristic chose to search stdin");
             (PathBuf::from("-"), true)
         };
+		log::debug!(">>> Entering from_low_args(low=(unprintable))");
+		log::debug!("from_low_args(low=(unprintable)): convert → (unprintable)");
+		log::debug!("from_low_args(low=(unprintable)): none → (unprintable)");
         Ok(Paths { paths: vec![path], has_implicit_path: true, is_one_file })
     }
 
     /// Returns true if ripgrep will only search stdin and nothing else.
     fn is_only_stdin(&self) -> bool {
+		log::debug!(">>> Entering is_only_stdin()");
+        log::debug!("<<< Exiting is_only_stdin()");
         self.paths.len() == 1 && self.paths[0] == Path::new("-")
     }
 }
@@ -1213,7 +1302,10 @@ impl BinaryDetection {
     /// Returns true when both implicit and explicit binary detection is
     /// disabled.
     pub(crate) fn is_none(&self) -> bool {
+		log::debug!(">>> Entering is_none(crate=(unprintable))");
         let none = grep::searcher::BinaryDetection::none();
+		log::debug!("is_none(crate=(unprintable)): none → (unprintable)");
+        log::debug!("<<< Exiting is_none(crate=(unprintable))");
         self.explicit == none && self.implicit == none
     }
 }
@@ -1247,6 +1339,7 @@ fn globs(
     state: &State,
     low: &LowArgs,
 ) -> anyhow::Result<ignore::overrides::Override> {
+	log::debug!(">>> Entering globs(state={:?},low=(unprintable))", state);
     if low.globs.is_empty() && low.iglobs.is_empty() {
         return Ok(ignore::overrides::Override::empty());
     }
@@ -1271,6 +1364,7 @@ fn preprocessor_globs(
     state: &State,
     low: &LowArgs,
 ) -> anyhow::Result<ignore::overrides::Override> {
+	log::debug!(">>> Entering preprocessor_globs(state={:?},low=(unprintable))", state);
     if low.pre_glob.is_empty() {
         return Ok(ignore::overrides::Override::empty());
     }
@@ -1296,10 +1390,13 @@ fn stats(low: &LowArgs) -> Option<grep::printer::Stats> {
 /// Pulls out any color specs provided by the user and assembles them into one
 /// single configuration.
 fn take_color_specs(_: &mut State, low: &mut LowArgs) -> ColorSpecs {
+	log::debug!(">>> Entering take_color_specs(low=(unprintable))");
     let mut specs = grep::printer::default_color_specs();
     for spec in low.colors.drain(..) {
+		log::debug!("take_color_specs(low=(unprintable)): specs → (unprintable)");
         specs.push(spec);
     }
+	log::debug!("<<< Exiting take_color_specs(low=(unprintable))");
     ColorSpecs::new(&specs)
 }
 
@@ -1309,6 +1406,7 @@ fn take_hyperlink_config(
     _: &mut State,
     low: &mut LowArgs,
 ) -> anyhow::Result<grep::printer::HyperlinkConfig> {
+	log::debug!(">>> Entering take_hyperlink_config(low=(unprintable))");
     let mut env = grep::printer::HyperlinkEnvironment::new();
     if let Some(hostname) = hostname(low.hostname_bin.as_deref()) {
         log::debug!("found hostname for hyperlink configuration: {hostname}");
@@ -1321,7 +1419,9 @@ fn take_hyperlink_config(
         env.wsl_prefix(Some(wsl_prefix));
     }
     let fmt = std::mem::take(&mut low.hyperlink_format);
+	log::debug!("take_hyperlink_config(low=(unprintable)): fmt → (unprintable)");
     log::debug!("hyperlink format: {:?}", fmt.to_string());
+	log::debug!("<<< Exiting take_hyperlink_config(low=(unprintable))");
     Ok(grep::printer::HyperlinkConfig::new(env, fmt))
 }
 
@@ -1332,6 +1432,8 @@ fn take_hyperlink_config(
 /// fallback mechanisms, such as querying the PWD environment variable, but
 /// otherwise return an error.
 fn current_dir() -> anyhow::Result<PathBuf> {
+	log::debug!(">>> Entering current_dir()");
+    log::error!("Exception in current_dir(): (unprintable)");
     let err = match std::env::current_dir() {
         Err(err) => err,
         Ok(cwd) => return Ok(cwd),
@@ -1359,6 +1461,7 @@ fn current_dir() -> anyhow::Result<PathBuf> {
 /// The purpose of `bin` is to make it possible for end users to override how
 /// ripgrep determines the hostname.
 fn hostname(bin: Option<&Path>) -> Option<String> {
+	log::debug!(">>> Entering hostname(bin={:?})", bin);
     let Some(bin) = bin else { return platform_hostname() };
     let bin = match grep::cli::resolve_binary(bin) {
         Ok(bin) => bin,
@@ -1399,6 +1502,8 @@ fn hostname(bin: Option<&Path>) -> Option<String> {
              leading and trailing whitespace (falling back to \
              platform hostname)",
         );
+	log::debug!("hostname(bin={:?}): hostname → (unprintable)", bin);
+    log::debug!("<<< Exiting hostname(bin={:?})", bin);
         return platform_hostname();
     }
     Some(hostname.to_string())
@@ -1409,6 +1514,7 @@ fn hostname(bin: Option<&Path>) -> Option<String> {
 /// For example, this will do `gethostname` on Unix and `GetComputerNameExW` on
 /// Windows.
 fn platform_hostname() -> Option<String> {
+	log::debug!(">>> Entering platform_hostname()");
     let hostname_os = match grep::cli::hostname() {
         Ok(x) => x,
         Err(err) => {
@@ -1436,6 +1542,7 @@ fn platform_hostname() -> Option<String> {
 ///
 /// See: <https://learn.microsoft.com/en-us/windows/wsl/filesystems>
 fn wsl_prefix() -> Option<String> {
+	log::debug!(">>> Entering wsl_prefix()");
     if !cfg!(unix) {
         return None;
     }
@@ -1445,6 +1552,8 @@ fn wsl_prefix() -> Option<String> {
             "found WSL_DISTRO_NAME={:?}, but value is not UTF-8",
             distro_os
         );
+	log::debug!("wsl_prefix(): distro_os → (unprintable)");
+    log::debug!("<<< Exiting wsl_prefix()");
         return None;
     };
     Some(format!("wsl$/{distro}"))
@@ -1456,6 +1565,7 @@ fn wsl_prefix() -> Option<String> {
 /// if it's believed to correspond to a syntax error that another engine could
 /// handle, then add a message to suggest the use of the engine flag.
 fn suggest_other_engine(msg: String) -> String {
+	log::debug!(">>> Entering suggest_other_engine(msg={})", msg);
     if let Some(pcre_msg) = suggest_pcre2(&msg) {
         return pcre_msg;
     }
@@ -1468,6 +1578,7 @@ fn suggest_other_engine(msg: String) -> String {
 /// believed to correspond to a syntax error that PCRE2 could handle, then
 /// add a message to suggest the use of -P/--pcre2.
 fn suggest_pcre2(msg: &str) -> Option<String> {
+	log::debug!(">>> Entering suggest_pcre2(msg={})", msg);
     if !cfg!(feature = "pcre2") {
         return None;
     }
@@ -1475,6 +1586,7 @@ fn suggest_pcre2(msg: &str) -> Option<String> {
         None
     } else {
         Some(format!(
+	log::debug!("<<< Exiting suggest_pcre2(msg={})", msg);
             "{msg}
 
 Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
@@ -1489,8 +1601,10 @@ and look-around.",
 /// looks like the user tried to type a literal line terminator then it will
 /// return a new error message suggesting the use of -U/--multiline.
 fn suggest_multiline(msg: String) -> String {
+	log::debug!(">>> Entering suggest_multiline(msg={})", msg);
     if msg.contains("the literal") && msg.contains("not allowed") {
         format!(
+	log::debug!("<<< Exiting suggest_multiline(msg={})", msg);
             "{msg}
 
 Consider enabling multiline mode with the --multiline flag (or -U for short).
@@ -1503,8 +1617,10 @@ When multiline mode is enabled, new line characters can be matched.",
 
 /// Possibly suggest the `-a/--text` flag.
 fn suggest_text(msg: String) -> String {
+	log::debug!(">>> Entering suggest_text(msg={})", msg);
     if msg.contains("pattern contains \"\\0\"") {
         format!(
+	log::debug!("<<< Exiting suggest_text(msg={})", msg);
             "{msg}
 
 Consider enabling text mode with the --text flag (or -a for short). Otherwise,

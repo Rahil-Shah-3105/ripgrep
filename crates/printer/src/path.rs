@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -19,6 +20,8 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             colors: ColorSpecs::default(),
             hyperlink: HyperlinkConfig::default(),
@@ -37,13 +40,17 @@ pub struct PathPrinterBuilder {
 impl PathPrinterBuilder {
     /// Return a new path printer builder with a default configuration.
     pub fn new() -> PathPrinterBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         PathPrinterBuilder { config: Config::default() }
     }
 
     /// Create a new path printer with the current configuration that writes
     /// paths to the given writer.
     pub fn build<W: WriteColor>(&self, wtr: W) -> PathPrinter<W> {
+		log::debug!(">>> Entering build(wtr=(unprintable))");
         let interpolator =
+			log::debug!("<<< Exiting build(wtr=(unprintable))");
             hyperlink::Interpolator::new(&self.config.hyperlink);
         PathPrinter { config: self.config.clone(), wtr, interpolator }
     }
@@ -71,7 +78,9 @@ impl PathPrinterBuilder {
         &mut self,
         specs: ColorSpecs,
     ) -> &mut PathPrinterBuilder {
+		log::debug!(">>> Entering color_specs(specs=(unprintable))");
         self.config.colors = specs;
+		log::debug!("<<< Exiting color_specs(specs=(unprintable))");
         self
     }
 
@@ -90,7 +99,9 @@ impl PathPrinterBuilder {
         &mut self,
         config: HyperlinkConfig,
     ) -> &mut PathPrinterBuilder {
+		log::debug!(">>> Entering hyperlink(config=(unprintable))");
         self.config.hyperlink = config;
+		log::debug!("<<< Exiting hyperlink(config=(unprintable))");
         self
     }
 
@@ -106,7 +117,9 @@ impl PathPrinterBuilder {
     ///
     /// This is disabled by default.
     pub fn separator(&mut self, sep: Option<u8>) -> &mut PathPrinterBuilder {
+		log::debug!(">>> Entering separator(sep={:?})", sep);
         self.config.separator = sep;
+		log::debug!("<<< Exiting separator(sep={:?})", sep);
         self
     }
 
@@ -117,7 +130,9 @@ impl PathPrinterBuilder {
     ///
     /// The default path terminator is `\n`.
     pub fn terminator(&mut self, terminator: u8) -> &mut PathPrinterBuilder {
+		log::debug!(">>> Entering terminator(terminator={})", terminator);
         self.config.terminator = terminator;
+		log::debug!("<<< Exiting terminator(terminator={})", terminator);
         self
     }
 }
@@ -148,6 +163,7 @@ pub struct PathPrinter<W> {
 impl<W: WriteColor> PathPrinter<W> {
     /// Write the given path to the underlying writer.
     pub fn write(&mut self, path: &Path) -> io::Result<()> {
+		log::debug!(">>> Entering write(path={:?})", path);
         let ppath = PrinterPath::new(path.as_ref())
             .with_separator(self.config.separator);
         if !self.wtr.supports_color() {
@@ -159,6 +175,7 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		log::debug!("<<< Exiting write(path={:?})", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 
@@ -167,10 +184,13 @@ impl<W: WriteColor> PathPrinter<W> {
         &mut self,
         path: &PrinterPath,
     ) -> io::Result<hyperlink::InterpolatorStatus> {
+		log::debug!(">>> Entering start_hyperlink(path=(unprintable))");
         let Some(hyperpath) = path.as_hyperlink() else {
             return Ok(hyperlink::InterpolatorStatus::inactive());
         };
         let values = hyperlink::Values::new(hyperpath);
+		log::debug!("start_hyperlink(path=(unprintable)): values → {:?}", values);
+        log::debug!("<<< Exiting start_hyperlink(path=(unprintable))");
         self.interpolator.begin(&values, &mut self.wtr)
     }
 }

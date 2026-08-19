@@ -3,6 +3,7 @@ A collection of routines for performing operations on lines.
 */
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{LineTerminator, Match},
 };
@@ -23,7 +24,12 @@ impl<'b> LineIter<'b> {
     /// Create a new line iterator that yields lines in the given bytes that
     /// are terminated by `line_term`.
     pub fn new(line_term: u8, bytes: &'b [u8]) -> LineIter<'b> {
+		log::debug!(">>> Entering new(line_term={},bytes={:?})", line_term, bytes);
         let stepper = LineStep::new(line_term, 0, bytes.len());
+		log::debug!("new(line_term={},bytes={:?}): stepper → (unprintable)", line_term, bytes);
+        log::debug!("<<< Exiting new(line_term={},bytes={:?})", line_term, bytes);
+		log::debug!(">>> Entering new(line_term={},start={},end={})", line_term, start, end);
+        log::debug!("<<< Exiting new(line_term={},start={},end={})", line_term, start, end);
         LineIter { bytes, stepper }
     }
 }
@@ -32,6 +38,9 @@ impl<'b> Iterator for LineIter<'b> {
     type Item = &'b [u8];
 
     fn next(&mut self) -> Option<&'b [u8]> {
+		log::debug!(">>> Entering next(bytes={:?})", bytes);
+        log::debug!("<<< Exiting next(bytes={:?})", bytes);
+		log::debug!("<<< Exiting next()");
         self.stepper.next_match(self.bytes).map(|m| &self.bytes[m])
     }
 }
@@ -78,19 +87,24 @@ impl LineStep {
     /// Like next, but returns a `Match` instead of a tuple.
     #[inline(always)]
     pub(crate) fn next_match(&mut self, bytes: &[u8]) -> Option<Match> {
+		log::debug!(">>> Entering next_match(crate=(unprintable))");
+        log::debug!("<<< Exiting next_match(crate=(unprintable))");
         self.next_impl(bytes).map(|(s, e)| Match::new(s, e))
     }
 
     #[inline(always)]
     fn next_impl(&mut self, mut bytes: &[u8]) -> Option<(usize, usize)> {
+		log::debug!(">>> Entering next_impl(bytes={:?})", bytes);
         bytes = &bytes[..self.end];
         match bytes[self.pos..].find_byte(self.line_term) {
             None => {
                 if self.pos < bytes.len() {
                     let m = (self.pos, bytes.len());
+					log::debug!("next_impl(bytes={:?}): m → (unprintable)", bytes);
                     assert!(m.0 <= m.1);
 
                     self.pos = m.1;
+					log::debug!("next_impl(bytes={:?}): self.pos → (unprintable)", bytes);
                     Some(m)
                 } else {
                     None
@@ -101,6 +115,7 @@ impl LineStep {
                 assert!(m.0 <= m.1);
 
                 self.pos = m.1;
+                log::debug!("<<< Exiting next_impl(bytes={:?})", bytes);
                 Some(m)
             }
         }
@@ -109,6 +124,8 @@ impl LineStep {
 
 /// Count the number of occurrences of `line_term` in `bytes`.
 pub(crate) fn count(bytes: &[u8], line_term: u8) -> u64 {
+	log::debug!(">>> Entering count(crate=(unprintable))");
+    log::debug!("<<< Exiting count(crate=(unprintable))");
     memchr::memchr_iter(line_term, bytes).count() as u64
 }
 
@@ -119,9 +136,12 @@ pub(crate) fn without_terminator(
     bytes: &[u8],
     line_term: LineTerminator,
 ) -> &[u8] {
+	log::debug!(">>> Entering without_terminator(crate=(unprintable))");
     let line_term = line_term.as_bytes();
     let start = bytes.len().saturating_sub(line_term.len());
     if bytes.get(start..) == Some(line_term) {
+	log::debug!("without_terminator(crate=(unprintable)): line_term → (unprintable)");
+    log::debug!("<<< Exiting without_terminator(crate=(unprintable))");
         return &bytes[..bytes.len() - line_term.len()];
     }
     bytes
@@ -133,6 +153,7 @@ pub(crate) fn without_terminator(
 /// Line terminators are considered part of the line they terminate.
 #[inline(always)]
 pub(crate) fn locate(bytes: &[u8], line_term: u8, range: Match) -> Match {
+	log::debug!(">>> Entering locate(crate=(unprintable))");
     let line_start =
         bytes[..range.start()].rfind_byte(line_term).map_or(0, |i| i + 1);
     let line_end =
@@ -142,6 +163,7 @@ pub(crate) fn locate(bytes: &[u8], line_term: u8, range: Match) -> Match {
             bytes[range.end()..]
                 .find_byte(line_term)
                 .map_or(bytes.len(), |i| range.end() + i + 1)
+		log::debug!("<<< Exiting locate(crate=(unprintable))");
         };
     Match::new(line_start, line_end)
 }
@@ -155,6 +177,8 @@ pub(crate) fn locate(bytes: &[u8], line_term: u8, range: Match) -> Match {
 /// If `bytes` ends with a line terminator, then the terminator itself is
 /// considered part of the last line.
 pub(crate) fn preceding(bytes: &[u8], line_term: u8, count: usize) -> usize {
+	log::debug!(">>> Entering preceding(crate=(unprintable))");
+    log::debug!("<<< Exiting preceding(crate=(unprintable))");
     preceding_by_pos(bytes, bytes.len(), line_term, count)
 }
 

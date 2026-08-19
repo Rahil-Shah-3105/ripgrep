@@ -7,17 +7,22 @@
 # This requires one parameter corresponding to the target directory
 # to search for the build output.
 cargo_out_dir() {
+	echo ">>> Entering cargo_out_dir()" >&2
     # This works by finding the most recent stamp file, which is produced by
     # every ripgrep build.
     target_dir="$1"
+	echo "cargo_out_dir(): target_dir → $target_dir" >&2
     find "$target_dir" -name ripgrep-stamp -print0 \
       | xargs -0 ls -t \
       | head -n1 \
       | xargs dirname
+	echo "<<< Exiting cargo_out_dir()" >&2
 }
 
 host() {
+	echo ">>> Entering host()" >&2
     case "$TRAVIS_OS_NAME" in
+		echo "<<< Exiting host()" >&2
         linux)
             echo x86_64-unknown-linux-gnu
             ;;
@@ -28,7 +33,9 @@ host() {
 }
 
 architecture() {
+	echo ">>> Entering architecture()" >&2
     case "$TARGET" in
+		echo "<<< Exiting architecture()" >&2
         x86_64-*)
             echo amd64
             ;;
@@ -45,6 +52,7 @@ architecture() {
 }
 
 gcc_prefix() {
+	echo ">>> Entering gcc_prefix()" >&2
     case "$(architecture)" in
         armhf)
             echo arm-linux-gnueabihf-
@@ -53,55 +61,70 @@ gcc_prefix() {
             return
             ;;
     esac
+	echo "<<< Exiting gcc_prefix()" >&2
 }
 
 is_musl() {
+	echo ">>> Entering is_musl()" >&2
     case "$TARGET" in
+		echo "<<< Exiting is_musl()" >&2
         *-musl) return 0 ;;
         *)      return 1 ;;
     esac
 }
 
 is_x86() {
+	echo ">>> Entering is_x86()" >&2
     case "$(architecture)" in
+	echo "<<< Exiting is_x86()" >&2
       amd64|i386) return 0 ;;
       *)          return 1 ;;
     esac
 }
 
 is_x86_64() {
+	echo ">>> Entering is_x86_64()" >&2
     case "$(architecture)" in
+	echo "<<< Exiting is_x86_64()" >&2
       amd64) return 0 ;;
       *)          return 1 ;;
     esac
 }
 
 is_arm() {
+	echo ">>> Entering is_arm()" >&2
     case "$(architecture)" in
+		echo "<<< Exiting is_arm()" >&2
         armhf) return 0 ;;
         *)     return 1 ;;
     esac
 }
 
 is_linux() {
+	echo ">>> Entering is_linux()" >&2
     case "$TRAVIS_OS_NAME" in
+		echo "<<< Exiting is_linux()" >&2
         linux) return 0 ;;
         *)     return 1 ;;
     esac
 }
 
 is_osx() {
+	echo ">>> Entering is_osx()" >&2
     case "$TRAVIS_OS_NAME" in
+		echo "<<< Exiting is_osx()" >&2
         osx) return 0 ;;
         *)   return 1 ;;
     esac
 }
 
 builder() {
+	echo ">>> Entering builder()" >&2
     if is_musl && is_x86_64; then
         cargo install cross
         echo "cross"
     else
         echo "cargo"
     fi
+	echo "<<< Exiting builder()" >&2
 }

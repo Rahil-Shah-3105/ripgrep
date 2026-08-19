@@ -30,6 +30,8 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             pretty: false,
             always_begin_end: false,
@@ -58,11 +60,17 @@ pub struct JSONBuilder {
 impl JSONBuilder {
     /// Return a new builder for configuring the JSON printer.
     pub fn new() -> JSONBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
+		log::debug!(">>> Entering new(wtr=(unprintable))");
+        log::debug!("<<< Exiting new(wtr=(unprintable))");
         JSONBuilder { config: Config::default() }
     }
 
     /// Create a JSON printer that writes results to the given writer.
     pub fn build<W: io::Write>(&self, wtr: W) -> JSON<W> {
+		log::debug!(">>> Entering build(wtr=(unprintable))");
+        log::debug!("<<< Exiting build(wtr=(unprintable))");
         JSON {
             config: self.config.clone(),
             wtr: CounterWriter::new(wtr),
@@ -77,7 +85,9 @@ impl JSONBuilder {
     ///
     /// This is disabled by default.
     pub fn pretty(&mut self, yes: bool) -> &mut JSONBuilder {
+		log::debug!(">>> Entering pretty(yes={})", yes);
         self.config.pretty = yes;
+		log::debug!("<<< Exiting pretty(yes={})", yes);
         self
     }
 
@@ -89,7 +99,9 @@ impl JSONBuilder {
     ///
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
+		log::debug!(">>> Entering always_begin_end(yes={})", yes);
         self.config.always_begin_end = yes;
+		log::debug!("<<< Exiting always_begin_end(yes={})", yes);
         self
     }
 
@@ -108,6 +120,7 @@ impl JSONBuilder {
         replacement: Option<Vec<u8>>,
     ) -> &mut JSONBuilder {
         self.config.replacement = Arc::new(replacement);
+		log::debug!("<<< Exiting replacement(replacement={:?})", replacement);
         self
     }
 }
@@ -503,6 +516,8 @@ impl<W: io::Write> JSON<W> {
     /// implementation will never print a file path along with the matches.
     pub fn sink<'s, M: Matcher>(
         &'s mut self,
+		log::debug!(">>> Entering sink(matcher=(unprintable))");
+        log::debug!("<<< Exiting sink(matcher=(unprintable))");
         matcher: M,
     ) -> JSONSink<'static, 's, M, W> {
         JSONSink {
@@ -525,6 +540,8 @@ impl<W: io::Write> JSON<W> {
     pub fn sink_with_path<'p, 's, M, P>(
         &'s mut self,
         matcher: M,
+		log::debug!(">>> Entering sink_with_path(matcher=(unprintable),path=(unprintable))");
+        log::debug!("<<< Exiting sink_with_path(matcher=(unprintable),path=(unprintable))");
         path: &'p P,
     ) -> JSONSink<'p, 's, M, W>
     where
@@ -550,12 +567,15 @@ impl<W: io::Write> JSON<W> {
         &mut self,
         message: &jsont::Message<'_>,
     ) -> io::Result<()> {
+		log::debug!(">>> Entering write_message(message=(unprintable))");
         if self.config.pretty {
             json::to_writer_pretty(&mut self.wtr, message)?;
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
+		log::debug!("write_message(message=(unprintable)): _ → (unprintable)");
+        log::debug!("<<< Exiting write_message(message=(unprintable))");
         Ok(())
     }
 }
@@ -564,17 +584,23 @@ impl<W> JSON<W> {
     /// Returns true if and only if this printer has written at least one byte
     /// to the underlying writer during any of the previous searches.
     pub fn has_written(&self) -> bool {
+		log::debug!(">>> Entering has_written()");
+        log::debug!("<<< Exiting has_written()");
         self.wtr.total_count() > 0
     }
 
     /// Return a mutable reference to the underlying writer.
     pub fn get_mut(&mut self) -> &mut W {
+		log::debug!(">>> Entering get_mut()");
+        log::debug!("<<< Exiting get_mut()");
         self.wtr.get_mut()
     }
 
     /// Consume this printer and return back ownership of the underlying
     /// writer.
     pub fn into_inner(self) -> W {
+		log::debug!(">>> Entering into_inner()");
+        log::debug!("<<< Exiting into_inner()");
         self.wtr.into_inner()
     }
 }
@@ -612,6 +638,8 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// This is unaffected by the result of searches before the previous
     /// search.
     pub fn has_match(&self) -> bool {
+		log::debug!(">>> Entering has_match()");
+        log::debug!("<<< Exiting has_match()");
         self.match_count > 0
     }
 
@@ -619,6 +647,8 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     ///
     /// This corresponds to the number of times `Sink::matched` is called.
     pub fn match_count(&self) -> u64 {
+		log::debug!(">>> Entering match_count()");
+        log::debug!("<<< Exiting match_count()");
         self.match_count
     }
 
@@ -633,12 +663,16 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// data but the previous search found no binary data, then this will
     /// return `None`.
     pub fn binary_byte_offset(&self) -> Option<u64> {
+		log::debug!(">>> Entering binary_byte_offset()");
+        log::debug!("<<< Exiting binary_byte_offset()");
         self.binary_byte_offset
     }
 
     /// Return a reference to the stats produced by the printer for all
     /// searches executed on this sink.
     pub fn stats(&self) -> &Stats {
+		log::debug!(">>> Entering stats()");
+        log::debug!("<<< Exiting stats()");
         &self.stats
     }
 
@@ -650,6 +684,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         bytes: &[u8],
         range: std::ops::Range<usize>,
     ) -> io::Result<()> {
+		log::debug!(">>> Entering record_matches(searcher=(unprintable),bytes={:?},range=(unprintable))", bytes);
         self.json.matches.clear();
         // If printing requires knowing the location of each individual match,
         // then compute and stored those right now for use later. While this
@@ -676,6 +711,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         {
             matches.pop().unwrap();
         }
+		log::debug!("<<< Exiting record_matches(searcher=(unprintable),bytes={:?},range=(unprintable))", bytes);
         Ok(())
     }
 
@@ -689,6 +725,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         bytes: &[u8],
         range: std::ops::Range<usize>,
     ) -> io::Result<()> {
+		log::debug!(">>> Entering replace(searcher=(unprintable),bytes={:?},range=(unprintable))", bytes);
         self.replacer.clear();
         if self.json.config.replacement.is_some() {
             let replacement =
@@ -701,17 +738,22 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
                 replacement,
             )?;
         }
+		log::debug!("<<< Exiting replace(searcher=(unprintable),bytes={:?},range=(unprintable))", bytes);
         Ok(())
     }
 
     /// Write the "begin" message.
     fn write_begin_message(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering write_begin_message()");
         if self.begin_printed {
             return Ok(());
         }
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
+		log::debug!("write_begin_message(): msg → (unprintable)");
         self.json.write_message(&msg)?;
         self.begin_printed = true;
+		log::debug!("write_begin_message(): self.begin_printed → (unprintable)");
+        log::debug!("<<< Exiting write_begin_message()");
         Ok(())
     }
 }
@@ -724,6 +766,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
         searcher: &Searcher,
         mat: &SinkMatch<'_>,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering matched(searcher=(unprintable),mat=(unprintable))");
         self.match_count += 1;
         self.write_begin_message()?;
 
@@ -749,6 +792,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::debug!("<<< Exiting matched(searcher=(unprintable),mat=(unprintable))");
         Ok(true)
     }
 
@@ -757,6 +801,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
         searcher: &Searcher,
         ctx: &SinkContext<'_>,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering context(searcher=(unprintable),ctx=(unprintable))");
         self.write_begin_message()?;
         self.json.matches.clear();
 
@@ -779,6 +824,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::debug!("<<< Exiting context(searcher=(unprintable),ctx=(unprintable))");
         Ok(true)
     }
 
@@ -787,6 +833,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
         searcher: &Searcher,
         binary_byte_offset: u64,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
         if searcher.binary_detection().quit_byte().is_some() {
             if let Some(ref path) = self.path {
                 log::debug!(
@@ -796,25 +843,31 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
                 );
             }
         }
+		log::debug!("<<< Exiting binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
         Ok(true)
     }
 
     fn begin(&mut self, _searcher: &Searcher) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering begin(_searcher=(unprintable))");
         self.json.wtr.reset_count();
         self.start_time = Instant::now();
         self.match_count = 0;
+		log::debug!("begin(_searcher=(unprintable)): self.match_count → (unprintable)");
         self.binary_byte_offset = None;
 
         if !self.json.config.always_begin_end {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::debug!("begin(_searcher=(unprintable)): self.binary_byte_offset → (unprintable)");
+        log::debug!("<<< Exiting begin(_searcher=(unprintable))");
         Ok(true)
     }
 
     fn finish(
         &mut self,
         _searcher: &Searcher,
+		log::debug!(">>> Entering finish(_searcher=(unprintable),finish=(unprintable))");
         finish: &SinkFinish,
     ) -> Result<(), io::Error> {
         self.binary_byte_offset = finish.binary_byte_offset();
@@ -845,6 +898,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
 /// but the common case is exactly one match per range of bytes, which we
 /// specialize here using a fixed size array without any allocation.
 enum SubMatches<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     Empty,
     Small([jsont::SubMatch<'a>; 1]),
     Big(Vec<jsont::SubMatch<'a>>),
@@ -856,6 +910,8 @@ impl<'a> SubMatches<'a> {
     fn new(
         bytes: &'a [u8],
         matches: &[Match],
+		log::debug!(">>> Entering new(bytes={:?},matches=(unprintable),replacement=(unprintable))", bytes);
+		log::debug!("<<< Exiting new(bytes={:?},matches=(unprintable),replacement=(unprintable))", bytes);
         replacement: Option<(&'a [u8], &'a [Match])>,
     ) -> SubMatches<'a> {
         if matches.len() == 1 {
@@ -884,6 +940,8 @@ impl<'a> SubMatches<'a> {
 
     /// Create an empty set of match ranges.
     fn empty() -> SubMatches<'static> {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         SubMatches::Empty
     }
 
@@ -893,6 +951,8 @@ impl<'a> SubMatches<'a> {
             SubMatches::Empty => &[],
             SubMatches::Small(ref x) => x,
             SubMatches::Big(ref x) => x,
+			log::debug!(">>> Entering as_slice()");
+        log::debug!("<<< Exiting as_slice()");
         }
     }
 }
@@ -915,13 +975,20 @@ and exhibited clearly, with a label attached.
 ";
 
     fn printer_contents(printer: &mut JSON<Vec<u8>>) -> String {
+		log::debug!(">>> Entering printer_contents(printer=(unprintable))");
+        log::debug!("<<< Exiting printer_contents(printer=(unprintable))");
         String::from_utf8(printer.get_mut().to_owned()).unwrap()
     }
 
     #[test]
     fn binary_detection() {
+		log::debug!(">>> Entering binary_detection()");
         use grep_searcher::BinaryDetection;
 
+		log::debug!("binary_detection(): matcher → (unprintable)");
+		log::debug!("binary_detection(): printer → (unprintable)");
+		log::debug!("binary_detection(): last → (unprintable)");
+		log::debug!("<<< Exiting binary_detection()");
         const BINARY: &'static [u8] = b"\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -940,6 +1007,7 @@ and exhibited clearly, with a label attached.\
             .search_reader(&matcher, BINARY, printer.sink(&matcher))
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("binary_detection(): got → {}", got);
 
         assert_eq!(got.lines().count(), 3);
         let last = got.lines().last().unwrap();
@@ -948,20 +1016,27 @@ and exhibited clearly, with a label attached.\
 
     #[test]
     fn max_matches() {
+		log::debug!(">>> Entering max_matches()");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = JSONBuilder::new().build(vec![]);
+		log::debug!("max_matches(): printer → (unprintable)");
+        log::debug!("max_matches(): matcher → (unprintable)");
         SearcherBuilder::new()
             .max_matches(Some(1))
             .build()
             .search_reader(&matcher, SHERLOCK, printer.sink(&matcher))
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("max_matches(): got → {}", got);
 
+		log::debug!("<<< Exiting max_matches()");
         assert_eq!(got.lines().count(), 3);
     }
 
     #[test]
     fn max_matches_after_context() {
+		log::debug!(">>> Entering max_matches_after_context()");
+		log::debug!("<<< Exiting max_matches_after_context()");
         let haystack = "\
 a
 b
@@ -976,6 +1051,8 @@ d
 e
 ";
         let matcher = RegexMatcher::new(r"d").unwrap();
+		log::debug!("max_matches_after_context(): matcher → (unprintable)");
+		log::debug!("max_matches_after_context(): printer → (unprintable)");
         let mut printer = JSONBuilder::new().build(vec![]);
         SearcherBuilder::new()
             .after_context(2)
@@ -988,25 +1065,33 @@ e
             )
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("max_matches_after_context(): got → {}", got);
 
         assert_eq!(got.lines().count(), 5);
     }
 
     #[test]
     fn no_match() {
+		log::debug!(">>> Entering no_match()");
         let matcher = RegexMatcher::new(r"DOES NOT MATCH").unwrap();
         let mut printer = JSONBuilder::new().build(vec![]);
+		log::debug!("no_match(): printer → (unprintable)");
+        log::debug!("no_match(): matcher → (unprintable)");
         SearcherBuilder::new()
             .build()
             .search_reader(&matcher, SHERLOCK, printer.sink(&matcher))
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("no_match(): got → {}", got);
 
+		log::debug!("<<< Exiting no_match()");
         assert!(got.is_empty());
     }
 
     #[test]
     fn always_begin_end_no_match() {
+		log::debug!(">>> Entering always_begin_end_no_match()");
+		log::debug!("always_begin_end_no_match(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"DOES NOT MATCH").unwrap();
         let mut printer =
             JSONBuilder::new().always_begin_end(true).build(vec![]);
@@ -1015,15 +1100,21 @@ e
             .search_reader(&matcher, SHERLOCK, printer.sink(&matcher))
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("always_begin_end_no_match(): got → {}", got);
 
         assert_eq!(got.lines().count(), 2);
+		log::debug!("<<< Exiting always_begin_end_no_match()");
         assert!(got.contains("begin") && got.contains("end"));
     }
 
     #[test]
     fn missing_crlf() {
+		log::debug!(">>> Entering missing_crlf()");
         let haystack = "test\r\n".as_bytes();
 
+		log::debug!("missing_crlf(): haystack → {}", haystack);
+		log::debug!("missing_crlf(): matcher → (unprintable)");
+		log::debug!("missing_crlf(): printer → (unprintable)");
         let matcher = RegexMatcherBuilder::new().build("test").unwrap();
         let mut printer = JSONBuilder::new().build(vec![]);
         SearcherBuilder::new()
@@ -1031,6 +1122,7 @@ e
             .search_reader(&matcher, haystack, printer.sink(&matcher))
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::debug!("missing_crlf(): got → {}", got);
         assert_eq!(got.lines().count(), 3);
         assert!(
             got.lines().nth(1).unwrap().contains(r"test\r\n"),
@@ -1052,6 +1144,7 @@ e
             got.lines().nth(1).unwrap().contains(r"test\r\n"),
             r"missing 'test\r\n' in '{}'",
             got.lines().nth(1).unwrap(),
+		log::debug!("<<< Exiting missing_crlf()");
         );
     }
 }

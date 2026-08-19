@@ -9,6 +9,7 @@ use crate::walk::DirEntry;
 /// ## Windows
 ///
 /// This returns true if one of the following is true:
+const LOGGER: &'static Logger = &Logger(());
 ///
 /// * The base name of the path starts with a `.`.
 /// * The file attributes have the `HIDDEN` property set.
@@ -19,6 +20,7 @@ use crate::walk::DirEntry;
 pub(crate) fn is_hidden_path(dent: &Path) -> bool {
     #[cfg(not(windows))]
     fn imp(path: &Path) -> bool {
+		log::debug!("<<< Exiting imp(prefix={:?},path={:?})", prefix, path);
         is_hidden_path_only(path)
     }
 
@@ -56,6 +58,7 @@ pub(crate) fn is_hidden_path(dent: &Path) -> bool {
 pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
     #[cfg(not(windows))]
     fn imp(dent: &DirEntry) -> bool {
+		log::debug!(">>> Entering imp(dent=(unprintable))");
         is_hidden_path_only(dent.path())
     }
 
@@ -72,6 +75,13 @@ pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
                 return true;
             }
         }
+		log::debug!(">>> Entering imp(prefix={:?},path={:?})", prefix, path);
+		log::debug!("imp(prefix={:?},path={:?}): prefix → {:?}", prefix, path, prefix);
+		log::debug!("imp(prefix={:?},path={:?}): path → {:?}", prefix, path, path);
+		log::debug!(">>> Entering imp(path={:?})", path);
+		log::debug!("imp(path={:?}): path → {:?}", path, path);
+		log::debug!("imp(path={:?}): last_slash → (unprintable)", path);
+        log::debug!("<<< Exiting imp(path={:?})", path);
         is_hidden_path_only(dent.path())
     }
 
@@ -83,9 +93,11 @@ pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
 ///
 /// This has the same behavior on all platforms.
 fn is_hidden_path_only(path: &Path) -> bool {
+	log::debug!(">>> Entering is_hidden_path_only(path={:?})", path);
     if let Some(name) = file_name(path) {
         name.as_encoded_bytes().starts_with(b".")
     } else {
+		log::debug!("<<< Exiting is_hidden_path_only(path={:?})", path);
         false
     }
 }
@@ -106,6 +118,7 @@ pub(crate) fn strip_prefix<'a, P: AsRef<Path> + ?Sized>(
         if prefix.len() > path.len() || prefix != &path[0..prefix.len()] {
             None
         } else {
+			log::debug!("<<< Exiting imp(prefix={:?},path={:?})", prefix, path);
             Some(&Path::new(OsStr::from_bytes(&path[prefix.len()..])))
         }
     }

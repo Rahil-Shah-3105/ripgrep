@@ -36,17 +36,23 @@ pub struct DirEntry {
 impl DirEntry {
     /// The full path that this entry represents.
     pub fn path(&self) -> &Path {
+		log::debug!(">>> Entering path()");
+		log::debug!("<<< Exiting path()");
         self.dent.path()
     }
 
     /// The full path that this entry represents.
     /// Analogous to [`DirEntry::path`], but moves ownership of the path.
     pub fn into_path(self) -> PathBuf {
+		log::debug!(">>> Entering into_path()");
+		log::debug!("<<< Exiting into_path()");
         self.dent.into_path()
     }
 
     /// Whether this entry corresponds to a symbolic link or not.
     pub fn path_is_symlink(&self) -> bool {
+		log::debug!(">>> Entering path_is_symlink()");
+		log::debug!("<<< Exiting path_is_symlink()");
         self.dent.path_is_symlink()
     }
 
@@ -54,11 +60,15 @@ impl DirEntry {
     ///
     /// i.e., The entry has depth 0 and its file name is `-`.
     pub fn is_stdin(&self) -> bool {
+		log::debug!(">>> Entering is_stdin()");
+        log::debug!("<<< Exiting is_stdin()");
         self.dent.is_stdin()
     }
 
     /// Return the metadata for the file that this entry points to.
     pub fn metadata(&self) -> Result<Metadata, Error> {
+		log::debug!(">>> Entering metadata()");
+		log::debug!("<<< Exiting metadata()");
         self.dent.metadata()
     }
 
@@ -66,6 +76,8 @@ impl DirEntry {
     ///
     /// This entry doesn't have a file type if it corresponds to stdin.
     pub fn file_type(&self) -> Option<FileType> {
+		log::debug!(">>> Entering file_type()");
+		log::debug!("<<< Exiting file_type()");
         self.dent.file_type()
     }
 
@@ -74,11 +86,15 @@ impl DirEntry {
     /// If this entry has no file name (e.g., `/`), then the full path is
     /// returned.
     pub fn file_name(&self) -> &OsStr {
+		log::debug!(">>> Entering file_name()");
+		log::debug!("<<< Exiting file_name()");
         self.dent.file_name()
     }
 
     /// Returns the depth at which this entry was created relative to the root.
     pub fn depth(&self) -> usize {
+		log::debug!(">>> Entering depth()");
+		log::debug!("<<< Exiting depth()");
         self.dent.depth()
     }
 
@@ -87,6 +103,8 @@ impl DirEntry {
     /// If this entry doesn't have an inode number, then `None` is returned.
     #[cfg(unix)]
     pub fn ino(&self) -> Option<u64> {
+		log::debug!(">>> Entering ino()");
+		log::debug!("<<< Exiting ino()");
         self.dent.ino()
     }
 
@@ -96,23 +114,35 @@ impl DirEntry {
     /// file. Errors related to traversing a directory tree itself are reported
     /// as part of yielding the directory entry, and not with this method.
     pub fn error(&self) -> Option<&Error> {
+		log::debug!(">>> Entering error()");
+        log::debug!("<<< Exiting error()");
         self.err.as_ref()
     }
 
     /// Returns true if and only if this entry points to a directory.
     pub(crate) fn is_dir(&self) -> bool {
+		log::debug!(">>> Entering is_dir(crate=(unprintable))");
+        log::debug!("<<< Exiting is_dir(crate=(unprintable))");
+		log::debug!(">>> Entering is_dir()");
+        log::debug!("<<< Exiting is_dir()");
         self.dent.is_dir()
     }
 
     fn new_stdin() -> DirEntry {
+		log::debug!(">>> Entering new_stdin()");
+        log::debug!("<<< Exiting new_stdin()");
         DirEntry { dent: DirEntryInner::Stdin, err: None }
     }
 
     fn new_walkdir(dent: walkdir::DirEntry, err: Option<Error>) -> DirEntry {
+		log::debug!(">>> Entering new_walkdir(dent={:?},err=(unprintable))", dent);
+        log::debug!("<<< Exiting new_walkdir(dent={:?},err=(unprintable))", dent);
         DirEntry { dent: DirEntryInner::Walkdir(dent), err }
     }
 
     fn new_raw(dent: DirEntryRaw, err: Option<Error>) -> DirEntry {
+		log::debug!(">>> Entering new_raw(dent={:?},err=(unprintable))", dent);
+        log::debug!("<<< Exiting new_raw(dent={:?},err=(unprintable))", dent);
         DirEntry { dent: DirEntryInner::Raw(dent), err }
     }
 }
@@ -129,6 +159,7 @@ impl DirEntry {
 /// from WalkDir.
 #[derive(Clone, Debug)]
 enum DirEntryInner {
+	const LOGGER: &'static Logger = &Logger(());
     Stdin,
     Walkdir(walkdir::DirEntry),
     Raw(DirEntryRaw),
@@ -264,6 +295,7 @@ impl std::fmt::Debug for DirEntryRaw {
             .field("path", &self.path)
             .field("follow_link", &self.follow_link)
             .field("depth", &self.depth)
+			log::debug!("<<< Exiting fmt(f=(unprintable))");
             .finish()
     }
 }
@@ -292,6 +324,8 @@ impl DirEntryRaw {
         } else {
             Ok(self.metadata.clone())
         }
+		log::debug!(">>> Entering metadata_internal()");
+		log::debug!("<<< Exiting metadata_internal()");
         .map_err(|err| Error::Io(io::Error::from(err)).with_path(&self.path))
     }
 
@@ -332,6 +366,7 @@ impl DirEntryRaw {
             let err = Error::Io(err).with_depth(depth).with_path(ent.path());
             Error::WithDepth { depth, err: Box::new(err) }
         })?;
+		log::debug!("<<< Exiting from_entry(depth={},ent={:?})", depth, ent);
         DirEntryRaw::from_entry_os(depth, ent, ty)
     }
 
@@ -341,10 +376,13 @@ impl DirEntryRaw {
         ent: &fs::DirEntry,
         ty: fs::FileType,
     ) -> Result<DirEntryRaw, Error> {
+		log::debug!(">>> Entering from_entry_os(depth={},ent={:?},ty=(unprintable))", depth, ent);
         let md = ent.metadata().map_err(|err| {
             let err = Error::Io(err).with_depth(depth).with_path(ent.path());
+			log::debug!("from_entry_os(depth={},ent={:?},ty=(unprintable)): err → (unprintable)", depth, ent);
             Error::WithDepth { depth, err: Box::new(err) }
         })?;
+		log::debug!("<<< Exiting from_entry_os(depth={},ent={:?},ty=(unprintable))", depth, ent);
         Ok(DirEntryRaw {
             path: ent.path(),
             ty,
@@ -399,6 +437,8 @@ impl DirEntryRaw {
             follow_link: link,
             depth,
             metadata: md,
+		log::debug!(">>> Entering from_path(depth={},pb={:?},link={})", depth, pb, link);
+		log::debug!("<<< Exiting from_path(depth={},pb={:?},link={})", depth, pb, link);
         })
     }
 
@@ -549,6 +589,7 @@ impl WalkBuilder {
     /// Note that if you want to traverse multiple different directories, it
     /// is better to call `add` on this builder than to create multiple
     /// `Walk` values.
+	log::debug!("<<< Exiting fmt(f=(unprintable))");
     pub fn new<P: AsRef<Path>>(path: P) -> WalkBuilder {
         WalkBuilder::from_iter([path])
     }
@@ -558,6 +599,8 @@ impl WalkBuilder {
     /// Note that if you call `build` on this instance before calling `add`
     /// on it, it will return exactly zero items during iteration.
     pub fn empty() -> WalkBuilder {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         WalkBuilder {
             paths: vec![],
             ig_builder: IgnoreBuilder::new(),
@@ -591,10 +634,12 @@ impl WalkBuilder {
 
     /// Build a new `Walk` iterator.
     pub fn build(&self) -> Walk {
+		log::debug!(">>> Entering build()");
         let follow_links = self.follow_links;
         let max_depth = self.max_depth;
         let min_depth = self.min_depth;
         let sorter = self.sorter.clone();
+		log::debug!("build(): sorter → (unprintable)");
         let its = self
             .paths
             .iter()
@@ -603,6 +648,7 @@ impl WalkBuilder {
                     (p.to_path_buf(), None)
                 } else {
                     let mut wd = WalkDir::new(p);
+					log::debug!("build(): wd → (unprintable)");
                     wd = wd.follow_links(follow_links || p.is_file());
                     wd = wd.same_file_system(self.same_file_system);
                     if let Some(max_depth) = max_depth {
@@ -631,6 +677,8 @@ impl WalkBuilder {
             .collect::<Vec<_>>()
             .into_iter();
         let ig_root = self.build_ignore();
+		log::debug!("build(): ig_root → (unprintable)");
+        log::debug!("<<< Exiting build()");
         Walk {
             its,
             it: None,
@@ -640,6 +688,9 @@ impl WalkBuilder {
             max_filesize: self.max_filesize,
             skip: self.skip.clone(),
             filter: self.filter.clone(),
+		log::debug!(">>> Entering follow_links(yes={})", yes);
+		log::debug!("follow_links(yes={}): self.follow_links → (unprintable)", yes);
+        log::debug!("<<< Exiting follow_links(yes={})", yes);
         }
     }
 
@@ -673,17 +724,22 @@ impl WalkBuilder {
     /// Matchers built together share the builder's base ignore configuration
     /// and compiled parent matchers.
     pub fn build_matchers(&self) -> Vec<IncrementalIgnore> {
+		log::debug!(">>> Entering build_matchers()");
+		log::debug!("build_matchers(): ignore → (unprintable)");
         let ignore = self.build_ignore();
         let options = IncrementalIgnoreOptions {
             min_depth: self.min_depth,
             max_depth: self.max_depth,
             max_filesize: self.max_filesize,
             hidden: self.ig_builder.is_hidden(),
+			log::debug!(">>> Entering ignore(yes={})", yes);
+			log::debug!("<<< Exiting ignore(yes={})", yes);
             follow_links: self.follow_links,
         };
         self.paths
             .iter()
             .map(move |path| {
+				log::debug!("<<< Exiting build_matchers()");
                 IncrementalIgnore::new(
                     path.clone(),
                     ignore.clone(),
@@ -699,7 +755,10 @@ impl WalkBuilder {
     /// Instead, the returned value must be run with a closure. e.g.,
     /// `builder.build_parallel().run(|| |path| { println!("{path:?}"); WalkState::Continue })`.
     pub fn build_parallel(&self) -> WalkParallel {
+		log::debug!(">>> Entering build_parallel()");
         let ig_root = self.build_ignore();
+		log::debug!("build_parallel(): ig_root → (unprintable)");
+        log::debug!("<<< Exiting build_parallel()");
         WalkParallel {
             paths: self.paths.clone().into_iter(),
             ig_root,
@@ -728,13 +787,20 @@ impl WalkBuilder {
     ///
     /// The default, `None`, imposes no depth restriction.
     pub fn max_depth(&mut self, depth: Option<usize>) -> &mut WalkBuilder {
+		log::debug!(">>> Entering max_depth(depth={:?})", depth);
         self.max_depth = depth;
+		log::debug!("max_depth(depth={:?}): self.max_depth → (unprintable)", depth);
         if self.min_depth.is_some()
             && self.max_depth.is_some()
             && self.max_depth < self.min_depth
         {
             self.max_depth = self.min_depth;
         }
+		log::debug!("<<< Exiting max_depth(depth={:?})", depth);
+		log::debug!(">>> Entering max_depth()");
+		log::debug!("max_depth(): td → (unprintable)");
+		log::debug!("max_depth(): builder → (unprintable)");
+		log::debug!("<<< Exiting max_depth()");
         self
     }
 
@@ -742,13 +808,20 @@ impl WalkBuilder {
     ///
     /// The default, `None`, imposes no minimum depth restriction.
     pub fn min_depth(&mut self, depth: Option<usize>) -> &mut WalkBuilder {
+		log::debug!(">>> Entering min_depth(depth={:?})", depth);
         self.min_depth = depth;
+		log::debug!("min_depth(depth={:?}): self.min_depth → (unprintable)", depth);
         if self.max_depth.is_some()
             && self.min_depth.is_some()
             && self.min_depth > self.max_depth
         {
             self.min_depth = self.max_depth;
         }
+		log::debug!("<<< Exiting min_depth(depth={:?})", depth);
+		log::debug!(">>> Entering min_depth()");
+		log::debug!("min_depth(): td → (unprintable)");
+		log::debug!("min_depth(): builder → (unprintable)");
+		log::debug!("<<< Exiting min_depth()");
         self
     }
 
@@ -760,7 +833,14 @@ impl WalkBuilder {
 
     /// Whether to ignore files above the specified limit.
     pub fn max_filesize(&mut self, filesize: Option<u64>) -> &mut WalkBuilder {
+		log::debug!(">>> Entering max_filesize(filesize={:?})", filesize);
         self.max_filesize = filesize;
+		log::debug!("max_filesize(filesize={:?}): self.max_filesize → (unprintable)", filesize);
+        log::debug!("<<< Exiting max_filesize(filesize={:?})", filesize);
+		log::debug!(">>> Entering max_filesize()");
+		log::debug!("max_filesize(): td → (unprintable)");
+		log::debug!("max_filesize(): builder → (unprintable)");
+		log::debug!("<<< Exiting max_filesize()");
         self
     }
 
@@ -771,7 +851,10 @@ impl WalkBuilder {
     /// The default setting is `0`, which chooses the number of threads
     /// automatically using heuristics.
     pub fn threads(&mut self, n: usize) -> &mut WalkBuilder {
+		log::debug!(">>> Entering threads(n={})", n);
         self.threads = n;
+		log::debug!(">>> Entering threads()");
+		log::debug!("<<< Exiting threads()");
         self
     }
 
@@ -795,6 +878,8 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::debug!(">>> Entering get_or_set_current_dir()");
+			log::debug!("<<< Exiting get_or_set_current_dir()");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -831,7 +916,9 @@ impl WalkBuilder {
     ///
     /// This overrides any previous setting.
     pub fn overrides(&mut self, overrides: Override) -> &mut WalkBuilder {
+		log::debug!(">>> Entering overrides(overrides=(unprintable))");
         self.ig_builder.overrides(overrides);
+		log::debug!("<<< Exiting overrides(overrides=(unprintable))");
         self
     }
 
@@ -841,7 +928,9 @@ impl WalkBuilder {
     ///
     /// This overrides any previous setting.
     pub fn types(&mut self, types: Types) -> &mut WalkBuilder {
+		log::debug!(">>> Entering types(types=(unprintable))");
         self.ig_builder.types(types);
+		log::debug!("<<< Exiting types(types=(unprintable))");
         self
     }
 
@@ -860,6 +949,8 @@ impl WalkBuilder {
     ///
     /// This is (by definition) enabled by default.
     pub fn standard_filters(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering standard_filters(yes={})", yes);
+        log::debug!("<<< Exiting standard_filters(yes={})", yes);
         self.hidden(yes)
             .parents(yes)
             .ignore(yes)
@@ -872,7 +963,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn hidden(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering hidden(yes={})", yes);
         self.ig_builder.hidden(yes);
+		log::debug!("<<< Exiting hidden(yes={})", yes);
         self
     }
 
@@ -883,7 +976,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn parents(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering parents(yes={})", yes);
         self.ig_builder.parents(yes);
+		log::debug!("<<< Exiting parents(yes={})", yes);
         self
     }
 
@@ -894,7 +989,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn ignore(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering ignore(yes={})", yes);
         self.ig_builder.ignore(yes);
+		log::debug!("<<< Exiting ignore(yes={})", yes);
         self
     }
 
@@ -908,7 +1005,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn git_global(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering git_global(yes={})", yes);
         self.ig_builder.git_global(yes);
+		log::debug!("<<< Exiting git_global(yes={})", yes);
         self
     }
 
@@ -919,7 +1018,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn git_ignore(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering git_ignore(yes={})", yes);
         self.ig_builder.git_ignore(yes);
+		log::debug!("<<< Exiting git_ignore(yes={})", yes);
         self
     }
 
@@ -930,7 +1031,9 @@ impl WalkBuilder {
     ///
     /// This is enabled by default.
     pub fn git_exclude(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering git_exclude(yes={})", yes);
         self.ig_builder.git_exclude(yes);
+		log::debug!("<<< Exiting git_exclude(yes={})", yes);
         self
     }
 
@@ -944,7 +1047,9 @@ impl WalkBuilder {
     /// from parent directories above the git root directory containing `.git`,
     /// which is different from the git behavior.
     pub fn require_git(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering require_git(yes={})", yes);
         self.ig_builder.require_git(yes);
+		log::debug!("<<< Exiting require_git(yes={})", yes);
         self
     }
 
@@ -952,7 +1057,9 @@ impl WalkBuilder {
     ///
     /// This is disabled by default.
     pub fn ignore_case_insensitive(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering ignore_case_insensitive(yes={})", yes);
         self.ig_builder.ignore_case_insensitive(yes);
+		log::debug!("<<< Exiting ignore_case_insensitive(yes={})", yes);
         self
     }
 
@@ -974,7 +1081,9 @@ impl WalkBuilder {
     where
         F: Fn(&Path, &Path) -> Ordering + Send + Sync + 'static,
     {
+		log::debug!(">>> Entering sort_by_file_path(cmp=(unprintable))");
         self.sorter = Some(Sorter::ByPath(Arc::new(cmp)));
+		log::debug!("<<< Exiting sort_by_file_path(cmp=(unprintable))");
         self
     }
 
@@ -993,7 +1102,9 @@ impl WalkBuilder {
     where
         F: Fn(&OsStr, &OsStr) -> Ordering + Send + Sync + 'static,
     {
+		log::debug!(">>> Entering sort_by_file_name(cmp=(unprintable))");
         self.sorter = Some(Sorter::ByName(Arc::new(cmp)));
+		log::debug!("<<< Exiting sort_by_file_name(cmp=(unprintable))");
         self
     }
 
@@ -1006,7 +1117,12 @@ impl WalkBuilder {
     /// option is used on an unsupported platform, then directory traversal
     /// will immediately return an error and will not yield any entries.
     pub fn same_file_system(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering same_file_system(yes={})", yes);
         self.same_file_system = yes;
+		log::debug!(">>> Entering same_file_system()");
+		log::debug!("same_file_system(): td → (unprintable)");
+		log::debug!("same_file_system(): builder → (unprintable)");
+		log::debug!("<<< Exiting same_file_system()");
         self
     }
 
@@ -1022,11 +1138,13 @@ impl WalkBuilder {
     ///
     /// This is disabled by default.
     pub fn skip_stdout(&mut self, yes: bool) -> &mut WalkBuilder {
+		log::debug!(">>> Entering skip_stdout(yes={})", yes);
         if yes {
             self.skip = stdout_handle().map(Arc::new);
         } else {
             self.skip = None;
         }
+		log::debug!("<<< Exiting skip_stdout(yes={})", yes);
         self
     }
 
@@ -1047,7 +1165,9 @@ impl WalkBuilder {
     where
         P: Fn(&DirEntry) -> bool + Send + Sync + 'static,
     {
+		log::debug!(">>> Entering filter_entry(filter=(unprintable))");
         self.filter = Some(Filter(Arc::new(filter)));
+		log::debug!("<<< Exiting filter_entry(filter=(unprintable))");
         self
     }
 
@@ -1063,12 +1183,16 @@ impl WalkBuilder {
         &mut self,
         cwd: impl Into<PathBuf>,
     ) -> &mut WalkBuilder {
+		log::debug!(">>> Entering current_dir(cwd=(unprintable))");
         let cwd = cwd.into();
         self.ig_builder.current_dir(cwd.clone());
+		log::debug!("current_dir(cwd=(unprintable)): cwd → (unprintable)");
         if let Err(cwd) = self.global_gitignores_relative_to.set(Ok(cwd)) {
             // OK because `Err` from `set` implies a value exists.
+			log::error!("Exception in current_dir(cwd=(unprintable)): (unprintable)");
             *self.global_gitignores_relative_to.get_mut().unwrap() = cwd;
         }
+		log::debug!("<<< Exiting current_dir(cwd=(unprintable))");
         self
     }
 
@@ -1102,6 +1226,8 @@ impl WalkBuilder {
 
     /// Build the root ignore matcher shared by all consumers of this builder.
     fn build_ignore(&self) -> Ignore {
+		log::debug!(">>> Entering build_ignore()");
+        log::debug!("<<< Exiting build_ignore()");
         self.get_or_set_current_dir()
             .map(|cwd| self.ig_builder.build_with_cwd(Some(cwd.to_path_buf())))
             .unwrap_or_else(|| self.ig_builder.build())
@@ -1147,6 +1273,7 @@ impl Walk {
     }
 
     fn skip_entry(&self, ent: &DirEntry) -> Result<bool, Error> {
+		log::debug!(">>> Entering skip_entry(ent={:?})", ent);
         if ent.depth() == 0 {
             return Ok(false);
         }
@@ -1160,6 +1287,7 @@ impl Walk {
         // who ensured correct file-type filters were being used could still
         // get unnecessary file access resulting in large downloads.
         if should_skip_entry(&self.ig, ent) {
+			log::debug!("<<< Exiting should_skip_entry(ig=(unprintable),dent={:?})", dent);
             return Ok(true);
         }
         if let Some(ref stdout) = self.skip {
@@ -1179,6 +1307,7 @@ impl Walk {
                 return Ok(true);
             }
         }
+		log::debug!("<<< Exiting skip_entry(ent={:?})", ent);
         Ok(false)
     }
 }
@@ -1188,6 +1317,7 @@ impl Iterator for Walk {
 
     #[inline(always)]
     fn next(&mut self) -> Option<Result<DirEntry, Error>> {
+		log::debug!(">>> Entering next()");
         loop {
             let ev = match self.it.as_mut().and_then(|it| it.next()) {
                 Some(ev) => ev,
@@ -1202,6 +1332,7 @@ impl Iterator for Walk {
                             if path.is_dir() {
                                 let (ig, err) = self.ig_root.add_parents(path);
                                 self.ig = ig;
+								log::debug!("next(): self.ig → (unprintable)");
                                 if let Some(err) = err {
                                     return Some(Err(err));
                                 }
@@ -1215,6 +1346,7 @@ impl Iterator for Walk {
             };
             match ev {
                 Err(err) => {
+					log::error!("Exception in next(): (unprintable)");
                     return Some(Err(Error::from_walkdir(err)));
                 }
                 Ok(WalkEvent::Exit) => {
@@ -1222,6 +1354,7 @@ impl Iterator for Walk {
                 }
                 Ok(WalkEvent::Dir(ent)) => {
                     let mut ent = DirEntry::new_walkdir(ent, None);
+                    log::debug!("next(): ent → {:?}", ent);
                     let should_skip = match self.skip_entry(&ent) {
                         Err(err) => return Some(Err(err)),
                         Ok(should_skip) => should_skip,
@@ -1243,6 +1376,7 @@ impl Iterator for Walk {
                     };
                     self.ig = igtmp;
                     ent.err = err;
+					log::debug!("next(): ent.err → (unprintable)");
                     return Some(Ok(ent));
                 }
                 Ok(WalkEvent::File(ent)) => {
@@ -1282,6 +1416,8 @@ enum WalkEvent {
 
 impl From<WalkDir> for WalkEventIter {
     fn from(it: WalkDir) -> WalkEventIter {
+		log::debug!(">>> Entering from(it=(unprintable))");
+        log::debug!("<<< Exiting from(it=(unprintable))");
         WalkEventIter { depth: 0, it: it.into_iter(), next: None }
     }
 }
@@ -1311,6 +1447,7 @@ impl Iterator for WalkEventIter {
                     self.depth += 1;
                     Some(Ok(WalkEvent::Dir(dent)))
                 } else {
+					log::debug!(">>> Entering walkdir_is_dir(dent={:?})", dent);
                     Some(Ok(WalkEvent::File(dent)))
                 }
             }
@@ -1338,10 +1475,14 @@ pub enum WalkState {
 
 impl WalkState {
     fn is_continue(&self) -> bool {
+		log::debug!(">>> Entering is_continue()");
+        log::debug!("<<< Exiting is_continue()");
         *self == WalkState::Continue
     }
 
     fn is_quit(&self) -> bool {
+		log::debug!(">>> Entering is_quit()");
+        log::debug!("<<< Exiting is_quit()");
         *self == WalkState::Quit
     }
 }
@@ -1396,6 +1537,13 @@ struct FnVisitorImp<'s> {
 
 impl<'s> ParallelVisitor for FnVisitorImp<'s> {
     fn visit(&mut self, entry: Result<DirEntry, Error>) -> WalkState {
+		log::debug!(">>> Entering visit(entry=(unprintable))");
+        log::debug!("<<< Exiting visit(entry=(unprintable))");
+		log::debug!(">>> Entering visit(builder=(unprintable))");
+		log::debug!("visit(builder=(unprintable)): threads → (unprintable)");
+		log::debug!("visit(builder=(unprintable)): visitor → (unprintable)");
+		log::debug!("visit(builder=(unprintable)): paths → (unprintable)");
+		log::debug!("<<< Exiting visit(builder=(unprintable))");
         (self.visitor)(entry)
     }
 }
@@ -1429,6 +1577,8 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::debug!(">>> Entering run(mkf=(unprintable))");
+        log::debug!("<<< Exiting run(mkf=(unprintable))");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1538,6 +1688,7 @@ impl WalkParallel {
         if self.threads == 0 {
             std::thread::available_parallelism().map_or(1, |n| n.get()).min(12)
         } else {
+			log::debug!("<<< Exiting threads()");
             self.threads
         }
     }
@@ -1581,6 +1732,8 @@ impl Work {
 
     /// Returns true if and only if this work item is a symlink.
     fn is_symlink(&self) -> bool {
+		log::debug!(">>> Entering is_symlink()");
+        log::debug!("<<< Exiting is_symlink()");
         self.dent.file_type().map_or(false, |ft| ft.is_symlink())
     }
 
@@ -1589,6 +1742,7 @@ impl Work {
     /// Note that this only applies to entries at depth 0. On all other
     /// entries, this is a no-op.
     fn add_parents(&mut self) -> Option<Error> {
+		log::debug!(">>> Entering add_parents()");
         if self.dent.depth() > 0 {
             return None;
         }
@@ -1596,13 +1750,18 @@ impl Work {
         // use it directly to add parent ignore rules.
         let (ig, err) = self.ignore.add_parents(self.dent.path());
         self.ignore = ig;
+		log::debug!("add_parents(): self.ignore → (unprintable)");
+        log::debug!("<<< Exiting add_parents()");
         err
     }
 
     /// Adds ignore rules for this directory without reading its contents.
     fn add_ignore(&mut self) {
+		log::debug!(">>> Entering add_ignore()");
         let (ig, err) = self.ignore.add_child(self.dent.path());
         self.ignore = ig;
+		log::debug!("add_ignore(): self.ignore → (unprintable)");
+		log::debug!("<<< Exiting add_ignore()");
         self.dent.err = err;
     }
 
@@ -1614,9 +1773,11 @@ impl Work {
     /// rules for this directory, then the error is attached to this
     /// work item's directory entry.
     fn read_dir(&mut self) -> Result<ReadDirResult, Error> {
+		log::debug!(">>> Entering read_dir()");
         let readdir = match fs::read_dir(self.dent.path()) {
             Ok(readdir) => readdir,
             Err(err) => {
+				log::error!("Exception in read_dir(): (unprintable)");
                 let err = Error::from(err)
                     .with_path(self.dent.path())
                     .with_depth(self.dent.depth());
@@ -1625,6 +1786,7 @@ impl Work {
         };
         // Actually descend into the directory and read its contents
         let mut result = ReadDirResult::default();
+		log::debug!("read_dir(): result → (unprintable)");
         for entry in readdir {
             match entry {
                 Ok(entry) => result.entries.push(entry),
@@ -1640,6 +1802,8 @@ impl Work {
             .add_child_with_entries(self.dent.path(), &result.entries);
         self.ignore = ig;
         self.dent.err = err;
+		log::debug!("read_dir(): self.ignore → (unprintable)");
+        log::debug!("<<< Exiting read_dir()");
         Ok(result)
     }
 }
@@ -1660,6 +1824,7 @@ impl Stack {
     /// correspond to the initial paths to start the search at. They will
     /// be distributed automatically to each stack in a round-robin fashion.
     fn new_for_each_thread(threads: usize, init: Vec<Message>) -> Vec<Stack> {
+		log::debug!(">>> Entering new_for_each_thread(threads={},init=(unprintable))", threads);
         // Using new_lifo() ensures each worker operates depth-first, not
         // breadth-first. We do depth-first because a breadth first traversal
         // on wide directories with a lot of gitignores is disastrous (for
@@ -1684,28 +1849,35 @@ impl Stack {
         init.into_iter()
             .rev()
             .zip(stacks.iter().cycle())
+			log::debug!("<<< Exiting new_for_each_thread(threads={},init=(unprintable))", threads);
             .for_each(|(m, s)| s.push(m));
         stacks
     }
 
     /// Push a message.
     fn push(&self, msg: Message) {
+		log::debug!(">>> Entering push(msg=(unprintable))");
+		log::debug!("<<< Exiting push(msg=(unprintable))");
         self.deque.push(msg);
     }
 
     /// Pop a message.
     fn pop(&self) -> Option<Message> {
+		log::debug!(">>> Entering pop()");
+        log::debug!("<<< Exiting pop()");
         self.deque.pop().or_else(|| self.steal())
     }
 
     /// Steal a message from another queue.
     fn steal(&self) -> Option<Message> {
+		log::debug!(">>> Entering steal()");
         // For fairness, try to steal from index + 1, index + 2, ... len - 1,
         // then wrap around to 0, 1, ... index - 1.
         let (left, right) = self.stealers.split_at(self.index);
         // Don't steal from ourselves
         let right = &right[1..];
 
+		log::debug!("<<< Exiting steal()");
         right
             .iter()
             .chain(left.iter())
@@ -1767,6 +1939,7 @@ impl<'s> Worker<'s> {
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
+		log::debug!(">>> Entering run_one(work=(unprintable))");
         let should_visit = self
             .min_depth
             .map(|min_depth| work.dent.depth() >= min_depth)
@@ -1783,6 +1956,7 @@ impl<'s> Worker<'s> {
         }
         if let Some(err) = work.add_parents() {
             let state = self.visitor.visit(Err(err));
+			log::debug!("run_one(work=(unprintable)): state → (unprintable)");
             if state.is_quit() {
                 return state;
             }
@@ -1793,6 +1967,7 @@ impl<'s> Worker<'s> {
                 Ok(true) => true,
                 Ok(false) => false,
                 Err(err) => {
+					log::error!("Exception in run_one(work=(unprintable)): (unprintable)");
                     let state = self.visitor.visit(Err(err));
                     if state.is_quit() {
                         return state;
@@ -1811,6 +1986,7 @@ impl<'s> Worker<'s> {
         // In that case we still want to provide the closure with a valid
         // entry before passing the error value.
         let depth = work.dent.depth();
+		log::debug!("run_one(work=(unprintable)): depth → {}", depth);
         let readdir = if descend && self.max_depth.is_none_or(|m| depth < m) {
             Some(work.read_dir())
         } else {
@@ -1855,6 +2031,7 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+        log::debug!("<<< Exiting run_one(work=(unprintable))");
         WalkState::Continue
     }
 
@@ -1902,6 +2079,7 @@ impl<'s> Worker<'s> {
         // N.B. See analogous call in the single-threaded implementation about
         // why it's important for this to come before the checks below.
         if should_skip_entry(ig, &dent) {
+			log::debug!(">>> Entering should_skip_entry(ig=(unprintable),dent={:?})", dent);
             return WalkState::Continue;
         }
         if let Some(ref stdout) = self.skip {
@@ -1940,8 +2118,10 @@ impl<'s> Worker<'s> {
     /// If all work has been exhausted, then this returns None. The worker
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
+		log::debug!(">>> Entering get_work()");
         let mut value = self.recv();
         loop {
+			log::debug!("get_work(): value → (unprintable)");
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
             if self.is_quit_now() {
@@ -1987,50 +2167,69 @@ impl<'s> Worker<'s> {
                         std::thread::sleep(dur);
                     }
                 }
+			log::debug!("get_work(): dur → (unprintable)");
+        log::debug!("<<< Exiting get_work()");
             }
         }
     }
 
     /// Indicates that all workers should quit immediately.
     fn quit_now(&self) {
+		log::debug!(">>> Entering quit_now()");
+		log::debug!("<<< Exiting quit_now()");
         self.quit_now.store(true, AtomicOrdering::SeqCst);
     }
 
     /// Returns true if this worker should quit immediately.
     fn is_quit_now(&self) -> bool {
+		log::debug!(">>> Entering is_quit_now()");
+        let __log_start = std::time::Instant::now();
+        log::debug!("<<< Exiting is_quit_now()");
         self.quit_now.load(AtomicOrdering::SeqCst)
     }
 
     /// Send work.
     fn send(&self, work: Work) {
+		log::debug!(">>> Entering send(work=(unprintable))");
+		log::debug!("<<< Exiting send(work=(unprintable))");
         self.stack.push(Message::Work(work));
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
+		log::debug!(">>> Entering send_quit()");
+		log::debug!("<<< Exiting send_quit()");
         self.stack.push(Message::Quit);
     }
 
     /// Receive work.
     fn recv(&self) -> Option<Message> {
+		log::debug!(">>> Entering recv()");
+        log::debug!("<<< Exiting recv()");
         self.stack.pop()
     }
 
     /// Deactivates a worker and returns the number of currently active workers.
     fn deactivate_worker(&self) -> usize {
+		log::debug!(">>> Entering deactivate_worker()");
+        log::debug!("<<< Exiting deactivate_worker()");
         self.active_workers.fetch_sub(1, AtomicOrdering::Acquire) - 1
     }
 
     /// Reactivates a worker.
     fn activate_worker(&self) {
+		log::debug!(">>> Entering activate_worker()");
+		log::debug!("<<< Exiting activate_worker()");
         self.active_workers.fetch_add(1, AtomicOrdering::Release);
     }
 }
 
 impl<'s> Drop for Worker<'s> {
     fn drop(&mut self) {
+		log::debug!(">>> Entering drop()");
         if std::thread::panicking() {
             self.quit_now();
+		log::debug!("<<< Exiting drop()");
         }
     }
 }
@@ -2040,6 +2239,7 @@ fn check_symlink_loop(
     child_path: &Path,
     child_depth: usize,
 ) -> Result<(), Error> {
+	log::debug!(">>> Entering check_symlink_loop(ig_parent=(unprintable),child_path={:?},child_depth={})", child_path, child_depth);
     let hchild = Handle::from_path(child_path).map_err(|err| {
         Error::from(err).with_path(child_path).with_depth(child_depth)
     })?;
@@ -2079,10 +2279,12 @@ fn skip_filesize(
         }
     } else {
         false
+	log::debug!("<<< Exiting skip_filesize(max_filesize={},path={:?},ent=(unprintable))", max_filesize, path);
     }
 }
 
 fn should_skip_entry(ig: &Ignore, dent: &DirEntry) -> bool {
+	log::debug!(">>> Entering should_skip_entry(ig=(unprintable),dent={:?})", dent);
     let m = ig.matched_dir_entry(dent);
     if m.is_ignore() {
         log::debug!("ignoring {}: {:?}", dent.path().display(), m);
@@ -2091,6 +2293,7 @@ fn should_skip_entry(ig: &Ignore, dent: &DirEntry) -> bool {
         log::debug!("whitelisting {}: {:?}", dent.path().display(), m);
         false
     } else {
+		log::debug!("<<< Exiting should_skip_entry(ig=(unprintable),dent={:?})", dent);
         false
     }
 }
@@ -2103,6 +2306,8 @@ fn should_skip_entry(ig: &Ignore, dent: &DirEntry) -> bool {
 /// This can be used to ensure that we do not attempt to search a file that we
 /// may also be writing to.
 fn stdout_handle() -> Option<Handle> {
+	log::debug!(">>> Entering stdout_handle()");
+    log::error!("Exception in stdout_handle(): (unprintable)");
     let h = match Handle::stdout() {
         Err(_) => return None,
         Ok(h) => h,
@@ -2112,6 +2317,8 @@ fn stdout_handle() -> Option<Handle> {
         Ok(md) => md,
     };
     if !md.is_file() {
+	log::error!("Exception in stdout_handle(): (unprintable)");
+    log::debug!("<<< Exiting stdout_handle()");
         return None;
     }
     Some(h)
@@ -2123,6 +2330,10 @@ fn stdout_handle() -> Option<Handle> {
 fn path_equals(dent: &DirEntry, handle: &Handle) -> Result<bool, Error> {
     #[cfg(unix)]
     fn never_equal(dent: &DirEntry, handle: &Handle) -> bool {
+		log::debug!(">>> Entering never_equal(dent={:?},handle=(unprintable))", dent);
+        log::debug!("<<< Exiting never_equal(dent={:?},handle=(unprintable))", dent);
+		log::debug!(">>> Entering never_equal()");
+        log::debug!("<<< Exiting never_equal()");
         dent.ino() != Some(handle.ino())
     }
 
@@ -2150,6 +2361,7 @@ fn path_equals(dent: &DirEntry, handle: &Handle) -> Result<bool, Error> {
 /// it's a directory or not. But we only do this for root entries to avoid an
 /// additional stat check in most cases.
 fn walkdir_is_dir(dent: &walkdir::DirEntry) -> bool {
+	log::debug!(">>> Entering walkdir_is_dir(dent={:?})", dent);
     if dent.file_type().is_dir() {
         return true;
     }
@@ -2162,7 +2374,9 @@ fn walkdir_is_dir(dent: &walkdir::DirEntry) -> bool {
 /// Returns true if and only if the given path is on the same device as the
 /// given root device.
 fn is_same_file_system(root_device: u64, path: &Path) -> Result<bool, Error> {
+	log::debug!(">>> Entering is_same_file_system(root_device={},path={:?})", root_device, path);
     let dent_device =
+		log::debug!("<<< Exiting is_same_file_system(root_device={},path={:?})", root_device, path);
         device_num(path).map_err(|err| Error::Io(err).with_path(path))?;
     Ok(root_device == dent_device)
 }
@@ -2222,23 +2436,29 @@ mod tests {
     }
 
     fn normal_path(unix: &str) -> String {
+		log::debug!(">>> Entering normal_path(unix={})", unix);
+		log::debug!("<<< Exiting normal_path(unix={})", unix);
         if cfg!(windows) { unix.replace("\\", "/") } else { unix.to_string() }
     }
 
     fn walk_collect(prefix: &Path, builder: &WalkBuilder) -> Vec<String> {
+		log::debug!(">>> Entering walk_collect(prefix={:?},builder={:?})", prefix, builder);
         let mut paths = vec![];
         for result in builder.build() {
+			log::error!("Exception in walk_collect(prefix={:?},builder={:?}): (unprintable)", prefix, builder);
             let dent = match result {
                 Err(_) => continue,
                 Ok(dent) => dent,
             };
             let path = dent.path().strip_prefix(prefix).unwrap();
+			log::debug!("walk_collect(prefix={:?},builder={:?}): path → (unprintable)", prefix, builder);
             if path.as_os_str().is_empty() {
                 continue;
             }
             paths.push(normal_path(path.to_str().unwrap()));
         }
         paths.sort();
+		log::debug!("<<< Exiting walk_collect(prefix={:?},builder={:?})", prefix, builder);
         paths
     }
 
@@ -2246,19 +2466,26 @@ mod tests {
         prefix: &Path,
         builder: &WalkBuilder,
     ) -> Vec<String> {
+		log::debug!(">>> Entering walk_collect_parallel(prefix={:?},builder={:?})", prefix, builder);
         let mut paths = vec![];
         for dent in walk_collect_entries_parallel(builder) {
             let path = dent.path().strip_prefix(prefix).unwrap();
+			log::debug!("walk_collect_parallel(prefix={:?},builder={:?}): path → (unprintable)", prefix, builder);
             if path.as_os_str().is_empty() {
                 continue;
             }
+			log::debug!(">>> Entering walk_collect_entries_parallel(builder={:?})", builder);
+			log::debug!("walk_collect_entries_parallel(builder={:?}): dents → (unprintable)", builder);
             paths.push(normal_path(path.to_str().unwrap()));
+        log::debug!("<<< Exiting walk_collect_entries_parallel(builder={:?})", builder);
         }
         paths.sort();
+		log::debug!("<<< Exiting walk_collect_parallel(prefix={:?},builder={:?})", prefix, builder);
         paths
     }
 
     fn walk_collect_entries_parallel(builder: &WalkBuilder) -> Vec<DirEntry> {
+		log::debug!(">>> Entering walk_collect_entries_parallel(builder={:?})", builder);
         let dents = Arc::new(Mutex::new(vec![]));
         builder.build_parallel().run(|| {
             let dents = dents.clone();
@@ -2275,26 +2502,35 @@ mod tests {
     }
 
     fn mkpaths(paths: &[&str]) -> Vec<String> {
+		log::debug!(">>> Entering mkpaths(paths=(unprintable))");
         let mut paths: Vec<_> = paths.iter().map(|s| s.to_string()).collect();
         paths.sort();
+		log::debug!("<<< Exiting mkpaths(paths=(unprintable))");
         paths
     }
 
     fn tmpdir() -> TempDir {
+		log::debug!(">>> Entering tmpdir()");
+        log::debug!("<<< Exiting tmpdir()");
         TempDir::new().unwrap()
     }
 
     fn assert_paths(prefix: &Path, builder: &WalkBuilder, expected: &[&str]) {
+		log::debug!(">>> Entering assert_paths(prefix={:?},builder={:?},expected={:?})", prefix, builder, expected);
         let got = walk_collect(prefix, builder);
         assert_eq!(got, mkpaths(expected), "single threaded");
+		log::debug!("assert_paths(prefix={:?},builder={:?},expected={:?}): got → {:?}", prefix, builder, expected, got);
         let got = walk_collect_parallel(prefix, builder);
+		log::debug!("<<< Exiting assert_paths(prefix={:?},builder={:?},expected={:?})", prefix, builder, expected);
         assert_eq!(got, mkpaths(expected), "parallel");
     }
 
     #[test]
     fn no_ignores() {
+		log::debug!(">>> Entering no_ignores()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c"));
+		log::debug!("no_ignores(): td → (unprintable)");
         mkdirp(td.path().join("x/y"));
         wfile(td.path().join("a/b/foo"), "");
         wfile(td.path().join("x/y/foo"), "");
@@ -2303,13 +2539,17 @@ mod tests {
             td.path(),
             &WalkBuilder::new(td.path()),
             &["x", "x/y", "x/y/foo", "a", "a/b", "a/b/foo", "a/b/c"],
+		log::debug!("<<< Exiting no_ignores()");
         );
     }
 
     #[test]
     fn custom_ignore() {
+		log::debug!(">>> Entering custom_ignore()");
         let td = tmpdir();
         let custom_ignore = ".customignore";
+		log::debug!("custom_ignore(): custom_ignore → {}", custom_ignore);
+		log::debug!("custom_ignore(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(td.path().join(custom_ignore), "foo");
         wfile(td.path().join("foo"), "");
@@ -2318,14 +2558,19 @@ mod tests {
         wfile(td.path().join("a/bar"), "");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("custom_ignore(): builder → (unprintable)");
         builder.add_custom_ignore_filename(&custom_ignore);
+		log::debug!("<<< Exiting custom_ignore()");
         assert_paths(td.path(), &builder, &["bar", "a", "a/bar"]);
     }
 
     #[test]
     fn custom_ignore_exclusive_use() {
+		log::debug!(">>> Entering custom_ignore_exclusive_use()");
         let td = tmpdir();
         let custom_ignore = ".customignore";
+		log::debug!("custom_ignore_exclusive_use(): custom_ignore → {}", custom_ignore);
+		log::debug!("custom_ignore_exclusive_use(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(td.path().join(custom_ignore), "foo");
         wfile(td.path().join("foo"), "");
@@ -2334,18 +2579,22 @@ mod tests {
         wfile(td.path().join("a/bar"), "");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("custom_ignore_exclusive_use(): builder → (unprintable)");
         builder.ignore(false);
         builder.git_ignore(false);
         builder.git_global(false);
         builder.git_exclude(false);
         builder.add_custom_ignore_filename(&custom_ignore);
+		log::debug!("<<< Exiting custom_ignore_exclusive_use()");
         assert_paths(td.path(), &builder, &["bar", "a", "a/bar"]);
     }
 
     #[test]
     fn gitignore() {
+		log::debug!(">>> Entering gitignore()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("gitignore(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(td.path().join(".gitignore"), "foo");
         wfile(td.path().join("foo"), "");
@@ -2357,13 +2606,17 @@ mod tests {
             td.path(),
             &WalkBuilder::new(td.path()),
             &["bar", "a", "a/bar"],
+		log::debug!("<<< Exiting gitignore()");
         );
     }
 
     #[test]
     fn explicit_ignore() {
+		log::debug!(">>> Entering explicit_ignore()");
         let td = tmpdir();
         let igpath = td.path().join(".not-an-ignore");
+		log::debug!("explicit_ignore(): igpath → (unprintable)");
+		log::debug!("explicit_ignore(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(&igpath, "foo");
         wfile(td.path().join("foo"), "");
@@ -2372,14 +2625,19 @@ mod tests {
         wfile(td.path().join("a/bar"), "");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("explicit_ignore(): builder → (unprintable)");
         assert!(builder.add_ignore(&igpath).is_none());
+		log::debug!("<<< Exiting explicit_ignore()");
         assert_paths(td.path(), &builder, &["bar", "a", "a/bar"]);
     }
 
     #[test]
     fn explicit_ignore_exclusive_use() {
+		log::debug!(">>> Entering explicit_ignore_exclusive_use()");
         let td = tmpdir();
         let igpath = td.path().join(".not-an-ignore");
+		log::debug!("explicit_ignore_exclusive_use(): igpath → (unprintable)");
+		log::debug!("explicit_ignore_exclusive_use(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(&igpath, "foo");
         wfile(td.path().join("foo"), "");
@@ -2388,25 +2646,31 @@ mod tests {
         wfile(td.path().join("a/bar"), "");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("explicit_ignore_exclusive_use(): builder → (unprintable)");
         builder.standard_filters(false);
         assert!(builder.add_ignore(&igpath).is_none());
         assert_paths(
             td.path(),
             &builder,
             &[".not-an-ignore", "bar", "a", "a/bar"],
+		log::debug!("<<< Exiting explicit_ignore_exclusive_use()");
         );
     }
 
     #[test]
     fn gitignore_parent() {
+		log::debug!(">>> Entering gitignore_parent()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("gitignore_parent(): td → (unprintable)");
         mkdirp(td.path().join("a"));
         wfile(td.path().join(".gitignore"), "foo");
         wfile(td.path().join("a/foo"), "");
         wfile(td.path().join("a/bar"), "");
 
         let root = td.path().join("a");
+		log::warn!("gitignore_parent(): root → (unprintable)");
+		log::debug!("<<< Exiting gitignore_parent()");
         assert_paths(&root, &WalkBuilder::new(&root), &["bar"]);
     }
 
@@ -2436,12 +2700,17 @@ mod tests {
 
     #[test]
     fn max_depth_does_not_load_unreachable_ignore_files() {
+		log::debug!(">>> Entering max_depth_does_not_load_unreachable_ignore_files()");
         let td = tmpdir();
         let leaf = td.path().join("leaf");
+		log::debug!("max_depth_does_not_load_unreachable_ignore_files(): leaf → (unprintable)");
+		log::debug!("max_depth_does_not_load_unreachable_ignore_files(): td → (unprintable)");
         mkdirp(&leaf);
         wfile(leaf.join(".ignore"), "{invalid\n");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("max_depth_does_not_load_unreachable_ignore_files(): builder → (unprintable)");
+		log::debug!("max_depth_does_not_load_unreachable_ignore_files(): entry → (unprintable)");
         builder.max_depth(Some(1));
         let entry = builder
             .build()
@@ -2452,6 +2721,7 @@ mod tests {
             .unwrap();
 
         assert!(entry.error().is_none());
+		log::debug!("<<< Exiting max_depth_does_not_load_unreachable_ignore_files()");
         assert_paths(td.path(), &builder, &["leaf"]);
     }
 
@@ -2537,25 +2807,31 @@ mod tests {
     #[cfg(unix)] // because symlinks on windows are weird
     #[test]
     fn symlinks() {
+		log::debug!(">>> Entering symlinks()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b"));
+		log::debug!("symlinks(): td → (unprintable)");
         symlink(td.path().join("a/b"), td.path().join("z"));
         wfile(td.path().join("a/b/foo"), "");
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("symlinks(): builder → (unprintable)");
         assert_paths(td.path(), &builder, &["a", "a/b", "a/b/foo", "z"]);
         assert_paths(
             td.path(),
             &builder.follow_links(true),
             &["a", "a/b", "a/b/foo", "z", "z/foo"],
+		log::debug!("<<< Exiting symlinks()");
         );
     }
 
     #[cfg(unix)] // because symlinks on windows are weird
     #[test]
     fn first_path_not_symlink() {
+		log::debug!(">>> Entering first_path_not_symlink()");
         let td = tmpdir();
         mkdirp(td.path().join("foo"));
+		log::debug!("first_path_not_symlink(): td → (unprintable)");
 
         let dents = WalkBuilder::new(td.path().join("foo"))
             .build()
@@ -2569,18 +2845,23 @@ mod tests {
             td.path().join("foo"),
         ));
         assert_eq!(1, dents.len());
+		log::debug!("<<< Exiting first_path_not_symlink()");
         assert!(!dents[0].path_is_symlink());
     }
 
     #[cfg(unix)] // because symlinks on windows are weird
     #[test]
     fn symlink_loop() {
+		log::debug!(">>> Entering symlink_loop()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b"));
+		log::debug!("symlink_loop(): td → (unprintable)");
         symlink(td.path().join("a"), td.path().join("a/b/c"));
 
         let mut builder = WalkBuilder::new(td.path());
+		log::debug!("symlink_loop(): builder → (unprintable)");
         assert_paths(td.path(), &builder, &["a", "a/b", "a/b/c"]);
+		log::debug!("<<< Exiting symlink_loop()");
         assert_paths(td.path(), &builder.follow_links(true), &["a", "a/b"]);
     }
 
@@ -2621,8 +2902,10 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn no_read_permissions() {
+		log::debug!(">>> Entering no_read_permissions()");
         let dir_path = Path::new("/root");
 
+		log::debug!("no_read_permissions(): dir_path → (unprintable)");
         // There's no /etc/sudoers.d, skip the test.
         if !dir_path.is_dir() {
             return;
@@ -2634,13 +2917,17 @@ mod tests {
 
         // Check that we can't descend but get an entry for the parent dir.
         let builder = WalkBuilder::new(&dir_path);
+		log::debug!("no_read_permissions(): builder → (unprintable)");
+		log::debug!("<<< Exiting no_read_permissions()");
         assert_paths(dir_path.parent().unwrap(), &builder, &["root"]);
     }
 
     #[test]
     fn filter() {
+		log::debug!(">>> Entering filter()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c"));
+		log::debug!("filter(): td → (unprintable)");
         mkdirp(td.path().join("x/y"));
         wfile(td.path().join("a/b/foo"), "");
         wfile(td.path().join("x/y/foo"), "");
@@ -2670,8 +2957,10 @@ mod tests {
 
     #[test]
     fn from_iter() {
+		log::debug!(">>> Entering from_iter()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c"));
+		log::debug!("from_iter(): td → (unprintable)");
         mkdirp(td.path().join("d/e/f"));
         mkdirp(td.path().join("x/y"));
         wfile(td.path().join("a/b/foo"), "");
@@ -2700,6 +2989,7 @@ mod tests {
                 "a/b/foo",
                 "a/b/c",
             ],
+		log::debug!("<<< Exiting from_iter()");
         );
     }
 
@@ -2709,12 +2999,15 @@ mod tests {
     #[test]
     #[should_panic]
     fn panic_in_parallel() {
+		log::debug!(">>> Entering panic_in_parallel()");
         let td = tmpdir();
         wfile(td.path().join("foo.txt"), "");
+		log::debug!("panic_in_parallel(): td → (unprintable)");
 
         WalkBuilder::new(td.path())
             .threads(40)
             .build_parallel()
+			log::debug!("<<< Exiting panic_in_parallel()");
             .run(|| Box::new(|_| panic!("oops!")));
     }
 
@@ -2725,8 +3018,10 @@ mod tests {
     #[test]
     #[should_panic(expected = "builder panic")]
     fn panic_in_parallel_builder() {
+		log::debug!(">>> Entering panic_in_parallel_builder()");
         let td = tmpdir();
         wfile(td.path().join("foo.txt"), "");
+		log::debug!("panic_in_parallel_builder(): td → (unprintable)");
 
         let mut builds = 0;
         WalkBuilder::new(td.path()).threads(2).build_parallel().run(|| {
@@ -2735,6 +3030,7 @@ mod tests {
                 panic!("builder panic");
             }
             Box::new(|_| WalkState::Continue)
+		log::debug!("<<< Exiting panic_in_parallel_builder()");
         });
     }
 }

@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -24,11 +25,13 @@ where
         searcher: &'s Searcher,
         matcher: M,
         read_from: LineBufferReader<'s, R>,
+		log::debug!("<<< Exiting new(crate=(unprintable))");
         write_to: S,
     ) -> ReadByLine<'s, M, R, S> {
         debug_assert!(!searcher.multi_line_with_matcher(&matcher));
 
         ReadByLine {
+			log::debug!("<<< Exiting new(crate=(unprintable))");
             config: &searcher.config,
             core: Core::new(searcher, matcher, write_to, false),
             rdr: read_from,
@@ -51,17 +54,25 @@ where
     }
 
     fn consume_remaining(&mut self) {
+		log::debug!(">>> Entering consume_remaining()");
         let consumed = self.core.pos();
+		log::debug!("consume_remaining(): consumed → (unprintable)");
+    log::debug!("<<< Exiting consume_remaining()");
         self.rdr.consume(consumed);
     }
 
     fn fill(&mut self) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering fill()");
         assert!(self.rdr.buffer()[self.core.pos()..].is_empty());
 
         let already_binary = self.rdr.binary_byte_offset().is_some();
+		log::debug!("fill(): already_binary → (unprintable)");
         let old_buf_len = self.rdr.buffer().len();
+		log::debug!("fill(): old_buf_len → {}", old_buf_len);
+		log::debug!("fill(): consumed → (unprintable)");
         let consumed = self.core.roll(self.rdr.buffer());
         self.rdr.consume(consumed);
+		log::error!("Exception in fill(): (unprintable)");
         let didread = match self.rdr.fill() {
             Err(err) => return Err(S::Error::error_io(err)),
             Ok(didread) => didread,
@@ -82,12 +93,15 @@ where
         // is nothing left to search. So forcefully quit.
         if consumed == 0 && old_buf_len == self.rdr.buffer().len() {
             self.rdr.consume(old_buf_len);
+        log::debug!("<<< Exiting fill()");
             return Ok(false);
         }
         Ok(true)
     }
 
     fn should_binary_quit(&self) -> bool {
+		log::debug!(">>> Entering should_binary_quit()");
+        log::debug!("<<< Exiting should_binary_quit()");
         self.rdr.binary_byte_offset().is_some()
             && self.config.binary.quit_byte().is_some()
     }
@@ -127,6 +141,10 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         }
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
+		log::debug!(">>> Entering run(crate=(unprintable))");
+		log::debug!("run(crate=(unprintable)): binary_range → (unprintable)");
+		log::debug!("run(crate=(unprintable)): binary_byte_offset → (unprintable)");
+        log::debug!("<<< Exiting run(crate=(unprintable))");
         self.core.finish(byte_count, binary_byte_offset)
     }
 
@@ -134,6 +152,8 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         match self.core.binary_byte_offset() {
             Some(offset) if offset < self.core.pos() as u64 => offset,
             _ => self.core.pos() as u64,
+		log::debug!(">>> Entering byte_count()");
+        log::debug!("<<< Exiting byte_count()");
         }
     }
 }
@@ -170,6 +190,7 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
             let binary_range = Range::new(0, binary_upto);
             if !self.core.detect_binary(self.slice, &binary_range)? {
                 let mut keepgoing = true;
+				log::debug!("run(crate=(unprintable)): keepgoing → {}", keepgoing);
                 while !self.slice[self.core.pos()..].is_empty() && keepgoing {
                     keepgoing = self.sink()?;
                 }
@@ -201,11 +222,13 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
             }
         }
         let byte_count = self.byte_count();
+		log::debug!("run(crate=(unprintable)): byte_count → {}", byte_count);
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
     }
 
     fn sink(&mut self) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering sink()");
         if self.config.invert_match {
             return self.sink_matched_inverted();
         }
@@ -213,6 +236,7 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
             Some(range) => range,
             None => {
                 self.core.set_pos(self.slice.len());
+				log::debug!("sink(): core → (unprintable)");
                 return Ok(true);
             }
         };
@@ -254,15 +278,19 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
                     self.sink_matched(&last_match)
                 }
             }
+		log::debug!("<<< Exiting sink()");
         }
     }
 
     fn sink_matched_inverted(&mut self) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering sink_matched_inverted()");
         assert!(self.config.invert_match);
 
         let invert_match = match self.find()? {
             None => {
                 let range = Range::new(self.core.pos(), self.slice.len());
+				log::debug!("sink_matched_inverted(): range → (unprintable)");
+				log::debug!("sink_matched_inverted(): core → (unprintable)");
                 self.core.set_pos(range.end());
                 range
             }
@@ -293,10 +321,12 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
                 return Ok(false);
             }
         }
+        log::debug!("<<< Exiting sink_matched_inverted()");
         Ok(true)
     }
 
     fn sink_matched(&mut self, range: &Range) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering sink_matched(range={:?})", range);
         if range.is_empty() {
             // The only way we can produce an empty line for a match is if we
             // match the position immediately following the last byte that we
@@ -309,6 +339,7 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn sink_context(&mut self, range: &Range) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering sink_context(range={:?})", range);
         if self.config.passthru {
             if !self.core.other_context_by_line(self.slice, range.start())? {
                 return Ok(false);
@@ -325,6 +356,8 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		log::debug!(">>> Entering find()");
+        log::debug!("<<< Exiting find()");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))
@@ -335,10 +368,14 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     /// If the previous match is zero width, then this advances the search
     /// position one byte past the end of the match.
     fn advance(&mut self, range: &Range) {
+		log::debug!(">>> Entering advance(range={:?})", range);
         self.core.set_pos(range.end());
         if range.is_empty() && self.core.pos() < self.slice.len() {
+			log::debug!("advance(range={:?}): core → (unprintable)", range);
+			log::debug!("advance(range={:?}): newpos → (unprintable)", range);
             let newpos = self.core.pos() + 1;
             self.core.set_pos(newpos);
+		log::debug!("<<< Exiting advance(range={:?})", range);
         }
     }
 
@@ -374,18 +411,26 @@ extern crate snap;
 use std::io;
 
 fn main() {
+	log::debug!(">>> Entering main()");
     let stdin = io::stdin();
     let stdout = io::stdout();
+	log::debug!("main(): stdout → (unprintable)");
+	log::debug!("main(): stdin → (unprintable)");
 
     // Wrap the stdin reader in a Snappy reader.
     let mut rdr = snap::Reader::new(stdin.lock());
+	log::debug!("main(): rdr → (unprintable)");
+	log::debug!("main(): wtr → (unprintable)");
     let mut wtr = stdout.lock();
+	log::debug!("<<< Exiting main()");
     io::copy(&mut rdr, &mut wtr).expect(\"I/O operation failed\");
 }
 ";
 
     #[test]
     fn basic1() {
+		log::debug!(">>> Entering basic1()");
+		log::debug!("<<< Exiting basic1()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 129:be, to a very large extent, the result of luck. Sherlock Holmes
@@ -400,15 +445,20 @@ byte count:366
 
     #[test]
     fn basic2() {
+		log::debug!(">>> Entering basic2()");
         let exp = "\nbyte count:366\n";
+		log::debug!("basic2(): exp → {}", exp);
         SearcherTester::new(SHERLOCK, "NADA")
             .line_number(false)
             .expected_no_line_number(exp)
+			log::debug!("<<< Exiting basic2()");
             .test();
     }
 
     #[test]
     fn basic3() {
+		log::debug!(">>> Entering basic3()");
+		log::debug!("<<< Exiting basic3()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -426,6 +476,8 @@ byte count:366
 
     #[test]
     fn basic4() {
+		log::debug!(">>> Entering basic4()");
+		log::debug!("<<< Exiting basic4()");
         let haystack = "\
 a
 b
@@ -436,7 +488,9 @@ c
 d
 ";
         let byte_count = haystack.len();
+		log::debug!("basic4(): byte_count → {}", byte_count);
         let exp = format!("0:a\n\nbyte count:{}\n", byte_count);
+		log::debug!("basic4(): exp → {}", exp);
         SearcherTester::new(haystack, "a")
             .line_number(false)
             .expected_no_line_number(&exp)
@@ -445,6 +499,8 @@ d
 
     #[test]
     fn invert1() {
+		log::debug!(">>> Entering invert1()");
+		log::debug!("<<< Exiting invert1()");
         let exp = "\
 65:Holmeses, success in the province of detective work must always
 193:can extract a clew from a wisp of straw or a flake of cigar ash;
@@ -461,6 +517,8 @@ byte count:366
 
     #[test]
     fn line_number1() {
+		log::debug!(">>> Entering line_number1()");
+		log::debug!("<<< Exiting line_number1()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 129:be, to a very large extent, the result of luck. Sherlock Holmes
@@ -481,6 +539,8 @@ byte count:366
 
     #[test]
     fn line_number_invert1() {
+		log::debug!(">>> Entering line_number_invert1()");
+		log::debug!("<<< Exiting line_number_invert1()");
         let exp = "\
 65:Holmeses, success in the province of detective work must always
 193:can extract a clew from a wisp of straw or a flake of cigar ash;
@@ -504,8 +564,11 @@ byte count:366
 
     #[test]
     fn multi_line_overlap1() {
+		log::debug!(">>> Entering multi_line_overlap1()");
         let haystack = "xxx\nabc\ndefxxxabc\ndefxxx\nxxx";
         let byte_count = haystack.len();
+		log::debug!("multi_line_overlap1(): byte_count → {}", byte_count);
+        log::debug!("multi_line_overlap1(): haystack → {}", haystack);
         let exp = format!(
             "4:abc\n8:defxxxabc\n18:defxxx\n\nbyte count:{}\n",
             byte_count
@@ -515,13 +578,17 @@ byte count:366
             .by_line(false)
             .line_number(false)
             .expected_no_line_number(&exp)
+			log::debug!("<<< Exiting multi_line_overlap1()");
             .test();
     }
 
     #[test]
     fn multi_line_overlap2() {
+		log::debug!(">>> Entering multi_line_overlap2()");
         let haystack = "xxx\nabc\ndefabc\ndefxxx\nxxx";
         let byte_count = haystack.len();
+		log::debug!("multi_line_overlap2(): byte_count → {}", byte_count);
+        log::debug!("multi_line_overlap2(): haystack → {}", haystack);
         let exp = format!(
             "4:abc\n8:defabc\n15:defxxx\n\nbyte count:{}\n",
             byte_count
@@ -531,43 +598,57 @@ byte count:366
             .by_line(false)
             .line_number(false)
             .expected_no_line_number(&exp)
+			log::debug!("<<< Exiting multi_line_overlap2()");
             .test();
     }
 
     #[test]
     fn empty_line1() {
+		log::debug!(">>> Entering empty_line1()");
         let exp = "\nbyte count:0\n";
+		log::debug!("empty_line1(): exp → {}", exp);
         SearcherTester::new("", r"^$")
             .expected_no_line_number(exp)
             .expected_with_line_number(exp)
+			log::debug!("<<< Exiting empty_line1()");
             .test();
     }
 
     #[test]
     fn empty_line2() {
+		log::debug!(">>> Entering empty_line2()");
         let exp = "0:\n\nbyte count:1\n";
         let exp_line = "1:0:\n\nbyte count:1\n";
+		log::debug!("empty_line2(): exp_line → {}", exp_line);
+		log::debug!("empty_line2(): exp → {}", exp);
 
         SearcherTester::new("\n", r"^$")
             .expected_no_line_number(exp)
             .expected_with_line_number(exp_line)
+			log::debug!("<<< Exiting empty_line2()");
             .test();
     }
 
     #[test]
     fn empty_line3() {
+		log::debug!(">>> Entering empty_line3()");
         let exp = "0:\n1:\n\nbyte count:2\n";
         let exp_line = "1:0:\n2:1:\n\nbyte count:2\n";
+		log::debug!("empty_line3(): exp_line → {}", exp_line);
+		log::debug!("empty_line3(): exp → {}", exp);
 
         SearcherTester::new("\n\n", r"^$")
             .expected_no_line_number(exp)
             .expected_with_line_number(exp_line)
+			log::debug!("<<< Exiting empty_line3()");
             .test();
     }
 
     #[test]
     fn empty_line4() {
+		log::debug!(">>> Entering empty_line4()");
         // See: https://github.com/BurntSushi/ripgrep/issues/441
+		log::debug!("<<< Exiting empty_line4()");
         let haystack = "\
 a
 b
@@ -578,7 +659,9 @@ c
 d
 ";
         let byte_count = haystack.len();
+		log::debug!("empty_line4(): byte_count → {}", byte_count);
         let exp = format!("4:\n7:\n8:\n\nbyte count:{}\n", byte_count);
+		log::debug!("empty_line4(): exp → {}", exp);
         let exp_line =
             format!("3:4:\n5:7:\n6:8:\n\nbyte count:{}\n", byte_count);
 
@@ -590,8 +673,10 @@ d
 
     #[test]
     fn empty_line5() {
+		log::debug!(">>> Entering empty_line5()");
         // See: https://github.com/BurntSushi/ripgrep/issues/441
         // This is like empty_line4, but lacks the trailing line terminator.
+		log::debug!("<<< Exiting empty_line5()");
         let haystack = "\
 a
 b
@@ -601,7 +686,9 @@ c
 
 d";
         let byte_count = haystack.len();
+		log::debug!("empty_line5(): byte_count → {}", byte_count);
         let exp = format!("4:\n7:\n8:\n\nbyte count:{}\n", byte_count);
+		log::debug!("empty_line5(): exp → {}", exp);
         let exp_line =
             format!("3:4:\n5:7:\n6:8:\n\nbyte count:{}\n", byte_count);
 
@@ -613,8 +700,10 @@ d";
 
     #[test]
     fn empty_line6() {
+		log::debug!(">>> Entering empty_line6()");
         // See: https://github.com/BurntSushi/ripgrep/issues/441
         // This is like empty_line4, but includes an empty line at the end.
+		log::debug!("<<< Exiting empty_line6()");
         let haystack = "\
 a
 b
@@ -626,7 +715,9 @@ d
 
 ";
         let byte_count = haystack.len();
+		log::debug!("empty_line6(): byte_count → {}", byte_count);
         let exp = format!("4:\n7:\n8:\n11:\n\nbyte count:{}\n", byte_count);
+		log::debug!("empty_line6(): exp → {}", exp);
         let exp_line =
             format!("3:4:\n5:7:\n6:8:\n8:11:\n\nbyte count:{}\n", byte_count);
 
@@ -638,8 +729,10 @@ d
 
     #[test]
     fn big1() {
+		log::debug!(">>> Entering big1()");
         let mut haystack = String::new();
         haystack.push_str("a\n");
+		log::debug!("big1(): haystack → {}", haystack);
         // Pick an arbitrary number above the capacity.
         for _ in 0..(4 * (DEFAULT_BUFFER_CAPACITY + 7)) {
             haystack.push_str("zzz\n");
@@ -647,18 +740,23 @@ d
         haystack.push_str("a\n");
 
         let byte_count = haystack.len();
+		log::debug!("big1(): byte_count → {}", byte_count);
         let exp = format!("0:a\n1048690:a\n\nbyte count:{}\n", byte_count);
+		log::debug!("big1(): exp → {}", exp);
 
         SearcherTester::new(&haystack, "a")
             .line_number(false)
             .expected_no_line_number(&exp)
+			log::debug!("<<< Exiting big1()");
             .test();
     }
 
     #[test]
     fn big_error_one_line() {
+		log::debug!(">>> Entering big_error_one_line()");
         let mut haystack = String::new();
         haystack.push_str("a\n");
+		log::debug!("big_error_one_line(): haystack → {}", haystack);
         // Pick an arbitrary number above the capacity.
         for _ in 0..(4 * (DEFAULT_BUFFER_CAPACITY + 7)) {
             haystack.push_str("zzz\n");
@@ -666,19 +764,24 @@ d
         haystack.push_str("a\n");
 
         let matcher = RegexMatcher::new("a");
+		log::debug!("big_error_one_line(): matcher → (unprintable)");
+		log::debug!("big_error_one_line(): sink → (unprintable)");
         let mut sink = KitchenSink::new();
         let mut searcher = SearcherBuilder::new()
             .heap_limit(Some(3)) // max line length is 4, one byte short
             .build();
         let result =
             searcher.search_reader(&matcher, haystack.as_bytes(), &mut sink);
+		log::debug!("<<< Exiting big_error_one_line()");
         assert!(result.is_err());
     }
 
     #[test]
     fn big_error_multi_line() {
+		log::debug!(">>> Entering big_error_multi_line()");
         let mut haystack = String::new();
         haystack.push_str("a\n");
+		log::debug!("big_error_multi_line(): haystack → {}", haystack);
         // Pick an arbitrary number above the capacity.
         for _ in 0..(4 * (DEFAULT_BUFFER_CAPACITY + 7)) {
             haystack.push_str("zzz\n");
@@ -686,6 +789,8 @@ d
         haystack.push_str("a\n");
 
         let matcher = RegexMatcher::new("a");
+		log::debug!("big_error_multi_line(): matcher → (unprintable)");
+		log::debug!("big_error_multi_line(): sink → (unprintable)");
         let mut sink = KitchenSink::new();
         let mut searcher = SearcherBuilder::new()
             .multi_line(true)
@@ -693,37 +798,48 @@ d
             .build();
         let result =
             searcher.search_reader(&matcher, haystack.as_bytes(), &mut sink);
+		log::debug!("<<< Exiting big_error_multi_line()");
         assert!(result.is_err());
     }
 
     #[test]
     fn binary1() {
+		log::debug!(">>> Entering binary1()");
         let haystack = "\x00a";
         let exp = "\nbyte count:0\nbinary offset:0\n";
+		log::debug!("binary1(): exp → {}", exp);
+		log::debug!("binary1(): haystack → {}", haystack);
 
         SearcherTester::new(haystack, "a")
             .binary_detection(BinaryDetection::quit(0))
             .line_number(false)
             .expected_no_line_number(exp)
+			log::debug!("<<< Exiting binary1()");
             .test();
     }
 
     #[test]
     fn binary2() {
+		log::debug!(">>> Entering binary2()");
         let haystack = "a\x00";
         let exp = "\nbyte count:0\nbinary offset:1\n";
+		log::debug!("binary2(): exp → {}", exp);
+		log::debug!("binary2(): haystack → {}", haystack);
 
         SearcherTester::new(haystack, "a")
             .binary_detection(BinaryDetection::quit(0))
             .line_number(false)
             .expected_no_line_number(exp)
+			log::debug!("<<< Exiting binary2()");
             .test();
     }
 
     #[test]
     fn binary3() {
+		log::debug!(">>> Entering binary3()");
         let mut haystack = String::new();
         haystack.push_str("a\n");
+		log::debug!("binary3(): haystack → {}", haystack);
         for _ in 0..DEFAULT_BUFFER_CAPACITY {
             haystack.push_str("zzz\n");
         }
@@ -738,6 +854,7 @@ d
         // before searching it. Thus, the total number of bytes searched is
         // smaller than below.
         let exp = "0:a\n\nbyte count:262146\nbinary offset:262153\n";
+		log::debug!("binary3(): exp → {}", exp);
         // In contrast, the slice readers (for multi line as well) will only
         // look for binary data in the initial chunk of bytes. After that
         // point, it only looks for binary data in matches. Note though that
@@ -752,13 +869,16 @@ d
             .auto_heap_limit(false)
             .expected_no_line_number(exp)
             .expected_slice_no_line_number(exp_slice)
+			log::debug!("<<< Exiting binary3()");
             .test();
     }
 
     #[test]
     fn binary4() {
+		log::debug!(">>> Entering binary4()");
         let mut haystack = String::new();
         haystack.push_str("a\n");
+		log::debug!("binary4(): haystack → {}", haystack);
         for _ in 0..DEFAULT_BUFFER_CAPACITY {
             haystack.push_str("zzz\n");
         }
@@ -772,6 +892,7 @@ d
         haystack.push_str("a\n");
 
         let exp = "0:a\n\nbyte count:262146\nbinary offset:262149\n";
+		log::debug!("binary4(): exp → {}", exp);
         // The binary offset for the Slice readers corresponds to the binary
         // data in `a\x00a\n` since the first line with binary data
         // (`b\x00b\n`) isn't part of a match, and is therefore undetected.
@@ -784,11 +905,14 @@ d
             .auto_heap_limit(false)
             .expected_no_line_number(exp)
             .expected_slice_no_line_number(exp_slice)
+			log::debug!("<<< Exiting binary4()");
             .test();
     }
 
     #[test]
     fn passthru_sherlock1() {
+		log::debug!(">>> Entering passthru_sherlock1()");
+		log::debug!("<<< Exiting passthru_sherlock1()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65-Holmeses, success in the province of detective work must always
@@ -807,6 +931,8 @@ byte count:366
 
     #[test]
     fn passthru_sherlock_invert1() {
+		log::debug!(">>> Entering passthru_sherlock_invert1()");
+		log::debug!("<<< Exiting passthru_sherlock_invert1()");
         let exp = "\
 0-For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -826,6 +952,8 @@ byte count:366
 
     #[test]
     fn context_sherlock1() {
+		log::debug!(">>> Entering context_sherlock1()");
+		log::debug!("<<< Exiting context_sherlock1()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65-Holmeses, success in the province of detective work must always
@@ -875,6 +1003,8 @@ byte count:366
 
     #[test]
     fn context_sherlock_invert1() {
+		log::debug!(">>> Entering context_sherlock_invert1()");
+		log::debug!("<<< Exiting context_sherlock_invert1()");
         let exp = "\
 0-For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -930,6 +1060,8 @@ byte count:366
 
     #[test]
     fn context_sherlock2() {
+		log::debug!(">>> Entering context_sherlock2()");
+		log::debug!("<<< Exiting context_sherlock2()");
         let exp = "\
 65-Holmeses, success in the province of detective work must always
 129:be, to a very large extent, the result of luck. Sherlock Holmes
@@ -979,6 +1111,8 @@ byte count:366
 
     #[test]
     fn context_sherlock_invert2() {
+		log::debug!(">>> Entering context_sherlock_invert2()");
+		log::debug!("<<< Exiting context_sherlock_invert2()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -1044,6 +1178,8 @@ byte count:366
 
     #[test]
     fn context_sherlock3() {
+		log::debug!(">>> Entering context_sherlock3()");
+		log::debug!("<<< Exiting context_sherlock3()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65-Holmeses, success in the province of detective work must always
@@ -1095,6 +1231,8 @@ byte count:366
 
     #[test]
     fn context_sherlock4() {
+		log::debug!(">>> Entering context_sherlock4()");
+		log::debug!("<<< Exiting context_sherlock4()");
         let exp = "\
 129-be, to a very large extent, the result of luck. Sherlock Holmes
 193-can extract a clew from a wisp of straw or a flake of cigar ash;
@@ -1147,6 +1285,8 @@ byte count:366
 
     #[test]
     fn context_sherlock5() {
+		log::debug!(">>> Entering context_sherlock5()");
+		log::debug!("<<< Exiting context_sherlock5()");
         let exp = "\
 0-For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -1208,6 +1348,8 @@ byte count:366
 
     #[test]
     fn context_sherlock6() {
+		log::debug!(">>> Entering context_sherlock6()");
+		log::debug!("<<< Exiting context_sherlock6()");
         let exp = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65-Holmeses, success in the province of detective work must always
@@ -1268,15 +1410,21 @@ byte count:366
 
     #[test]
     fn context_code1() {
+		log::debug!(">>> Entering context_code1()");
         // before and after
+		log::debug!("<<< Exiting context_code1()");
         let exp = "\
 33-
 34-fn main() {
 46:    let stdin = io::stdin();
+log::debug!("context_code1(): stdin → (unprintable)");
+log::debug!("context_code1(): stdout → (unprintable)");
 75-    let stdout = io::stdout();
 106-
 107:    // Wrap the stdin reader in a Snappy reader.
 156:    let mut rdr = snap::Reader::new(stdin.lock());
+log::debug!("context_code1(): rdr → (unprintable)");
+log::debug!("context_code1(): wtr → (unprintable)");
 207-    let mut wtr = stdout.lock();
 240-    io::copy(&mut rdr, &mut wtr).expect(\"I/O operation failed\");
 
@@ -1343,13 +1491,19 @@ byte count:307
 
     #[test]
     fn context_code2() {
+		log::debug!(">>> Entering context_code2()");
+		log::debug!("<<< Exiting context_code2()");
         let exp = "\
 34-fn main() {
 46-    let stdin = io::stdin();
+log::debug!("context_code2(): stdin → (unprintable)");
+log::debug!("context_code2(): stdout → (unprintable)");
 75:    let stdout = io::stdout();
 106-
 107-    // Wrap the stdin reader in a Snappy reader.
 156-    let mut rdr = snap::Reader::new(stdin.lock());
+log::debug!("context_code2(): rdr → (unprintable)");
+log::debug!("context_code2(): wtr → (unprintable)");
 207:    let mut wtr = stdout.lock();
 240-    io::copy(&mut rdr, &mut wtr).expect(\"I/O operation failed\");
 305-}
@@ -1417,15 +1571,21 @@ byte count:307
 
     #[test]
     fn context_code3() {
+		log::debug!(">>> Entering context_code3()");
+		log::debug!("<<< Exiting context_code3()");
         let exp = "\
 20-use std::io;
 33-
 34:fn main() {
 46-    let stdin = io::stdin();
+log::debug!("context_code3(): stdin → (unprintable)");
+log::debug!("context_code3(): stdout → (unprintable)");
 75-    let stdout = io::stdout();
 106-
 107-    // Wrap the stdin reader in a Snappy reader.
 156:    let mut rdr = snap::Reader::new(stdin.lock());
+log::debug!("context_code3(): rdr → (unprintable)");
+log::debug!("context_code3(): wtr → (unprintable)");
 207-    let mut wtr = stdout.lock();
 240-    io::copy(&mut rdr, &mut wtr).expect(\"I/O operation failed\");
 
@@ -1493,9 +1653,13 @@ byte count:307
 
     #[test]
     fn scratch() {
+		log::debug!(">>> Entering scratch()");
         use crate::sinks;
         use crate::testutil::RegexMatcher;
 
+		log::debug!("scratch(): matcher → (unprintable)");
+		log::debug!("scratch(): searcher → (unprintable)");
+		log::debug!("<<< Exiting scratch()");
         const SHERLOCK: &'static [u8] = b"\
 For the Doctor Wat\xFFsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -1523,6 +1687,7 @@ and exhibited clearly, with a label attached.\
     // See: https://github.com/BurntSushi/ripgrep/issues/2260
     #[test]
     fn regression_2260() {
+		log::debug!(">>> Entering regression_2260()");
         use grep_regex::RegexMatcherBuilder;
 
         use crate::SearcherBuilder;
@@ -1532,8 +1697,10 @@ and exhibited clearly, with a label attached.\
             .build(r"^\w+$")
             .unwrap();
         let mut searcher = SearcherBuilder::new().line_number(true).build();
+		log::debug!("regression_2260(): searcher → (unprintable)");
 
         let mut matched = false;
+		log::debug!("regression_2260(): matched → {}", matched);
         searcher
             .search_slice(
                 &matcher,
@@ -1544,6 +1711,7 @@ and exhibited clearly, with a label attached.\
                 }),
             )
             .unwrap();
+		log::debug!("<<< Exiting regression_2260()");
         assert!(matched);
     }
 }

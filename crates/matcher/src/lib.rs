@@ -18,6 +18,7 @@ provided by the caller when a match is found. This is in contrast to the
 usual style of *external iteration* (the "pull" model) found throughout the
 Rust ecosystem. There are two primary reasons why internal iteration was
 chosen:
+const LOGGER: &'static Logger = &Logger(());
 
 * Some search implementations may themselves require internal iteration.
   Converting an internal iterator to an external iterator can be non-trivial
@@ -79,25 +80,35 @@ impl Match {
     /// This function panics if `start > end`.
     #[inline]
     pub fn new(start: usize, end: usize) -> Match {
+		log::debug!(">>> Entering new(start={},end={})", start, end);
         assert!(start <= end);
+		log::debug!("<<< Exiting new(start={},end={})", start, end);
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         Match { start, end }
     }
 
     /// Creates a zero width match at the given offset.
     #[inline]
     pub fn zero(offset: usize) -> Match {
+		log::debug!(">>> Entering zero(offset={})", offset);
+        log::debug!("<<< Exiting zero(offset={})", offset);
         Match { start: offset, end: offset }
     }
 
     /// Return the start offset of this match.
     #[inline]
     pub fn start(&self) -> usize {
+		log::debug!(">>> Entering start()");
+        log::debug!("<<< Exiting start()");
         self.start
     }
 
     /// Return the end offset of this match.
     #[inline]
     pub fn end(&self) -> usize {
+		log::debug!(">>> Entering end()");
+        log::debug!("<<< Exiting end()");
         self.end
     }
 
@@ -109,7 +120,9 @@ impl Match {
     /// This method panics if `start > self.end`.
     #[inline]
     pub fn with_start(&self, start: usize) -> Match {
+		log::debug!(">>> Entering with_start(start={})", start);
         assert!(start <= self.end, "{} is not <= {}", start, self.end);
+		log::debug!("<<< Exiting with_start(start={})", start);
         Match { start, ..*self }
     }
 
@@ -121,7 +134,9 @@ impl Match {
     /// This method panics if `self.start > end`.
     #[inline]
     pub fn with_end(&self, end: usize) -> Match {
+		log::debug!(">>> Entering with_end(end={})", end);
         assert!(self.start <= end, "{} is not <= {}", self.start, end);
+		log::debug!("<<< Exiting with_end(end={})", end);
         Match { end, ..*self }
     }
 
@@ -136,6 +151,8 @@ impl Match {
     /// offset would result in an overflow.
     #[inline]
     pub fn offset(&self, amount: usize) -> Match {
+		log::debug!(">>> Entering offset(amount={})", amount);
+        log::debug!("<<< Exiting offset(amount={})", amount);
         Match {
             start: self.start.checked_add(amount).unwrap(),
             end: self.end.checked_add(amount).unwrap(),
@@ -145,12 +162,16 @@ impl Match {
     /// Returns the number of bytes in this match.
     #[inline]
     pub fn len(&self) -> usize {
+		log::debug!(">>> Entering len()");
+        log::debug!("<<< Exiting len()");
         self.end - self.start
     }
 
     /// Returns true if and only if this match is empty.
     #[inline]
     pub fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty()");
+        log::debug!("<<< Exiting is_empty()");
         self.len() == 0
     }
 }
@@ -160,6 +181,8 @@ impl std::ops::Index<Match> for [u8] {
 
     #[inline]
     fn index(&self, index: Match) -> &[u8] {
+		log::debug!(">>> Entering index(index={:?})", index);
+        log::debug!("<<< Exiting index(index={:?})", index);
         &self[index.start..index.end]
     }
 }
@@ -167,6 +190,8 @@ impl std::ops::Index<Match> for [u8] {
 impl std::ops::IndexMut<Match> for [u8] {
     #[inline]
     fn index_mut(&mut self, index: Match) -> &mut [u8] {
+		log::debug!(">>> Entering index_mut(index={:?})", index);
+        log::debug!("<<< Exiting index_mut(index={:?})", index);
         &mut self[index.start..index.end]
     }
 }
@@ -209,6 +234,8 @@ impl LineTerminator {
     /// Return a new single-byte line terminator. Any byte is valid.
     #[inline]
     pub fn byte(byte: u8) -> LineTerminator {
+		log::debug!(">>> Entering byte(byte={})", byte);
+        log::debug!("<<< Exiting byte(byte={})", byte);
         LineTerminator(LineTerminatorImp::Byte(byte))
     }
 
@@ -218,12 +245,16 @@ impl LineTerminator {
     /// a line terminator in addition to `\r\n`.
     #[inline]
     pub fn crlf() -> LineTerminator {
+		log::debug!(">>> Entering crlf()");
+        log::debug!("<<< Exiting crlf()");
         LineTerminator(LineTerminatorImp::CRLF)
     }
 
     /// Returns true if and only if this line terminator is CRLF.
     #[inline]
     pub fn is_crlf(&self) -> bool {
+		log::debug!(">>> Entering is_crlf()");
+        log::debug!("<<< Exiting is_crlf()");
         self.0 == LineTerminatorImp::CRLF
     }
 
@@ -234,6 +265,8 @@ impl LineTerminator {
     /// `\n` as a line terminator even when it isn't preceded by `\r`.
     #[inline]
     pub fn as_byte(&self) -> u8 {
+		log::debug!(">>> Entering as_byte()");
+        log::debug!("<<< Exiting as_byte()");
         match self.0 {
             LineTerminatorImp::Byte(byte) => byte,
             LineTerminatorImp::CRLF => b'\n',
@@ -248,6 +281,8 @@ impl LineTerminator {
     /// The slice returned is guaranteed to have length at least `1`.
     #[inline]
     pub fn as_bytes(&self) -> &[u8] {
+		log::debug!(">>> Entering as_bytes()");
+        log::debug!("<<< Exiting as_bytes()");
         match self.0 {
             LineTerminatorImp::Byte(ref byte) => std::slice::from_ref(byte),
             LineTerminatorImp::CRLF => &[b'\r', b'\n'],
@@ -261,6 +296,8 @@ impl LineTerminator {
     /// last byte is `\n`.
     #[inline]
     pub fn is_suffix(&self, slice: &[u8]) -> bool {
+		log::debug!(">>> Entering is_suffix(slice={:?})", slice);
+        log::debug!("<<< Exiting is_suffix(slice={:?})", slice);
         slice.last().map_or(false, |&b| b == self.as_byte())
     }
 }
@@ -268,6 +305,8 @@ impl LineTerminator {
 impl Default for LineTerminator {
     #[inline]
     fn default() -> LineTerminator {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         LineTerminator::byte(b'\n')
     }
 }
@@ -294,7 +333,10 @@ impl std::fmt::Debug for BitSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut fmtd = f.debug_set();
         for b in 0..=255 {
+			log::debug!(">>> Entering fmt(f=(unprintable))");
+			log::debug!("fmt(f=(unprintable)): fmtd → (unprintable)");
             if ByteSet(*self).contains(b) {
+				log::debug!("<<< Exiting fmt(f=(unprintable))");
                 fmtd.entry(&b);
             }
         }
@@ -306,6 +348,8 @@ impl ByteSet {
     /// Create an empty set of bytes.
     #[inline]
     pub fn empty() -> ByteSet {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         ByteSet(BitSet([0; 4]))
     }
 
@@ -313,6 +357,8 @@ impl ByteSet {
     /// returned.
     #[inline]
     pub fn full() -> ByteSet {
+		log::debug!(">>> Entering full()");
+        log::debug!("<<< Exiting full()");
         ByteSet(BitSet([u64::MAX; 4]))
     }
 
@@ -321,16 +367,20 @@ impl ByteSet {
     /// If the given byte already belongs to this set, then this is a no-op.
     #[inline]
     pub fn add(&mut self, byte: u8) {
+		log::debug!(">>> Entering add(byte={})", byte);
         let bucket = byte / 64;
         let bit = byte % 64;
+		log::debug!("<<< Exiting add(byte={})", byte);
         (self.0).0[usize::from(bucket)] |= 1 << bit;
     }
 
     /// Add an inclusive range of bytes.
     #[inline]
     pub fn add_all(&mut self, start: u8, end: u8) {
+		log::debug!(">>> Entering add_all(start={},end={})", start, end);
         for b in start..=end {
             self.add(b);
+		log::debug!("<<< Exiting add_all(start={},end={})", start, end);
         }
     }
 
@@ -339,24 +389,30 @@ impl ByteSet {
     /// If the given byte is not in this set, then this is a no-op.
     #[inline]
     pub fn remove(&mut self, byte: u8) {
+		log::debug!(">>> Entering remove(byte={})", byte);
         let bucket = byte / 64;
         let bit = byte % 64;
+		log::debug!("<<< Exiting remove(byte={})", byte);
         (self.0).0[usize::from(bucket)] &= !(1 << bit);
     }
 
     /// Remove an inclusive range of bytes.
     #[inline]
     pub fn remove_all(&mut self, start: u8, end: u8) {
+		log::debug!(">>> Entering remove_all(start={},end={})", start, end);
         for b in start..=end {
             self.remove(b);
+		log::debug!("<<< Exiting remove_all(start={},end={})", start, end);
         }
     }
 
     /// Return true if and only if the given byte is in this set.
     #[inline]
     pub fn contains(&self, byte: u8) -> bool {
+		log::debug!(">>> Entering contains(byte={})", byte);
         let bucket = byte / 64;
         let bit = byte % 64;
+		log::debug!("<<< Exiting contains(byte={})", byte);
         (self.0).0[usize::from(bucket)] & (1 << bit) > 0
     }
 }
@@ -395,6 +451,10 @@ pub trait Captures {
     /// `get(0).unwrap()`
     #[inline]
     fn as_match(&self) -> Match {
+		log::debug!(">>> Entering as_match()");
+        log::debug!("<<< Exiting as_match()");
+		log::debug!(">>> Entering get()");
+        log::debug!("<<< Exiting get()");
         self.get(0).unwrap()
     }
 
@@ -443,6 +503,8 @@ pub trait Captures {
         name_to_index: F,
         haystack: &[u8],
         replacement: &[u8],
+		log::debug!(">>> Entering interpolate(name_to_index=(unprintable),haystack={:?},replacement={:?},dst={:?})", haystack, replacement, dst);
+        log::debug!("<<< Exiting interpolate(name_to_index=(unprintable),haystack={:?},replacement={:?},dst={:?})", haystack, replacement, dst);
         dst: &mut Vec<u8>,
     ) where
         F: FnMut(&str) -> Option<usize>,
@@ -450,6 +512,8 @@ pub trait Captures {
         interpolate(
             replacement,
             |i, dst| {
+				log::debug!(">>> Entering interpolate(name_to_index=(unprintable),haystack={:?},replacement={:?},dst={:?})", haystack, replacement, dst);
+        log::debug!("<<< Exiting interpolate(name_to_index=(unprintable),haystack={:?},replacement={:?},dst={:?})", haystack, replacement, dst);
                 if let Some(range) = self.get(i) {
                     dst.extend(&haystack[range]);
                 }
@@ -498,18 +562,24 @@ pub struct NoError(());
 
 impl std::error::Error for NoError {
     fn description(&self) -> &str {
+		log::debug!(">>> Entering description()");
+        log::debug!("<<< Exiting description()");
         "no error"
     }
 }
 
 impl std::fmt::Display for NoError {
     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		log::debug!(">>> Entering fmt()");
+        log::debug!("<<< Exiting fmt()");
         panic!("BUG for NoError: an impossible error occurred")
     }
 }
 
 impl From<NoError> for std::io::Error {
     fn from(_: NoError) -> std::io::Error {
+		log::debug!(">>> Entering from()");
+        log::debug!("<<< Exiting from()");
         panic!("BUG for NoError: an impossible error occurred")
     }
 }
@@ -573,6 +643,7 @@ pub trait Matcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, Self::Error>;
+	log::debug!(">>> Entering find_at(haystack={:?},at={})", haystack, at);
 
     /// Creates an empty group of captures suitable for use with the capturing
     /// APIs of this trait.
@@ -593,8 +664,11 @@ pub trait Matcher {
     ///
     /// By default, capturing groups are not supported, so this always
     /// returns 0.
+	log::debug!("<<< Exiting find_at(haystack={:?},at={})", haystack, at);
     #[inline]
     fn capture_count(&self) -> usize {
+		log::debug!(">>> Entering capture_count()");
+        log::debug!("<<< Exiting capture_count()");
         0
     }
 
@@ -609,6 +683,10 @@ pub trait Matcher {
     /// `None`.
     #[inline]
     fn capture_index(&self, _name: &str) -> Option<usize> {
+		log::debug!(">>> Entering capture_index(_name={})", _name);
+        log::debug!("<<< Exiting capture_index(_name={})", _name);
+		log::debug!(">>> Entering capture_index(name={})", name);
+        log::debug!("<<< Exiting capture_index(name={})", name);
         None
     }
 
@@ -619,6 +697,8 @@ pub trait Matcher {
     /// advised to assume UTF-8, or at worst, some ASCII compatible encoding.
     #[inline]
     fn find(&self, haystack: &[u8]) -> Result<Option<Match>, Self::Error> {
+		log::debug!(">>> Entering find(haystack={:?})", haystack);
+        log::debug!("<<< Exiting find(haystack={:?})", haystack);
         self.find_at(haystack, 0)
     }
 
@@ -629,6 +709,8 @@ pub trait Matcher {
     fn find_iter<F>(
         &self,
         haystack: &[u8],
+		log::debug!(">>> Entering find_iter(haystack={:?},matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting find_iter(haystack={:?},matched=(unprintable))", haystack);
         matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -636,6 +718,8 @@ pub trait Matcher {
     {
         self.find_iter_at(haystack, 0, matched)
     }
+	log::debug!(">>> Entering find_iter(haystack={:?},matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting find_iter(haystack={:?},matched=(unprintable))", haystack);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack`. If no match exists, then the given function is never
@@ -649,6 +733,8 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         at: usize,
+		log::debug!(">>> Entering find_iter_at(haystack={:?},at={},matched=(unprintable))", haystack, at);
+        log::debug!("<<< Exiting find_iter_at(haystack={:?},at={},matched=(unprintable))", haystack, at);
         mut matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -657,6 +743,8 @@ pub trait Matcher {
         self.try_find_iter_at(haystack, at, |m| Ok(matched(m)))
             .map(|r: Result<(), ()>| r.unwrap())
     }
+	log::debug!(">>> Entering find_iter_at(haystack={:?},at={},matched=(unprintable))", haystack, at);
+        log::debug!("<<< Exiting find_iter_at(haystack={:?},at={},matched=(unprintable))", haystack, at);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack`. If no match exists, then the given function is never
@@ -669,6 +757,8 @@ pub trait Matcher {
     fn try_find_iter<F, E>(
         &self,
         haystack: &[u8],
+		log::debug!(">>> Entering try_find_iter(haystack={:?},matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting try_find_iter(haystack={:?},matched=(unprintable))", haystack);
         matched: F,
     ) -> Result<Result<(), E>, Self::Error>
     where
@@ -676,6 +766,8 @@ pub trait Matcher {
     {
         self.try_find_iter_at(haystack, 0, matched)
     }
+	log::debug!(">>> Entering try_find_iter(haystack={:?},matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting try_find_iter(haystack={:?},matched=(unprintable))", haystack);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack`. If no match exists, then the given function is never
@@ -693,6 +785,7 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         at: usize,
+		log::debug!(">>> Entering try_find_iter_at(haystack={:?},at={},matched=(unprintable))", haystack, at);
         mut matched: F,
     ) -> Result<Result<(), E>, Self::Error>
     where
@@ -742,6 +835,8 @@ pub trait Matcher {
         haystack: &[u8],
         caps: &mut Self::Captures,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering captures(haystack={:?},caps=(unprintable))", haystack);
+        log::debug!("<<< Exiting captures(haystack={:?},caps=(unprintable))", haystack);
         self.captures_at(haystack, 0, caps)
     }
 
@@ -754,6 +849,8 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         caps: &mut Self::Captures,
+		log::debug!(">>> Entering captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
         matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -761,6 +858,8 @@ pub trait Matcher {
     {
         self.captures_iter_at(haystack, 0, caps, matched)
     }
+	log::debug!(">>> Entering captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack` with capture groups extracted from each match. If no
@@ -776,6 +875,8 @@ pub trait Matcher {
         haystack: &[u8],
         at: usize,
         caps: &mut Self::Captures,
+		log::debug!(">>> Entering captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable))", haystack, at);
+        log::debug!("<<< Exiting captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable))", haystack, at);
         mut matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -784,6 +885,8 @@ pub trait Matcher {
         self.try_captures_iter_at(haystack, at, caps, |caps| Ok(matched(caps)))
             .map(|r: Result<(), ()>| r.unwrap())
     }
+	log::debug!(">>> Entering captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable))", haystack, at);
+        log::debug!("<<< Exiting captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable))", haystack, at);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack` with capture groups extracted from each match. If no
@@ -797,6 +900,8 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         caps: &mut Self::Captures,
+		log::debug!(">>> Entering try_captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting try_captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
         matched: F,
     ) -> Result<Result<(), E>, Self::Error>
     where
@@ -804,6 +909,8 @@ pub trait Matcher {
     {
         self.try_captures_iter_at(haystack, 0, caps, matched)
     }
+	log::debug!(">>> Entering try_captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
+        log::debug!("<<< Exiting try_captures_iter(haystack={:?},caps=(unprintable),matched=(unprintable))", haystack);
 
     /// Executes the given function over successive non-overlapping matches
     /// in `haystack` with capture groups extracted from each match. If no
@@ -822,6 +929,7 @@ pub trait Matcher {
         haystack: &[u8],
         at: usize,
         caps: &mut Self::Captures,
+		log::debug!(">>> Entering try_captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable))", haystack, at);
         mut matched: F,
     ) -> Result<Result<(), E>, Self::Error>
     where
@@ -838,6 +946,7 @@ pub trait Matcher {
                 return Ok(Ok(()));
             }
             let m = caps.get(0).unwrap();
+			log::debug!("try_captures_iter_at(haystack={:?},at={},caps=(unprintable),matched=(unprintable)): m → {:?}", haystack, at, m);
             if m.start == m.end {
                 // This is an empty match. To ensure we make progress, start
                 // the next search at the smallest possible starting position
@@ -890,6 +999,8 @@ pub trait Matcher {
         _at: usize,
         _caps: &mut Self::Captures,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering captures_at(_haystack={:?},_at={},_caps=(unprintable))", _haystack, _at);
+        log::debug!("<<< Exiting captures_at(_haystack={:?},_at={},_caps=(unprintable))", _haystack, _at);
         Ok(false)
     }
 
@@ -903,6 +1014,9 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         dst: &mut Vec<u8>,
+		log::debug!(">>> Entering replace(haystack={:?},dst={:?},append=(unprintable))", haystack, dst);
+		log::debug!("replace(haystack={:?},dst={:?},append=(unprintable)): last_match → {}", haystack, dst, last_match);
+		log::debug!("<<< Exiting replace(haystack={:?},dst={:?},append=(unprintable))", haystack, dst);
         mut append: F,
     ) -> Result<(), Self::Error>
     where
@@ -928,6 +1042,8 @@ pub trait Matcher {
         haystack: &[u8],
         caps: &mut Self::Captures,
         dst: &mut Vec<u8>,
+		log::debug!(">>> Entering replace_with_captures(haystack={:?},caps=(unprintable),dst={:?},append=(unprintable))", haystack, dst);
+        log::debug!("<<< Exiting replace_with_captures(haystack={:?},caps=(unprintable),dst={:?},append=(unprintable))", haystack, dst);
         append: F,
     ) -> Result<(), Self::Error>
     where
@@ -935,6 +1051,8 @@ pub trait Matcher {
     {
         self.replace_with_captures_at(haystack, 0, caps, dst, append)
     }
+	log::debug!(">>> Entering replace_with_captures(haystack={:?},caps=(unprintable),dst={:?},append=(unprintable))", haystack, dst);
+        log::debug!("<<< Exiting replace_with_captures(haystack={:?},caps=(unprintable),dst={:?},append=(unprintable))", haystack, dst);
 
     /// Replaces every match in the given haystack with the result of calling
     /// `append` with the matching capture groups.
@@ -951,6 +1069,8 @@ pub trait Matcher {
         at: usize,
         caps: &mut Self::Captures,
         dst: &mut Vec<u8>,
+		log::debug!(">>> Entering replace_with_captures_at(haystack={:?},at={},caps=(unprintable),dst={:?},append=(unprintable))", haystack, at, dst);
+		log::debug!("<<< Exiting replace_with_captures_at(haystack={:?},at={},caps=(unprintable),dst={:?},append=(unprintable))", haystack, at, dst);
         mut append: F,
     ) -> Result<(), Self::Error>
     where
@@ -959,6 +1079,7 @@ pub trait Matcher {
         let mut last_match = at;
         self.captures_iter_at(haystack, at, caps, |caps| {
             let m = caps.get(0).unwrap();
+			log::debug!("replace_with_captures_at(haystack={:?},at={},caps=(unprintable),dst={:?},append=(unprintable)): m → {:?}", haystack, at, dst, m);
             dst.extend(&haystack[last_match..m.start]);
             last_match = m.end;
             append(caps, dst)
@@ -972,6 +1093,8 @@ pub trait Matcher {
     /// By default, this method is implemented by calling `shortest_match`.
     #[inline]
     fn is_match(&self, haystack: &[u8]) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering is_match(haystack={:?})", haystack);
+        log::debug!("<<< Exiting is_match(haystack={:?})", haystack);
         self.is_match_at(haystack, 0)
     }
 
@@ -989,6 +1112,8 @@ pub trait Matcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering is_match_at(haystack={:?},at={})", haystack, at);
+        log::debug!("<<< Exiting is_match_at(haystack={:?},at={})", haystack, at);
         Ok(self.shortest_match_at(haystack, at)?.is_some())
     }
 
@@ -1011,6 +1136,8 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
     ) -> Result<Option<usize>, Self::Error> {
+		log::debug!(">>> Entering shortest_match(haystack={:?})", haystack);
+        log::debug!("<<< Exiting shortest_match(haystack={:?})", haystack);
         self.shortest_match_at(haystack, 0)
     }
 
@@ -1038,6 +1165,8 @@ pub trait Matcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<usize>, Self::Error> {
+		log::debug!(">>> Entering shortest_match_at(haystack={:?},at={})", haystack, at);
+        log::debug!("<<< Exiting shortest_match_at(haystack={:?},at={})", haystack, at);
         Ok(self.find_at(haystack, at)?.map(|m| m.end))
     }
 
@@ -1063,6 +1192,8 @@ pub trait Matcher {
     /// By default, this returns `None`.
     #[inline]
     fn non_matching_bytes(&self) -> Option<&ByteSet> {
+		log::debug!(">>> Entering non_matching_bytes()");
+        log::debug!("<<< Exiting non_matching_bytes()");
         None
     }
 
@@ -1080,6 +1211,8 @@ pub trait Matcher {
     /// By default, this returns `None`.
     #[inline]
     fn line_terminator(&self) -> Option<LineTerminator> {
+		log::debug!(">>> Entering line_terminator()");
+        log::debug!("<<< Exiting line_terminator()");
         None
     }
 
@@ -1126,6 +1259,8 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
     ) -> Result<Option<LineMatchKind>, Self::Error> {
+		log::debug!(">>> Entering find_candidate_line(haystack={:?})", haystack);
+        log::debug!("<<< Exiting find_candidate_line(haystack={:?})", haystack);
         Ok(self.shortest_match(haystack)?.map(LineMatchKind::Confirmed))
     }
 }
@@ -1145,6 +1280,8 @@ impl<'a, M: Matcher> Matcher for &'a M {
 
     #[inline]
     fn new_captures(&self) -> Result<Self::Captures, Self::Error> {
+		log::debug!(">>> Entering new_captures()");
+        log::debug!("<<< Exiting new_captures()");
         (*self).new_captures()
     }
 

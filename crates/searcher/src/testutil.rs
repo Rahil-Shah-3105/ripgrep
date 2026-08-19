@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -34,6 +35,8 @@ impl RegexMatcher {
             .multi_line(true) // permits ^ and $ to match at \n boundaries
             .build()
             .unwrap();
+		log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
         RegexMatcher { regex, line_term: None, every_line_is_candidate: false }
     }
 
@@ -44,7 +47,10 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		log::debug!(">>> Entering set_line_term(crate=(unprintable))");
         self.line_term = line_term;
+		log::debug!("set_line_term(crate=(unprintable)): self.line_term → (unprintable)");
+        log::debug!("<<< Exiting set_line_term(crate=(unprintable))");
         self
     }
 
@@ -55,7 +61,10 @@ impl RegexMatcher {
         &mut self,
         yes: bool,
     ) -> &mut RegexMatcher {
+		log::debug!(">>> Entering every_line_is_candidate(crate=(unprintable))");
         self.every_line_is_candidate = yes;
+		log::debug!("every_line_is_candidate(crate=(unprintable)): self.every_line_is_candidate → (unprintable)");
+        log::debug!("<<< Exiting every_line_is_candidate(crate=(unprintable))");
         self
     }
 }
@@ -69,6 +78,8 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		log::debug!(">>> Entering find_at(haystack={:?},at={})", haystack, at);
+        log::debug!("<<< Exiting find_at(haystack={:?},at={})", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -76,10 +87,14 @@ impl Matcher for RegexMatcher {
     }
 
     fn new_captures(&self) -> Result<NoCaptures, NoError> {
+		log::debug!(">>> Entering new_captures()");
+        log::debug!("<<< Exiting new_captures()");
         Ok(NoCaptures::new())
     }
 
     fn line_terminator(&self) -> Option<LineTerminator> {
+		log::debug!(">>> Entering line_terminator()");
+        log::debug!("<<< Exiting line_terminator()");
         self.line_term
     }
 
@@ -101,6 +116,7 @@ impl Matcher for RegexMatcher {
             Ok(Some(LineMatchKind::Candidate(i)))
         } else {
             Ok(self.shortest_match(haystack)?.map(LineMatchKind::Confirmed))
+		log::debug!("<<< Exiting find_candidate_line(haystack={:?})", haystack);
         }
     }
 }
@@ -121,6 +137,8 @@ impl KitchenSink {
 
     /// Return the data written to this sink.
     pub(crate) fn as_bytes(&self) -> &[u8] {
+		log::debug!(">>> Entering as_bytes(crate=(unprintable))");
+        log::debug!("<<< Exiting as_bytes(crate=(unprintable))");
         &self.0
     }
 }
@@ -133,10 +151,12 @@ impl Sink for KitchenSink {
         _searcher: &Searcher,
         mat: &SinkMatch<'_>,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering matched(_searcher=(unprintable),mat=(unprintable))");
         assert!(!mat.bytes().is_empty());
         assert!(mat.lines().count() >= 1);
 
         let mut line_number = mat.line_number();
+		log::debug!("matched(_searcher=(unprintable),mat=(unprintable)): byte_offset → (unprintable)");
         let mut byte_offset = mat.absolute_byte_offset();
         for line in mat.lines() {
             if let Some(ref mut n) = line_number {
@@ -148,12 +168,15 @@ impl Sink for KitchenSink {
             byte_offset += line.len() as u64;
             self.0.write_all(line)?;
         }
+		log::debug!("<<< Exiting matched(_searcher=(unprintable),mat=(unprintable))");
         Ok(true)
     }
 
     fn context(
         &mut self,
         _searcher: &Searcher,
+		log::debug!(">>> Entering context(_searcher=(unprintable),context=(unprintable))");
+		log::debug!("<<< Exiting context(_searcher=(unprintable),context=(unprintable))");
         context: &SinkContext<'_>,
     ) -> Result<bool, io::Error> {
         assert!(!context.bytes().is_empty());
@@ -171,7 +194,9 @@ impl Sink for KitchenSink {
         &mut self,
         _searcher: &Searcher,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering context_break(_searcher=(unprintable))");
         self.0.write_all(b"--\n")?;
+		log::debug!("<<< Exiting context_break(_searcher=(unprintable))");
         Ok(true)
     }
 
@@ -180,11 +205,13 @@ impl Sink for KitchenSink {
         _searcher: &Searcher,
         sink_finish: &SinkFinish,
     ) -> Result<(), io::Error> {
+		log::debug!(">>> Entering finish(_searcher=(unprintable),sink_finish=(unprintable))");
         writeln!(self.0, "")?;
         writeln!(self.0, "byte count:{}", sink_finish.byte_count())?;
         if let Some(offset) = sink_finish.binary_byte_offset() {
             writeln!(self.0, "binary offset:{}", offset)?;
         }
+		log::debug!("<<< Exiting finish(_searcher=(unprintable),sink_finish=(unprintable))");
         Ok(())
     }
 }
@@ -248,6 +275,7 @@ impl SearcherTester {
     /// Execute the test. If the test succeeds, then this returns successfully.
     /// If the test fails, then it panics with an informative message.
     pub(crate) fn test(&self) {
+		log::debug!(">>> Entering test(crate=(unprintable))");
         // Check for configuration errors.
         if self.expected_no_line_number.is_none() {
             panic!("an 'expected' string with NO line numbers must be given");
@@ -260,7 +288,12 @@ impl SearcherTester {
         }
 
         let configs = self.configs();
+		log::debug!("test(crate=(unprintable)): configs → {:?}", configs);
         if configs.is_empty() {
+			log::debug!(">>> Entering configs()");
+			log::debug!("configs(): builder → (unprintable)");
+			log::debug!("configs(): matcher → (unprintable)");
+			log::debug!("<<< Exiting configs()");
             panic!("test configuration resulted in nothing being tested");
         }
         if self.print_labels {
@@ -280,8 +313,10 @@ impl SearcherTester {
         }
         for config in &configs {
             let label = format!("reader-{}", config.label);
+			log::debug!("test(crate=(unprintable)): label → {}", label);
             if self.include(&label) {
                 let got = config.search_reader(&self.haystack);
+				log::debug!("test(crate=(unprintable)): got → {}", got);
                 assert_eq_printed!(config.expected_reader, got, "{}", label);
             }
 
@@ -290,6 +325,7 @@ impl SearcherTester {
                 let got = config.search_slice(&self.haystack);
                 assert_eq_printed!(config.expected_slice, got, "{}", label);
             }
+		log::debug!("<<< Exiting test(crate=(unprintable))");
         }
     }
 
@@ -303,7 +339,9 @@ impl SearcherTester {
     /// execute.
     #[allow(dead_code)]
     pub(crate) fn filter(&mut self, pattern: &str) -> &mut SearcherTester {
+		log::debug!(">>> Entering filter(crate=(unprintable))");
         self.filter = Some(::regex::Regex::new(pattern).unwrap());
+		log::debug!("<<< Exiting filter(crate=(unprintable))");
         self
     }
 
@@ -314,7 +352,10 @@ impl SearcherTester {
     /// want to use `cargo test -- --nocapture`.
     #[allow(dead_code)]
     pub(crate) fn print_labels(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering print_labels(crate=(unprintable))");
         self.print_labels = yes;
+		log::debug!("print_labels(crate=(unprintable)): self.print_labels → (unprintable)");
+        log::debug!("<<< Exiting print_labels(crate=(unprintable))");
         self
     }
 
@@ -323,13 +364,17 @@ impl SearcherTester {
         &mut self,
         exp: &str,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering expected_no_line_number(crate=(unprintable))");
         self.expected_no_line_number = Some(exp.to_string());
+		log::debug!("<<< Exiting expected_no_line_number(crate=(unprintable))");
         self
     }
 
     /// Set the expected search results, with line numbers.
     pub(crate) fn expected_with_line_number(
         &mut self,
+		log::debug!(">>> Entering expected_with_line_number(crate=(unprintable))");
+		log::debug!("<<< Exiting expected_with_line_number(crate=(unprintable))");
         exp: &str,
     ) -> &mut SearcherTester {
         self.expected_with_line_number = Some(exp.to_string());
@@ -343,7 +388,9 @@ impl SearcherTester {
         &mut self,
         exp: &str,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering expected_slice_no_line_number(crate=(unprintable))");
         self.expected_slice_no_line_number = Some(exp.to_string());
+		log::debug!("<<< Exiting expected_slice_no_line_number(crate=(unprintable))");
         self
     }
 
@@ -355,7 +402,9 @@ impl SearcherTester {
         &mut self,
         exp: &str,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering expected_slice_with_line_number(crate=(unprintable))");
         self.expected_slice_with_line_number = Some(exp.to_string());
+		log::debug!("<<< Exiting expected_slice_with_line_number(crate=(unprintable))");
         self
     }
 
@@ -365,7 +414,10 @@ impl SearcherTester {
     /// when line numbers are present must be provided. Otherwise, the expected
     /// string isn't required.
     pub(crate) fn line_number(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering line_number(crate=(unprintable))");
         self.line_number = yes;
+		log::debug!("line_number(crate=(unprintable)): self.line_number → (unprintable)");
+        log::debug!("<<< Exiting line_number(crate=(unprintable))");
         self
     }
 
@@ -373,7 +425,10 @@ impl SearcherTester {
     ///
     /// By default, this is enabled.
     pub(crate) fn by_line(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering by_line(crate=(unprintable))");
         self.by_line = yes;
+		log::debug!("by_line(crate=(unprintable)): self.by_line → (unprintable)");
+        log::debug!("<<< Exiting by_line(crate=(unprintable))");
         self
     }
 
@@ -382,7 +437,10 @@ impl SearcherTester {
     /// By default, this is enabled.
     #[allow(dead_code)]
     pub(crate) fn multi_line(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering multi_line(crate=(unprintable))");
         self.multi_line = yes;
+		log::debug!("multi_line(crate=(unprintable)): self.multi_line → (unprintable)");
+        log::debug!("<<< Exiting multi_line(crate=(unprintable))");
         self
     }
 
@@ -390,7 +448,10 @@ impl SearcherTester {
     ///
     /// By default, this is disabled.
     pub(crate) fn invert_match(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering invert_match(crate=(unprintable))");
         self.invert_match = yes;
+		log::debug!("invert_match(crate=(unprintable)): self.invert_match → (unprintable)");
+        log::debug!("<<< Exiting invert_match(crate=(unprintable))");
         self
     }
 
@@ -401,7 +462,10 @@ impl SearcherTester {
         &mut self,
         detection: BinaryDetection,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering binary_detection(crate=(unprintable))");
         self.binary = detection;
+		log::debug!("binary_detection(crate=(unprintable)): self.binary → (unprintable)");
+        log::debug!("<<< Exiting binary_detection(crate=(unprintable))");
         self
     }
 
@@ -416,6 +480,9 @@ impl SearcherTester {
     /// test.
     pub(crate) fn auto_heap_limit(
         &mut self,
+		log::debug!(">>> Entering auto_heap_limit(crate=(unprintable))");
+		log::debug!("auto_heap_limit(crate=(unprintable)): self.auto_heap_limit → (unprintable)");
+        log::debug!("<<< Exiting auto_heap_limit(crate=(unprintable))");
         yes: bool,
     ) -> &mut SearcherTester {
         self.auto_heap_limit = yes;
@@ -429,7 +496,10 @@ impl SearcherTester {
         &mut self,
         lines: usize,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering after_context(crate=(unprintable))");
         self.after_context = lines;
+		log::debug!("after_context(crate=(unprintable)): self.after_context → (unprintable)");
+        log::debug!("<<< Exiting after_context(crate=(unprintable))");
         self
     }
 
@@ -440,7 +510,10 @@ impl SearcherTester {
         &mut self,
         lines: usize,
     ) -> &mut SearcherTester {
+		log::debug!(">>> Entering before_context(crate=(unprintable))");
         self.before_context = lines;
+		log::debug!("before_context(crate=(unprintable)): self.before_context → (unprintable)");
+        log::debug!("<<< Exiting before_context(crate=(unprintable))");
         self
     }
 
@@ -452,7 +525,10 @@ impl SearcherTester {
     ///
     /// This is disabled by default.
     pub(crate) fn passthru(&mut self, yes: bool) -> &mut SearcherTester {
+		log::debug!(">>> Entering passthru(crate=(unprintable))");
         self.passthru = yes;
+		log::debug!("passthru(crate=(unprintable)): self.passthru → (unprintable)");
+        log::debug!("<<< Exiting passthru(crate=(unprintable))");
         self
     }
 
@@ -466,6 +542,7 @@ impl SearcherTester {
     /// search or not, since multi line search requires being able to fit the
     /// entire haystack into memory.
     fn minimal_heap_limit(&self, multi_line: bool) -> usize {
+		log::debug!(">>> Entering minimal_heap_limit(multi_line={})", multi_line);
         if multi_line {
             1 + self.haystack.len()
         } else if self.before_context == 0 && self.after_context == 0 {
@@ -490,6 +567,7 @@ impl SearcherTester {
 
             // We add 1 to each line since `str::lines` doesn't include the
             // line terminator.
+			log::debug!("<<< Exiting minimal_heap_limit(multi_line={})", multi_line);
             lens.into_iter()
                 .take(context_count)
                 .map(|len| len + 1)
@@ -503,10 +581,12 @@ impl SearcherTester {
     /// Inclusion is determined by the filter specified. If no filter has been
     /// given, then this always returns `true`.
     fn include(&self, label: &str) -> bool {
+		log::debug!(">>> Entering include(label={})", label);
         let re = match self.filter {
             None => return true,
             Some(ref re) => re,
         };
+		log::debug!("<<< Exiting include(label={})", label);
         re.is_match(label)
     }
 
@@ -514,6 +594,7 @@ impl SearcherTester {
     /// tested. The configs generated are based on the configuration in this
     /// builder.
     fn configs(&self) -> Vec<TesterConfig> {
+		log::debug!(">>> Entering configs()");
         let mut configs = vec![];
 
         let matcher = RegexMatcher::new(&self.pattern);
@@ -673,6 +754,7 @@ impl SearcherTester {
             });
             builder.heap_limit(None);
         }
+		log::debug!("<<< Exiting configs()");
         configs
     }
 }
@@ -691,34 +773,46 @@ impl TesterConfig {
     /// strategy, where the entire contents of the corpus aren't necessarily
     /// in memory at once.
     fn search_reader(&self, haystack: &str) -> String {
+		log::debug!(">>> Entering search_reader(haystack={})", haystack);
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		log::debug!("search_reader(haystack={}): searcher → (unprintable)", haystack);
+        log::debug!("search_reader(haystack={}): sink → (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
         if let Err(err) = result {
+			log::error!("Exception in search_reader(haystack={}): (unprintable)", haystack);
             let label = format!("reader-{}", self.label);
+			log::debug!("search_reader(haystack={}): label → {}", haystack, label);
             panic!("error running '{}': {}", label, err);
         }
+		log::debug!("<<< Exiting search_reader(haystack={})", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
     /// Execute a search using a slice. This exercises the search routines that
     /// have the entire contents of the corpus in memory at one time.
     fn search_slice(&self, haystack: &str) -> String {
+		log::debug!(">>> Entering search_slice(haystack={})", haystack);
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		log::debug!("search_slice(haystack={}): searcher → (unprintable)", haystack);
+        log::debug!("search_slice(haystack={}): sink → (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
         if let Err(err) = result {
+			log::error!("Exception in search_slice(haystack={}): (unprintable)", haystack);
             let label = format!("slice-{}", self.label);
+			log::debug!("search_slice(haystack={}): label → {}", haystack, label);
             panic!("error running '{}': {}", label, err);
         }
+		log::debug!("<<< Exiting search_slice(haystack={})", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }
@@ -728,53 +822,74 @@ mod tests {
     use super::*;
 
     fn m(start: usize, end: usize) -> Match {
+		log::debug!(">>> Entering m(start={},end={})", start, end);
+        log::debug!("<<< Exiting m(start={},end={})", start, end);
         Match::new(start, end)
     }
 
     #[test]
     fn empty_line1() {
+		log::debug!(">>> Entering empty_line1()");
         let haystack = b"";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line1(): matcher → (unprintable)");
+		log::debug!("empty_line1(): haystack → (unprintable)");
 
+		log::debug!("<<< Exiting empty_line1()");
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(0, 0))));
     }
 
     #[test]
     fn empty_line2() {
+		log::debug!(">>> Entering empty_line2()");
         let haystack = b"\n";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line2(): matcher → (unprintable)");
+		log::debug!("empty_line2(): haystack → (unprintable)");
 
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(0, 0))));
+		log::debug!("<<< Exiting empty_line2()");
         assert_eq!(matcher.find_at(haystack, 1), Ok(Some(m(1, 1))));
     }
 
     #[test]
     fn empty_line3() {
+		log::debug!(">>> Entering empty_line3()");
         let haystack = b"\n\n";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line3(): matcher → (unprintable)");
+		log::debug!("empty_line3(): haystack → (unprintable)");
 
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(0, 0))));
         assert_eq!(matcher.find_at(haystack, 1), Ok(Some(m(1, 1))));
+		log::debug!("<<< Exiting empty_line3()");
         assert_eq!(matcher.find_at(haystack, 2), Ok(Some(m(2, 2))));
     }
 
     #[test]
     fn empty_line4() {
+		log::debug!(">>> Entering empty_line4()");
         let haystack = b"a\n\nb\n";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line4(): matcher → (unprintable)");
+		log::debug!("empty_line4(): haystack → (unprintable)");
 
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(2, 2))));
         assert_eq!(matcher.find_at(haystack, 1), Ok(Some(m(2, 2))));
         assert_eq!(matcher.find_at(haystack, 2), Ok(Some(m(2, 2))));
         assert_eq!(matcher.find_at(haystack, 3), Ok(Some(m(5, 5))));
         assert_eq!(matcher.find_at(haystack, 4), Ok(Some(m(5, 5))));
+		log::debug!("<<< Exiting empty_line4()");
         assert_eq!(matcher.find_at(haystack, 5), Ok(Some(m(5, 5))));
     }
 
     #[test]
     fn empty_line5() {
+		log::debug!(">>> Entering empty_line5()");
         let haystack = b"a\n\nb\nc";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line5(): matcher → (unprintable)");
+		log::debug!("empty_line5(): haystack → (unprintable)");
 
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(2, 2))));
         assert_eq!(matcher.find_at(haystack, 1), Ok(Some(m(2, 2))));
@@ -782,16 +897,21 @@ mod tests {
         assert_eq!(matcher.find_at(haystack, 3), Ok(None));
         assert_eq!(matcher.find_at(haystack, 4), Ok(None));
         assert_eq!(matcher.find_at(haystack, 5), Ok(None));
+		log::debug!("<<< Exiting empty_line5()");
         assert_eq!(matcher.find_at(haystack, 6), Ok(None));
     }
 
     #[test]
     fn empty_line6() {
+		log::debug!(">>> Entering empty_line6()");
         let haystack = b"a\n";
         let matcher = RegexMatcher::new(r"^$");
+		log::debug!("empty_line6(): matcher → (unprintable)");
+		log::debug!("empty_line6(): haystack → (unprintable)");
 
         assert_eq!(matcher.find_at(haystack, 0), Ok(Some(m(2, 2))));
         assert_eq!(matcher.find_at(haystack, 1), Ok(Some(m(2, 2))));
+		log::debug!("<<< Exiting empty_line6()");
         assert_eq!(matcher.find_at(haystack, 2), Ok(Some(m(2, 2))));
     }
 }

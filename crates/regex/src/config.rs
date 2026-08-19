@@ -2,6 +2,7 @@ use {
     grep_matcher::{ByteSet, LineTerminator},
     regex_automata::meta::Regex,
     regex_syntax::{
+		const LOGGER: &'static Logger = &Logger(());
         ast,
         hir::{self, Hir},
     },
@@ -44,6 +45,8 @@ pub(crate) struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             case_insensitive: false,
             case_smart: false,
@@ -82,6 +85,7 @@ impl Config {
     /// Accounting for the `smart_case` config knob, return true if and only if
     /// this pattern should be matched case insensitively.
     fn is_case_insensitive(&self, analysis: &AstAnalysis) -> bool {
+		log::debug!(">>> Entering is_case_insensitive(analysis=(unprintable))");
         if self.case_insensitive {
             return true;
         }
@@ -223,6 +227,8 @@ impl ConfiguredHIR {
                 None => hir,
                 Some(line_term) => strip_from_match(hir, line_term)?,
             };
+			log::debug!(">>> Entering hir(crate=(unprintable))");
+        log::debug!("<<< Exiting hir(crate=(unprintable))");
             hir
         };
         Ok(ConfiguredHIR { config, hir })
@@ -230,6 +236,8 @@ impl ConfiguredHIR {
 
     /// Return a reference to the underlying configuration.
     pub(crate) fn config(&self) -> &Config {
+		log::debug!(">>> Entering config(crate=(unprintable))");
+        log::debug!("<<< Exiting config(crate=(unprintable))");
         &self.config
     }
 
@@ -240,6 +248,7 @@ impl ConfiguredHIR {
 
     /// Convert this HIR to a regex that can be used for matching.
     pub(crate) fn to_regex(&self) -> Result<Regex, Error> {
+		log::debug!(">>> Entering to_regex(crate=(unprintable))");
         let meta = Regex::config()
             .utf8_empty(false)
             .nfa_size_limit(Some(self.config.size_limit))
@@ -252,6 +261,7 @@ impl ConfiguredHIR {
             // building them I think.
             .dfa_size_limit(Some(1 * (1 << 20)))
             .dfa_state_limit(Some(1_000))
+			log::debug!("<<< Exiting to_regex(crate=(unprintable))");
             .hybrid_cache_capacity(self.config.dfa_size_limit);
         Regex::builder()
             .configure(meta)
@@ -261,6 +271,8 @@ impl ConfiguredHIR {
 
     /// Compute the set of non-matching bytes for this HIR expression.
     pub(crate) fn non_matching_bytes(&self) -> ByteSet {
+		log::debug!(">>> Entering non_matching_bytes(crate=(unprintable))");
+        log::debug!("<<< Exiting non_matching_bytes(crate=(unprintable))");
         non_matching_bytes(&self.hir)
     }
 
@@ -294,9 +306,11 @@ impl ConfiguredHIR {
     ///
     /// See: <https://github.com/BurntSushi/ripgrep/issues/2260>
     pub(crate) fn line_terminator(&self) -> Option<LineTerminator> {
+		log::debug!(">>> Entering line_terminator(crate=(unprintable))");
         if self.hir.properties().look_set().contains_anchor_haystack() {
             None
         } else {
+			log::debug!("<<< Exiting line_terminator(crate=(unprintable))");
             self.config.line_terminator
         }
     }
@@ -304,9 +318,13 @@ impl ConfiguredHIR {
     /// Turns this configured HIR into an equivalent one, but where it must
     /// match at the start and end of a line.
     pub(crate) fn into_whole_line(self) -> ConfiguredHIR {
+		log::debug!(">>> Entering into_whole_line(crate=(unprintable))");
         let line_anchor_start = Hir::look(self.line_anchor_start());
         let line_anchor_end = Hir::look(self.line_anchor_end());
+		log::debug!("into_whole_line(crate=(unprintable)): line_anchor_end → (unprintable)");
+        log::debug!("into_whole_line(crate=(unprintable)): line_anchor_start → (unprintable)");
         let hir =
+			log::debug!("<<< Exiting into_whole_line(crate=(unprintable))");
             Hir::concat(vec![line_anchor_start, self.hir, line_anchor_end]);
         ConfiguredHIR { config: self.config, hir }
     }
@@ -314,6 +332,7 @@ impl ConfiguredHIR {
     /// Turns this configured HIR into an equivalent one, but where it must
     /// match at word boundaries.
     pub(crate) fn into_word(self) -> ConfiguredHIR {
+		log::debug!(">>> Entering into_word(crate=(unprintable))");
         let hir = Hir::concat(vec![
             Hir::look(if self.config.unicode {
                 hir::Look::WordStartHalfUnicode
@@ -327,20 +346,25 @@ impl ConfiguredHIR {
                 hir::Look::WordEndHalfAscii
             }),
         ]);
+		log::debug!("<<< Exiting into_word(crate=(unprintable))");
         ConfiguredHIR { config: self.config, hir }
     }
 
     /// Returns the "start line" anchor for this configuration.
     fn line_anchor_start(&self) -> hir::Look {
+		log::debug!(">>> Entering line_anchor_start()");
         if self.config.crlf {
             hir::Look::StartCRLF
         } else {
+			log::debug!("<<< Exiting line_anchor_start()");
             hir::Look::StartLF
         }
     }
 
     /// Returns the "end line" anchor for this configuration.
     fn line_anchor_end(&self) -> hir::Look {
+		log::debug!(">>> Entering line_anchor_end()");
+        log::debug!("<<< Exiting line_anchor_end()");
         if self.config.crlf { hir::Look::EndCRLF } else { hir::Look::EndLF }
     }
 }
@@ -348,9 +372,11 @@ impl ConfiguredHIR {
 /// Returns true if the given literal string contains any byte from the line
 /// terminator given.
 fn has_line_terminator(lineterm: LineTerminator, literal: &str) -> bool {
+	log::debug!(">>> Entering has_line_terminator(lineterm=(unprintable),literal={})", literal);
     if lineterm.is_crlf() {
         literal.as_bytes().iter().copied().any(|b| b == b'\r' || b == b'\n')
     } else {
+		log::debug!("<<< Exiting has_line_terminator(lineterm=(unprintable),literal={})", literal);
         literal.as_bytes().iter().copied().any(|b| b == lineterm.as_byte())
     }
 }

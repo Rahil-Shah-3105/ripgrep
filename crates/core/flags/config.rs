@@ -6,6 +6,7 @@ argument corresponds precisely to one shell argument.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::OsString,
     path::{Path, PathBuf},
 };
@@ -14,6 +15,7 @@ use bstr::{ByteSlice, io::BufReadExt};
 
 /// Return a sequence of arguments derived from ripgrep rc configuration files.
 pub fn args() -> Vec<OsString> {
+	log::debug!(">>> Entering args()");
     let config_path = match std::env::var_os("RIPGREP_CONFIG_PATH") {
         None => {
             log::debug!(
@@ -49,6 +51,8 @@ pub fn args() -> Vec<OsString> {
         config_path.display(),
         args
     );
+	log::error!("Exception in args(): (unprintable)");
+    log::debug!("<<< Exiting args()");
     args
 }
 
@@ -84,13 +88,16 @@ fn parse<P: AsRef<Path>>(
 fn parse_reader<R: std::io::Read>(
     rdr: R,
 ) -> anyhow::Result<(Vec<OsString>, Vec<anyhow::Error>)> {
+	log::debug!(">>> Entering parse_reader(rdr=(unprintable))");
     let mut bufrdr = std::io::BufReader::new(rdr);
     let (mut args, mut errs) = (vec![], vec![]);
+	log::debug!("parse_reader(rdr=(unprintable)): bufrdr → (unprintable)");
     let mut line_number = 0;
     bufrdr.for_byte_line_with_terminator(|line| {
         line_number += 1;
 
         let line = line.trim();
+		log::debug!("parse_reader(rdr=(unprintable)): line → (unprintable)");
         if line.is_empty() || line[0] == b'#' {
             return Ok(true);
         }
@@ -104,6 +111,8 @@ fn parse_reader<R: std::io::Read>(
         }
         Ok(true)
     })?;
+	log::error!("Exception in parse_reader(rdr=(unprintable)): (unprintable)");
+    log::debug!("<<< Exiting parse_reader(rdr=(unprintable))");
     Ok((args, errs))
 }
 
@@ -114,7 +123,9 @@ mod tests {
 
     #[test]
     fn basic() {
+		log::debug!(">>> Entering basic()");
         let (args, errs) = parse_reader(
+		log::debug!("<<< Exiting basic()");
             &b"\
 # Test
 --context=0
@@ -137,9 +148,11 @@ mod tests {
     #[test]
     #[cfg(unix)]
     fn error() {
+		log::debug!(">>> Entering error()");
         use std::os::unix::ffi::OsStringExt;
 
         let (args, errs) = parse_reader(
+		log::debug!("<<< Exiting error()");
             &b"\
 quux
 foo\xFFbar
