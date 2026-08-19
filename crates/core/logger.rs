@@ -23,6 +23,8 @@ impl Logger {
     /// global logger. If there was a problem setting the logger, then an
     /// error is returned.
     pub(crate) fn init() -> Result<(), log::SetLoggerError> {
+		log::debug!(">>> Entering init(crate=(unprintable))");
+        log::debug!("<<< Exiting init(crate=(unprintable))");
         log::set_logger(LOGGER)
     }
 }
@@ -31,11 +33,14 @@ impl Log for Logger {
     fn enabled(&self, _: &log::Metadata<'_>) -> bool {
         // We set the log level via log::set_max_level, so we don't need to
         // implement filtering here.
+		log::debug!(">>> Entering enabled()");
+log::debug!("<<< Exiting enabled()");
         true
     }
 
     fn log(&self, record: &log::Record<'_>) {
         match (record.file(), record.line()) {
+			log::debug!(">>> Entering log(record=(unprintable))");
             (Some(file), Some(line)) => {
                 eprintln_locked!(
                     "{}|{}|{}:{}: {}",
@@ -53,6 +58,7 @@ impl Log for Logger {
                     record.target(),
                     file,
                     record.args()
+				log::debug!("<<< Exiting log(record=(unprintable))");
                 );
             }
             _ => {
@@ -67,6 +73,8 @@ impl Log for Logger {
     }
 
     fn flush(&self) {
+		log::debug!(">>> Entering flush()");
+		log::debug!("<<< Exiting flush()");
         // We use eprintln_locked! which is flushed on every call.
     }
 }

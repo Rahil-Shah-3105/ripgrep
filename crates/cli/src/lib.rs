@@ -48,6 +48,7 @@ ask users to use escape sequences.
 
 For example, `a\xFFz` is itself a valid UTF-8 string corresponding to the
 following bytes:
+const LOGGER: &'static Logger = &Logger(());
 
 ```ignore
 [b'a', b'\\', b'x', b'F', b'F', b'z']
@@ -168,16 +169,20 @@ pub use crate::{
 /// behavior. For example, `rg foo -` will explicitly search stdin and `rg foo
 /// ./` will explicitly search the current working directory.
 pub fn is_readable_stdin() -> bool {
+	log::debug!(">>> Entering is_readable_stdin()");
     use std::io::IsTerminal;
 
+	log::debug!("<<< Exiting is_readable_stdin()");
     #[cfg(unix)]
     fn imp() -> bool {
+		log::debug!(">>> Entering imp()");
         use std::{
             fs::File,
             os::{fd::AsFd, unix::fs::FileTypeExt},
         };
 
         let stdin = std::io::stdin();
+		log::debug!("imp(): stdin → (unprintable)");
         let fd = match stdin.as_fd().try_clone_to_owned() {
             Ok(fd) => fd,
             Err(err) => {
@@ -190,6 +195,7 @@ pub fn is_readable_stdin() -> bool {
             }
         };
         let file = File::from(fd);
+		log::debug!("imp(): file → (unprintable)");
         let md = match file.metadata() {
             Ok(md) => md,
             Err(err) => {
@@ -202,6 +208,10 @@ pub fn is_readable_stdin() -> bool {
             }
         };
         let ft = md.file_type();
+		log::debug!("imp(): ft → (unprintable)");
+		log::debug!("imp(): is_file → (unprintable)");
+		log::debug!("imp(): is_fifo → (unprintable)");
+		log::debug!("imp(): is_socket → (unprintable)");
         let is_file = ft.is_file();
         let is_fifo = ft.is_fifo();
         let is_socket = ft.is_socket();
@@ -212,6 +222,7 @@ pub fn is_readable_stdin() -> bool {
              is_file={is_file}, is_fifo={is_fifo} and is_socket={is_socket}, \
              and thus concluded that is_stdin_readable={is_readable}",
         );
+        log::debug!("<<< Exiting imp()");
         is_readable
     }
 
@@ -258,7 +269,9 @@ pub fn is_readable_stdin() -> bool {
 /// is deprecated and will be removed in the next semver incompatible release.
 #[deprecated(since = "0.1.10", note = "use std::io::IsTerminal instead")]
 pub fn is_tty_stdin() -> bool {
+	log::debug!(">>> Entering is_tty_stdin()");
     use std::io::IsTerminal;
+	log::debug!("<<< Exiting is_tty_stdin()");
     std::io::stdin().is_terminal()
 }
 
@@ -277,7 +290,9 @@ pub fn is_tty_stdin() -> bool {
 /// is deprecated and will be removed in the next semver incompatible release.
 #[deprecated(since = "0.1.10", note = "use std::io::IsTerminal instead")]
 pub fn is_tty_stdout() -> bool {
+	log::debug!(">>> Entering is_tty_stdout()");
     use std::io::IsTerminal;
+	log::debug!("<<< Exiting is_tty_stdout()");
     std::io::stdout().is_terminal()
 }
 
@@ -290,6 +305,8 @@ pub fn is_tty_stdout() -> bool {
 /// is deprecated and will be removed in the next semver incompatible release.
 #[deprecated(since = "0.1.10", note = "use std::io::IsTerminal instead")]
 pub fn is_tty_stderr() -> bool {
+	log::debug!(">>> Entering is_tty_stderr()");
     use std::io::IsTerminal;
+	log::debug!("<<< Exiting is_tty_stderr()");
     std::io::stderr().is_terminal()
 }

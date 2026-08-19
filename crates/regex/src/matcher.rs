@@ -1,5 +1,6 @@
 use {
     grep_matcher::{
+		const LOGGER: &'static Logger = &Logger(());
         ByteSet, Captures, LineMatchKind, LineTerminator, Match, Matcher,
         NoError,
     },
@@ -27,6 +28,8 @@ pub struct RegexMatcherBuilder {
 
 impl Default for RegexMatcherBuilder {
     fn default() -> RegexMatcherBuilder {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         RegexMatcherBuilder::new()
     }
 }
@@ -34,6 +37,10 @@ impl Default for RegexMatcherBuilder {
 impl RegexMatcherBuilder {
     /// Create a new builder for configuring a regex matcher.
     pub fn new() -> RegexMatcherBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
+		log::debug!(">>> Entering new(pattern={})", pattern);
+        log::debug!("<<< Exiting new(pattern={})", pattern);
         RegexMatcherBuilder { config: Config::default() }
     }
 
@@ -43,6 +50,8 @@ impl RegexMatcherBuilder {
     /// The syntax supported is documented as part of the regex crate:
     /// <https://docs.rs/regex/#syntax>.
     pub fn build(&self, pattern: &str) -> Result<RegexMatcher, Error> {
+		log::debug!(">>> Entering build(pattern={})", pattern);
+        log::debug!("<<< Exiting build(pattern={})", pattern);
         self.build_many(&[pattern])
     }
 
@@ -101,7 +110,9 @@ impl RegexMatcherBuilder {
     /// When enabled, letters in the pattern will match both upper case and
     /// lower case variants.
     pub fn case_insensitive(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering case_insensitive(yes={})", yes);
         self.config.case_insensitive = yes;
+		log::debug!("<<< Exiting case_insensitive(yes={})", yes);
         self
     }
 
@@ -118,7 +129,11 @@ impl RegexMatcherBuilder {
     ///    uppercase according to Unicode. For example, `foo\pL` has no
     ///    uppercase literals but `Foo\pL` does.
     pub fn case_smart(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering case_smart(yes={})", yes);
         self.config.case_smart = yes;
+		log::debug!("<<< Exiting case_smart(yes={})", yes);
+		log::debug!(">>> Entering case_smart()");
+		log::debug!("<<< Exiting case_smart()");
         self
     }
 
@@ -129,7 +144,9 @@ impl RegexMatcherBuilder {
     ///
     /// By default, they match beginning/end of the input.
     pub fn multi_line(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering multi_line(yes={})", yes);
         self.config.multi_line = yes;
+		log::debug!("<<< Exiting multi_line(yes={})", yes);
         self
     }
 
@@ -144,7 +161,9 @@ impl RegexMatcherBuilder {
         &mut self,
         yes: bool,
     ) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering dot_matches_new_line(yes={})", yes);
         self.config.dot_matches_new_line = yes;
+		log::debug!("<<< Exiting dot_matches_new_line(yes={})", yes);
         self
     }
 
@@ -155,7 +174,9 @@ impl RegexMatcherBuilder {
     ///
     /// By default, `a*` is greedy and `a*?` is lazy.
     pub fn swap_greed(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering swap_greed(yes={})", yes);
         self.config.swap_greed = yes;
+		log::debug!("<<< Exiting swap_greed(yes={})", yes);
         self
     }
 
@@ -168,7 +189,9 @@ impl RegexMatcherBuilder {
         &mut self,
         yes: bool,
     ) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering ignore_whitespace(yes={})", yes);
         self.config.ignore_whitespace = yes;
+		log::debug!("<<< Exiting ignore_whitespace(yes={})", yes);
         self
     }
 
@@ -177,7 +200,9 @@ impl RegexMatcherBuilder {
     /// Enabled by default. When disabled, character classes such as `\w` only
     /// match ASCII word characters instead of all Unicode word characters.
     pub fn unicode(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering unicode(yes={})", yes);
         self.config.unicode = yes;
+		log::debug!("<<< Exiting unicode(yes={})", yes);
         self
     }
 
@@ -197,7 +222,9 @@ impl RegexMatcherBuilder {
     ///
     /// Octal syntax is disabled by default.
     pub fn octal(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering octal(yes={})", yes);
         self.config.octal = yes;
+		log::debug!("<<< Exiting octal(yes={})", yes);
         self
     }
 
@@ -207,7 +234,9 @@ impl RegexMatcherBuilder {
     /// compiled program. If the program exceeds this number, then a
     /// compilation error is returned.
     pub fn size_limit(&mut self, bytes: usize) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering size_limit(bytes={})", bytes);
         self.config.size_limit = bytes;
+		log::debug!("<<< Exiting size_limit(bytes={})", bytes);
         self
     }
 
@@ -224,7 +253,9 @@ impl RegexMatcherBuilder {
         &mut self,
         bytes: usize,
     ) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering dfa_size_limit(bytes={})", bytes);
         self.config.dfa_size_limit = bytes;
+		log::debug!("<<< Exiting dfa_size_limit(bytes={})", bytes);
         self
     }
 
@@ -254,7 +285,9 @@ impl RegexMatcherBuilder {
     /// in an obvious way in the concrete syntax, therefore, it should not be
     /// used in a granular way.
     pub fn nest_limit(&mut self, limit: u32) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering nest_limit(limit={})", limit);
         self.config.nest_limit = limit;
+		log::debug!("<<< Exiting nest_limit(limit={})", limit);
         self
     }
 
@@ -282,7 +315,9 @@ impl RegexMatcherBuilder {
         &mut self,
         line_term: Option<u8>,
     ) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering line_terminator(line_term={:?})", line_term);
         self.config.line_terminator = line_term.map(LineTerminator::byte);
+		log::debug!("<<< Exiting line_terminator(line_term={:?})", line_term);
         self
     }
 
@@ -298,7 +333,9 @@ impl RegexMatcherBuilder {
     /// will either quit when one is found, or will convert NUL bytes to line
     /// terminators to avoid exorbitant heap usage.
     pub fn ban_byte(&mut self, byte: Option<u8>) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering ban_byte(byte={:?})", byte);
         self.config.ban = byte;
+		log::debug!("<<< Exiting ban_byte(byte={:?})", byte);
         self
     }
 
@@ -320,12 +357,14 @@ impl RegexMatcherBuilder {
     /// important, since `crlf` sets the line terminator, but `line_terminator`
     /// does not touch the `crlf` setting.
     pub fn crlf(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering crlf(yes={})", yes);
         if yes {
             self.config.line_terminator = Some(LineTerminator::crlf());
         } else {
             self.config.line_terminator = None;
         }
         self.config.crlf = yes;
+		log::debug!("<<< Exiting crlf(yes={})", yes);
         self
     }
 
@@ -341,7 +380,11 @@ impl RegexMatcherBuilder {
     /// word character. However, `-2` with this `word` option enabled will
     /// match the `-2` in `foo -2 bar`.
     pub fn word(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering word(yes={})", yes);
         self.config.word = yes;
+		log::debug!("<<< Exiting word(yes={})", yes);
+		log::debug!(">>> Entering word()");
+		log::debug!("<<< Exiting word()");
         self
     }
 
@@ -349,14 +392,18 @@ impl RegexMatcherBuilder {
     /// this is active, all characters, including ones that would normally be
     /// special regex meta characters, are matched literally.
     pub fn fixed_strings(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering fixed_strings(yes={})", yes);
         self.config.fixed_strings = yes;
+		log::debug!("<<< Exiting fixed_strings(yes={})", yes);
         self
     }
 
     /// Whether each pattern should match the entire line or not. This is
     /// equivalent to surrounding the pattern with `(?m:^)` and `(?m:$)`.
     pub fn whole_line(&mut self, yes: bool) -> &mut RegexMatcherBuilder {
+		log::debug!(">>> Entering whole_line(yes={})", yes);
         self.config.whole_line = yes;
+		log::debug!("<<< Exiting whole_line(yes={})", yes);
         self
     }
 }
@@ -383,6 +430,8 @@ impl RegexMatcher {
     /// Create a new matcher from the given pattern using the default
     /// configuration.
     pub fn new(pattern: &str) -> Result<RegexMatcher, Error> {
+		log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
         RegexMatcherBuilder::new().build(pattern)
     }
 
@@ -399,6 +448,8 @@ impl RegexMatcher {
     /// given pattern contains a literal `\n`. Other uses of `\n` (such as in
     /// `\s`) are removed transparently.
     pub fn new_line_matcher(pattern: &str) -> Result<RegexMatcher, Error> {
+		log::debug!(">>> Entering new_line_matcher(pattern={})", pattern);
+        log::debug!("<<< Exiting new_line_matcher(pattern={})", pattern);
         RegexMatcherBuilder::new().line_terminator(Some(b'\n')).build(pattern)
     }
 }
@@ -416,22 +467,31 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		log::debug!(">>> Entering find_at(haystack={:?},at={})", haystack, at);
         let input = Input::new(haystack).span(at..haystack.len());
+		log::debug!("find_at(haystack={:?},at={}): input → (unprintable)", haystack, at);
+        log::debug!("<<< Exiting find_at(haystack={:?},at={})", haystack, at);
         Ok(self.regex.find(input).map(|m| Match::new(m.start(), m.end())))
     }
 
     #[inline]
     fn new_captures(&self) -> Result<RegexCaptures, NoError> {
+		log::debug!(">>> Entering new_captures()");
+        log::debug!("<<< Exiting new_captures()");
         Ok(RegexCaptures::new(self.regex.create_captures()))
     }
 
     #[inline]
     fn capture_count(&self) -> usize {
+		log::debug!(">>> Entering capture_count()");
+        log::debug!("<<< Exiting capture_count()");
         self.regex.captures_len()
     }
 
     #[inline]
     fn capture_index(&self, name: &str) -> Option<usize> {
+		log::debug!(">>> Entering capture_index(name={})", name);
+        log::debug!("<<< Exiting capture_index(name={})", name);
         self.regex.group_info().to_index(PatternID::ZERO, name)
     }
 
@@ -439,6 +499,8 @@ impl Matcher for RegexMatcher {
     fn try_find_iter<F, E>(
         &self,
         haystack: &[u8],
+		log::debug!(">>> Entering try_find_iter(haystack={:?},matched=(unprintable))", haystack);
+		log::error!("Exception in try_find_iter(haystack={:?},matched=(unprintable)): (unprintable)", haystack);
         mut matched: F,
     ) -> Result<Result<(), E>, NoError>
     where
@@ -446,6 +508,7 @@ impl Matcher for RegexMatcher {
     {
         for m in self.regex.find_iter(haystack) {
             match matched(Match::new(m.start(), m.end())) {
+				log::error!("Exception in try_find_iter(haystack={:?},matched=(unprintable)): (unprintable)", haystack);
                 Ok(true) => continue,
                 Ok(false) => return Ok(Ok(())),
                 Err(err) => return Ok(Err(err)),
@@ -461,9 +524,11 @@ impl Matcher for RegexMatcher {
         at: usize,
         caps: &mut RegexCaptures,
     ) -> Result<bool, NoError> {
+		log::debug!(">>> Entering captures_at(haystack={:?},at={},caps=(unprintable))", haystack, at);
         let input = Input::new(haystack).span(at..haystack.len());
         let caps = caps.captures_mut();
         self.regex.search_captures(&input, caps);
+		log::debug!("<<< Exiting captures_at(haystack={:?},at={},caps=(unprintable))", haystack, at);
         Ok(caps.is_match())
     }
 
@@ -471,6 +536,9 @@ impl Matcher for RegexMatcher {
     fn shortest_match_at(
         &self,
         haystack: &[u8],
+		log::debug!(">>> Entering shortest_match_at(haystack={:?},at={})", haystack, at);
+		log::debug!("shortest_match_at(haystack={:?},at={}): input → (unprintable)", haystack, at);
+        log::debug!("<<< Exiting shortest_match_at(haystack={:?},at={})", haystack, at);
         at: usize,
     ) -> Result<Option<usize>, NoError> {
         let input = Input::new(haystack).span(at..haystack.len());
@@ -479,11 +547,15 @@ impl Matcher for RegexMatcher {
 
     #[inline]
     fn non_matching_bytes(&self) -> Option<&ByteSet> {
+		log::debug!(">>> Entering non_matching_bytes()");
+        log::debug!("<<< Exiting non_matching_bytes()");
         Some(&self.non_matching_bytes)
     }
 
     #[inline]
     fn line_terminator(&self) -> Option<LineTerminator> {
+		log::debug!(">>> Entering line_terminator()");
+		log::debug!("<<< Exiting line_terminator()");
         self.config.line_terminator
     }
 
@@ -502,6 +574,9 @@ impl Matcher for RegexMatcher {
             None => {
                 self.shortest_match(haystack)?.map(LineMatchKind::Confirmed)
             }
+		log::debug!(">>> Entering find_candidate_line(haystack={:?})", haystack);
+        log::debug!("find_candidate_line(haystack={:?}): input → (unprintable)", haystack);
+        log::debug!("<<< Exiting find_candidate_line(haystack={:?})", haystack);
         })
     }
 }
@@ -529,11 +604,15 @@ pub struct RegexCaptures {
 impl Captures for RegexCaptures {
     #[inline]
     fn len(&self) -> usize {
+		log::debug!(">>> Entering len()");
+        log::debug!("<<< Exiting len()");
         self.caps.group_info().all_group_len()
     }
 
     #[inline]
     fn get(&self, i: usize) -> Option<Match> {
+		log::debug!(">>> Entering get(i={})", i);
+        log::debug!("<<< Exiting get(i={})", i);
         self.caps.get_group(i).map(|sp| Match::new(sp.start, sp.end))
     }
 }
@@ -546,6 +625,8 @@ impl RegexCaptures {
 
     #[inline]
     pub(crate) fn captures_mut(&mut self) -> &mut AutomataCaptures {
+		log::debug!(">>> Entering captures_mut(crate=(unprintable))");
+        log::debug!("<<< Exiting captures_mut(crate=(unprintable))");
         &mut self.caps
     }
 }
@@ -573,6 +654,7 @@ mod tests {
     fn line_terminator() {
         // This works, because there's no line terminator specified.
         let matcher = RegexMatcherBuilder::new().build(r"abc\sxyz").unwrap();
+		log::debug!("line_terminator(): matcher → {:?}", matcher);
         assert!(matcher.is_match(b"abc\nxyz").unwrap());
 
         // This doesn't.
@@ -587,6 +669,8 @@ mod tests {
     // and the regex could not be modified to remove a line terminator.
     #[test]
     fn line_terminator_error() {
+		log::debug!(">>> Entering line_terminator_error()");
+        log::debug!("<<< Exiting line_terminator_error()");
         assert!(
             RegexMatcherBuilder::new()
                 .line_terminator(Some(b'\n'))
@@ -598,6 +682,7 @@ mod tests {
     // Test that enabling CRLF permits `$` to match at the end of a line.
     #[test]
     fn line_terminator_crlf() {
+		log::debug!(">>> Entering line_terminator_crlf()");
         // Test normal use of `$` with a `\n` line terminator.
         let matcher = RegexMatcherBuilder::new()
             .multi_line(true)
@@ -618,6 +703,7 @@ mod tests {
             .crlf(true)
             .build(r"abc$")
             .unwrap();
+		log::debug!("<<< Exiting line_terminator_crlf()");
         assert!(matcher.is_match(b"abc\r\n").unwrap());
     }
 
@@ -639,12 +725,16 @@ mod tests {
     #[ignore]
     fn candidate_lines() {
         fn is_confirmed(m: LineMatchKind) -> bool {
+			log::debug!(">>> Entering is_confirmed(m=(unprintable))");
+            log::debug!("<<< Exiting is_confirmed(m=(unprintable))");
             match m {
                 LineMatchKind::Confirmed(_) => true,
                 _ => false,
             }
         }
         fn is_candidate(m: LineMatchKind) -> bool {
+			log::debug!(">>> Entering is_candidate(m=(unprintable))");
+            log::debug!("<<< Exiting is_candidate(m=(unprintable))");
             match m {
                 LineMatchKind::Candidate(_) => true,
                 _ => false,

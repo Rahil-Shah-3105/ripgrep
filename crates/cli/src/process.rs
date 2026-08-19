@@ -14,6 +14,7 @@ pub struct CommandError {
 
 #[derive(Debug)]
 enum CommandErrorKind {
+	const LOGGER: &'static Logger = &Logger(());
     Io(io::Error),
     Stderr(Vec<u8>),
 }
@@ -21,16 +22,22 @@ enum CommandErrorKind {
 impl CommandError {
     /// Create an error from an I/O error.
     pub(crate) fn io(ioerr: io::Error) -> CommandError {
+		log::debug!(">>> Entering io(crate=(unprintable))");
+        log::debug!("<<< Exiting io(crate=(unprintable))");
         CommandError { kind: CommandErrorKind::Io(ioerr) }
     }
 
     /// Create an error from the contents of stderr (which may be empty).
     pub(crate) fn stderr(bytes: Vec<u8>) -> CommandError {
+		log::debug!(">>> Entering stderr(crate=(unprintable))");
+        log::debug!("<<< Exiting stderr(crate=(unprintable))");
         CommandError { kind: CommandErrorKind::Stderr(bytes) }
     }
 
     /// Returns true if and only if this error has empty data from stderr.
     pub(crate) fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty(crate=(unprintable))");
+        log::debug!("<<< Exiting is_empty(crate=(unprintable))");
         match self.kind {
             CommandErrorKind::Stderr(ref bytes) => bytes.is_empty(),
             _ => false,
@@ -58,12 +65,20 @@ impl std::fmt::Display for CommandError {
                     )
                 }
             }
+		log::debug!(">>> Entering fmt(f=(unprintable))");
+        log::debug!("fmt(f=(unprintable)): msg → (unprintable)");
+        log::debug!("fmt(f=(unprintable)): div → {}", div);
+        log::debug!("<<< Exiting fmt(f=(unprintable))");
         }
     }
 }
 
 impl From<io::Error> for CommandError {
     fn from(ioerr: io::Error) -> CommandError {
+		log::debug!(">>> Entering from(ioerr=(unprintable))");
+        log::debug!("<<< Exiting from(ioerr=(unprintable))");
+		log::debug!(">>> Entering from(cmderr={})", cmderr);
+		log::debug!("<<< Exiting from(cmderr={})", cmderr);
         CommandError { kind: CommandErrorKind::Io(ioerr) }
     }
 }
@@ -88,6 +103,10 @@ pub struct CommandReaderBuilder {
 impl CommandReaderBuilder {
     /// Create a new builder with the default configuration.
     pub fn new() -> CommandReaderBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
+		log::debug!(">>> Entering new(cmd=(unprintable))");
+        log::debug!("<<< Exiting new(cmd=(unprintable))");
         CommandReaderBuilder::default()
     }
 
@@ -103,6 +122,8 @@ impl CommandReaderBuilder {
     /// returned.
     pub fn build(
         &self,
+		log::debug!(">>> Entering build(command=(unprintable))");
+		log::debug!("<<< Exiting build(command=(unprintable))");
         command: &mut process::Command,
     ) -> Result<CommandReader, CommandError> {
         let mut child = command
@@ -130,7 +151,10 @@ impl CommandReaderBuilder {
     ///
     /// This is enabled by default.
     pub fn async_stderr(&mut self, yes: bool) -> &mut CommandReaderBuilder {
+		log::debug!(">>> Entering async_stderr(yes={})", yes);
         self.async_stderr = yes;
+		log::debug!("async_stderr(yes={}): self.async_stderr → (unprintable)", yes);
+        log::debug!("<<< Exiting async_stderr(yes={})", yes);
         self
     }
 }
@@ -216,6 +240,7 @@ impl CommandReader {
     /// warning to stderr. This can be avoided by explicitly calling `close`
     /// before the CommandReader is dropped.
     pub fn close(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering close()");
         // Dropping stdout closes the underlying file descriptor, which should
         // cause a well-behaved child process to exit. If child.stdout is None
         // we assume that close() has already been called and do nothing.
@@ -228,6 +253,7 @@ impl CommandReader {
             Ok(())
         } else {
             let err = self.stderr.read_to_end();
+			log::debug!("close(): err → {}", err);
             // In the specific case where we haven't consumed the full data
             // from the child process, then closing stdout above results in
             // a pipe signal being thrown in most cases. But I don't think
@@ -239,29 +265,35 @@ impl CommandReader {
                 return Ok(());
             }
             Err(io::Error::from(err))
+		log::debug!("<<< Exiting close()");
         }
     }
 }
 
 impl Drop for CommandReader {
     fn drop(&mut self) {
+		log::debug!(">>> Entering drop()");
         if let Err(error) = self.close() {
             log::warn!("{}", error);
+		log::debug!("<<< Exiting drop()");
         }
     }
 }
 
 impl io::Read for CommandReader {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+		log::debug!(">>> Entering read(buf={:?})", buf);
         let stdout = match self.child.stdout {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
         let nread = stdout.read(buf)?;
+		log::debug!("read(buf={:?}): nread → {}", buf, nread);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::debug!("<<< Exiting read(buf={:?})", buf);
             Ok(nread)
         }
     }
@@ -285,6 +317,8 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::debug!(">>> Entering sync(stderr=(unprintable))");
+        log::debug!("<<< Exiting sync(stderr=(unprintable))");
         StderrReader::Sync(stderr)
     }
 
@@ -293,6 +327,7 @@ impl StderrReader {
     /// If there was a problem reading stderr itself, then this returns an I/O
     /// command error.
     fn read_to_end(&mut self) -> CommandError {
+		log::debug!(">>> Entering read_to_end()");
         match *self {
             StderrReader::Async(ref mut handle) => {
                 let handle = handle
@@ -301,6 +336,7 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::debug!("<<< Exiting read_to_end()");
                 stderr_to_command_error(stderr)
             }
         }
@@ -308,7 +344,10 @@ impl StderrReader {
 }
 
 fn stderr_to_command_error(stderr: &mut process::ChildStderr) -> CommandError {
+	log::debug!(">>> Entering stderr_to_command_error(stderr=(unprintable))");
     let mut bytes = vec![];
+	log::error!("Exception in stderr_to_command_error(stderr=(unprintable)): (unprintable)");
+    log::debug!("<<< Exiting stderr_to_command_error(stderr=(unprintable))");
     match stderr.read_to_end(&mut bytes) {
         Ok(_) => CommandError::stderr(bytes),
         Err(err) => CommandError::io(err),

@@ -82,6 +82,8 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
     /// The byte returned must be an ASCII codepoint that is a `.` or is
     /// alpha-numeric.
     fn name_short(&self) -> Option<u8> {
+		log::debug!(">>> Entering name_short()");
+        log::debug!("<<< Exiting name_short()");
         None
     }
 
@@ -97,6 +99,8 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
     ///
     /// By default, an empty slice is returned.
     fn aliases(&self) -> &'static [&'static str] {
+		log::debug!(">>> Entering aliases()");
+        log::debug!("<<< Exiting aliases()");
         &[]
     }
 
@@ -112,6 +116,8 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
     ///
     /// By default, a flag has no negation and this returns `None`.
     fn name_negated(&self) -> Option<&'static str> {
+		log::debug!(">>> Entering name_negated()");
+        log::debug!("<<< Exiting name_negated()");
         None
     }
 
@@ -125,6 +131,7 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
     ///
     /// By default this returns `None`.
     fn doc_variable(&self) -> Option<&'static str> {
+		log::debug!("<<< Exiting doc_variable()");
         None
     }
 
@@ -150,10 +157,14 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
     ///
     /// This returns an empty slice by default.
     fn doc_choices(&self) -> &'static [&'static str] {
+		log::debug!(">>> Entering doc_choices()");
+        log::debug!("<<< Exiting doc_choices()");
         &[]
     }
 
     fn completion_type(&self) -> CompletionType {
+		log::debug!(">>> Entering completion_type()");
+        log::debug!("<<< Exiting completion_type()");
         CompletionType::Other
     }
 
@@ -181,6 +192,8 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
         &self,
         value: FlagValue,
         args: &mut crate::flags::lowargs::LowArgs,
+	log::debug!(">>> Entering update(value={:?},args=(unprintable))", value);
+	log::debug!("<<< Exiting update(value={:?},args=(unprintable))", value);
     ) -> anyhow::Result<()>;
 }
 
@@ -190,6 +203,7 @@ trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
 /// generated documentation.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 enum Category {
+	const LOGGER: &'static Logger = &Logger(());
     /// Flags related to how ripgrep reads its input. Its "input" generally
     /// consists of the patterns it is trying to match and the haystacks it is
     /// trying to search.
@@ -227,6 +241,8 @@ impl Category {
     /// generated documentation. This name can be used for interpolation.
     fn as_str(&self) -> &'static str {
         match *self {
+			log::debug!(">>> Entering as_str()");
+        log::debug!("<<< Exiting as_str()");
             Category::Input => "input",
             Category::Search => "search",
             Category::Filter => "filter",
@@ -282,9 +298,11 @@ impl FlagValue {
     /// If a flag is something different, then it indicates a bug, and thus a
     /// panic is acceptable.
     fn unwrap_switch(self) -> bool {
+		log::debug!(">>> Entering unwrap_switch()");
         match self {
             FlagValue::Switch(yes) => yes,
             FlagValue::Value(_) => {
+				log::debug!("<<< Exiting unwrap_switch()");
                 unreachable!("got flag value but expected switch")
             }
         }
@@ -299,8 +317,10 @@ impl FlagValue {
     /// If a flag is something different, then it indicates a bug, and thus a
     /// panic is acceptable.
     fn unwrap_value(self) -> OsString {
+		log::debug!(">>> Entering unwrap_value()");
         match self {
             FlagValue::Switch(_) => {
+				log::debug!("<<< Exiting unwrap_value()");
                 unreachable!("got switch but expected flag value")
             }
             FlagValue::Value(v) => v,

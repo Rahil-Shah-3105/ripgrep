@@ -7,7 +7,10 @@ use bstr::ByteSlice;
 /// If the path terminates in `..`, or consists solely of a root of prefix,
 /// file_name will return `None`.
 pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
+	const LOGGER: &'static Logger = &Logger(());
     if path.is_empty() {
+		log::debug!(">>> Entering file_name(crate=(unprintable))");
+		log::debug!("<<< Exiting file_name(crate=(unprintable))");
         return None;
     }
     let last_slash = path.rfind_byte(b'/').map(|i| i + 1).unwrap_or(0);
@@ -38,6 +41,8 @@ pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
 /// extension, but it also matches files like `.rs`, which doesn't have an
 /// extension according to std::path::Path::extension.
 pub(crate) fn file_name_ext<'a>(
+	log::debug!(">>> Entering file_name_ext(crate=(unprintable))");
+	log::debug!("<<< Exiting file_name_ext(crate=(unprintable))");
     name: &Cow<'a, [u8]>,
 ) -> Option<Cow<'a, [u8]>> {
     if name.is_empty() {
@@ -58,6 +63,8 @@ pub(crate) fn file_name_ext<'a>(
 #[cfg(unix)]
 pub(crate) fn normalize_path(path: Cow<'_, [u8]>) -> Cow<'_, [u8]> {
     // UNIX only uses /, so we're good.
+	log::debug!(">>> Entering normalize_path(crate=(unprintable))");
+	log::debug!("<<< Exiting normalize_path(crate=(unprintable))");
     path
 }
 

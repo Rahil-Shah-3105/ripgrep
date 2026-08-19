@@ -11,8 +11,12 @@ use std::fmt::Write;
 ///
 /// This includes the git revision hash.
 pub(crate) fn generate_digits() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let semver = option_env!("CARGO_PKG_VERSION").unwrap_or("N/A");
+	log::debug!(">>> Entering generate_digits(crate=(unprintable))");
     match option_env!("RIPGREP_BUILD_GIT_HASH") {
+		log::debug!("generate_digits(crate=(unprintable)): semver → (unprintable)");
+    log::debug!("<<< Exiting generate_digits(crate=(unprintable))");
         None => semver.to_string(),
         Some(hash) => format!("{semver} (rev {hash})"),
     }
@@ -20,7 +24,10 @@ pub(crate) fn generate_digits() -> String {
 
 /// Generates a short version string of the form `ripgrep x.y.z`.
 pub(crate) fn generate_short() -> String {
+	log::debug!(">>> Entering generate_short(crate=(unprintable))");
     let digits = generate_digits();
+	log::debug!("generate_short(crate=(unprintable)): digits → {}", digits);
+    log::debug!("<<< Exiting generate_short(crate=(unprintable))");
     format!("ripgrep {digits}")
 }
 
@@ -29,6 +36,7 @@ pub(crate) fn generate_short() -> String {
 /// This includes not only the version of ripgrep but some other information
 /// about its build. For example, SIMD support and PCRE2 support.
 pub(crate) fn generate_long() -> String {
+	log::debug!(">>> Entering generate_long(crate=(unprintable))");
     let (compile, runtime) = (compile_cpu_features(), runtime_cpu_features());
 
     let mut out = String::new();
@@ -43,6 +51,7 @@ pub(crate) fn generate_long() -> String {
     }
     let (pcre2_version, _) = generate_pcre2();
     writeln!(out, "\n{pcre2_version}").unwrap();
+	log::debug!("<<< Exiting generate_long(crate=(unprintable))");
     out
 }
 
@@ -51,6 +60,7 @@ pub(crate) fn generate_long() -> String {
 /// This also returns whether PCRE2 is actually available in this build of
 /// ripgrep.
 pub(crate) fn generate_pcre2() -> (String, bool) {
+	log::debug!(">>> Entering generate_pcre2(crate=(unprintable))");
     let mut out = String::new();
 
     #[cfg(feature = "pcre2")]
@@ -70,6 +80,7 @@ pub(crate) fn generate_pcre2() -> (String, bool) {
     #[cfg(not(feature = "pcre2"))]
     {
         writeln!(out, "PCRE2 is not available in this build of ripgrep.")
+			log::debug!("<<< Exiting generate_pcre2(crate=(unprintable))");
             .unwrap();
         (out, false)
     }
@@ -81,17 +92,21 @@ pub(crate) fn generate_pcre2() -> (String, bool) {
 /// knowledge about what specific SIMD features are being used by various
 /// components.
 fn runtime_cpu_features() -> Vec<String> {
+	log::debug!(">>> Entering runtime_cpu_features()");
     #[cfg(target_arch = "x86_64")]
     {
         let mut features = vec![];
 
         let sse2 = is_x86_feature_detected!("sse2");
+		log::debug!("runtime_cpu_features(): sse2 → (unprintable)");
         features.push(format!("{sign}SSE2", sign = sign(sse2)));
 
         let ssse3 = is_x86_feature_detected!("ssse3");
+		log::debug!("runtime_cpu_features(): ssse3 → (unprintable)");
         features.push(format!("{sign}SSSE3", sign = sign(ssse3)));
 
         let avx2 = is_x86_feature_detected!("avx2");
+		log::debug!("runtime_cpu_features(): avx2 → (unprintable)");
         features.push(format!("{sign}AVX2", sign = sign(avx2)));
 
         features
@@ -105,12 +120,14 @@ fn runtime_cpu_features() -> Vec<String> {
         // to be available for all aarch64 targets. If this isn't true, please
         // file an issue at https://github.com/BurntSushi/memchr.
         let neon = cfg!(target_feature = "neon");
+		log::debug!("runtime_cpu_features(): neon → (unprintable)");
         features.push(format!("{sign}NEON", sign = sign(neon)));
 
         features
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		log::debug!("<<< Exiting runtime_cpu_features()");
         vec![]
     }
 }
@@ -127,17 +144,21 @@ fn runtime_cpu_features() -> Vec<String> {
 /// compile ripgrep with `RUSTFLAGS="-C target-cpu=native"`. But note that
 /// the binary produced by this will not be portable.
 fn compile_cpu_features() -> Vec<String> {
+	log::debug!(">>> Entering compile_cpu_features()");
     #[cfg(target_arch = "x86_64")]
     {
         let mut features = vec![];
 
         let sse2 = cfg!(target_feature = "sse2");
+		log::debug!("compile_cpu_features(): sse2 → (unprintable)");
         features.push(format!("{sign}SSE2", sign = sign(sse2)));
 
         let ssse3 = cfg!(target_feature = "ssse3");
+		log::debug!("compile_cpu_features(): ssse3 → (unprintable)");
         features.push(format!("{sign}SSSE3", sign = sign(ssse3)));
 
         let avx2 = cfg!(target_feature = "avx2");
+		log::debug!("compile_cpu_features(): avx2 → (unprintable)");
         features.push(format!("{sign}AVX2", sign = sign(avx2)));
 
         features
@@ -147,23 +168,28 @@ fn compile_cpu_features() -> Vec<String> {
         let mut features = vec![];
 
         let neon = cfg!(target_feature = "neon");
+		log::debug!("compile_cpu_features(): neon → (unprintable)");
         features.push(format!("{sign}NEON", sign = sign(neon)));
 
         features
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		log::debug!("<<< Exiting compile_cpu_features()");
         vec![]
     }
 }
 
 /// Returns a list of "features" supported (or not) by this build of ripgrpe.
 fn features() -> Vec<String> {
+	log::debug!(">>> Entering features()");
     let mut features = vec![];
 
     let pcre2 = cfg!(feature = "pcre2");
+	log::debug!("features(): pcre2 → (unprintable)");
     features.push(format!("{sign}pcre2", sign = sign(pcre2)));
 
+	log::debug!("<<< Exiting features()");
     features
 }
 

@@ -17,6 +17,7 @@ use {grep::matcher::Matcher, termcolor::WriteColor};
 /// show search results to users at a very high level.
 #[derive(Clone, Debug)]
 struct Config {
+	const LOGGER: &'static Logger = &Logger(());
     preprocessor: Option<std::path::PathBuf>,
     preprocessor_globs: ignore::overrides::Override,
     search_zip: bool,
@@ -26,6 +27,8 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             preprocessor: None,
             preprocessor_globs: ignore::overrides::Override::empty(),
@@ -52,9 +55,12 @@ impl Default for SearchWorkerBuilder {
 impl SearchWorkerBuilder {
     /// Create a new builder for configuring and constructing a search worker.
     pub(crate) fn new() -> SearchWorkerBuilder {
+		log::debug!(">>> Entering new(crate=(unprintable))");
         let mut command_builder = grep::cli::CommandReaderBuilder::new();
         command_builder.async_stderr(true);
+		log::debug!("new(crate=(unprintable)): command_builder → {:?}", command_builder);
 
+		log::debug!("<<< Exiting new(crate=(unprintable))");
         SearchWorkerBuilder { config: Config::default(), command_builder }
     }
 
@@ -64,6 +70,10 @@ impl SearchWorkerBuilder {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::debug!(">>> Entering build(crate=(unprintable))");
+		log::debug!("build(crate=(unprintable)): config → (unprintable)");
+		log::debug!("build(crate=(unprintable)): command_builder → (unprintable)");
+		log::debug!("<<< Exiting build(crate=(unprintable))");
         printer: Printer<W>,
     ) -> SearchWorker<W> {
         let config = self.config.clone();
@@ -91,6 +101,9 @@ impl SearchWorkerBuilder {
     /// output of that command will be searched instead.
     pub(crate) fn preprocessor(
         &mut self,
+		log::debug!(">>> Entering preprocessor(crate=(unprintable))");
+		log::debug!("preprocessor(crate=(unprintable)): bin → (unprintable)");
+		log::debug!("<<< Exiting preprocessor(crate=(unprintable))");
         cmd: Option<std::path::PathBuf>,
     ) -> anyhow::Result<&mut SearchWorkerBuilder> {
         if let Some(ref prog) = cmd {
@@ -109,7 +122,9 @@ impl SearchWorkerBuilder {
         &mut self,
         globs: ignore::overrides::Override,
     ) -> &mut SearchWorkerBuilder {
+		log::debug!(">>> Entering preprocessor_globs(crate=(unprintable))");
         self.config.preprocessor_globs = globs;
+		log::debug!("<<< Exiting preprocessor_globs(crate=(unprintable))");
         self
     }
 
@@ -124,7 +139,9 @@ impl SearchWorkerBuilder {
         &mut self,
         yes: bool,
     ) -> &mut SearchWorkerBuilder {
+		log::debug!(">>> Entering search_zip(crate=(unprintable))");
         self.config.search_zip = yes;
+		log::debug!("<<< Exiting search_zip(crate=(unprintable))");
         self
     }
 
@@ -138,6 +155,8 @@ impl SearchWorkerBuilder {
     /// By default, no binary detection is performed.
     pub(crate) fn binary_detection_implicit(
         &mut self,
+		log::debug!(">>> Entering binary_detection_implicit(crate=(unprintable))");
+		log::debug!("<<< Exiting binary_detection_implicit(crate=(unprintable))");
         detection: grep::searcher::BinaryDetection,
     ) -> &mut SearchWorkerBuilder {
         self.config.binary_implicit = detection;
@@ -156,7 +175,9 @@ impl SearchWorkerBuilder {
         &mut self,
         detection: grep::searcher::BinaryDetection,
     ) -> &mut SearchWorkerBuilder {
+		log::debug!(">>> Entering binary_detection_explicit(crate=(unprintable))");
         self.config.binary_explicit = detection;
+		log::debug!("<<< Exiting binary_detection_explicit(crate=(unprintable))");
         self
     }
 }
@@ -176,6 +197,8 @@ pub(crate) struct SearchResult {
 impl SearchResult {
     /// Whether the search found a match or not.
     pub(crate) fn has_match(&self) -> bool {
+		log::debug!(">>> Entering has_match(crate=(unprintable))");
+        log::debug!("<<< Exiting has_match(crate=(unprintable))");
         self.has_match
     }
 
@@ -184,6 +207,8 @@ impl SearchResult {
     /// It can be expensive to compute statistics, so these are only present
     /// if explicitly enabled in the printer provided by the caller.
     pub(crate) fn stats(&self) -> Option<&grep::printer::Stats> {
+		log::debug!(">>> Entering stats(crate=(unprintable))");
+        log::debug!("<<< Exiting stats(crate=(unprintable))");
         self.stats.as_ref()
     }
 }
@@ -213,6 +238,8 @@ pub(crate) enum Printer<W> {
 impl<W: WriteColor> Printer<W> {
     /// Return a mutable reference to the underlying printer's writer.
     pub(crate) fn get_mut(&mut self) -> &mut W {
+		log::debug!(">>> Entering get_mut(crate=(unprintable))");
+        log::debug!("<<< Exiting get_mut(crate=(unprintable))");
         match *self {
             Printer::Standard(ref mut p) => p.get_mut(),
             Printer::Summary(ref mut p) => p.get_mut(),
@@ -246,15 +273,18 @@ impl<W: WriteColor> SearchWorker<W> {
         &mut self,
         haystack: &crate::haystack::Haystack,
     ) -> io::Result<SearchResult> {
+		log::debug!(">>> Entering search(crate=(unprintable))");
         let bin = if haystack.is_explicit() {
             self.config.binary_explicit.clone()
         } else {
             self.config.binary_implicit.clone()
         };
         let path = haystack.path();
+		log::debug!("search(crate=(unprintable)): path → (unprintable)");
         log::trace!("{}: binary detection: {:?}", path.display(), bin);
 
         self.searcher.set_binary_detection(bin);
+		log::debug!("search(crate=(unprintable)): searcher → (unprintable)");
         if haystack.is_stdin() {
             self.search_reader(path, &mut io::stdin().lock())
         } else if self.should_preprocess(path) {
@@ -262,18 +292,23 @@ impl<W: WriteColor> SearchWorker<W> {
         } else if self.should_decompress(path) {
             self.search_decompress(path)
         } else {
+			log::debug!("<<< Exiting search(crate=(unprintable))");
             self.search_path(path)
         }
     }
 
     /// Return a mutable reference to the underlying printer.
     pub(crate) fn printer(&mut self) -> &mut Printer<W> {
+		log::debug!(">>> Entering printer(crate=(unprintable))");
+        log::debug!("<<< Exiting printer(crate=(unprintable))");
         &mut self.printer
     }
 
     /// Returns true if and only if the given file path should be
     /// decompressed before searching.
     fn should_decompress(&self, path: &Path) -> bool {
+		log::debug!(">>> Entering should_decompress(path={:?})", path);
+        log::debug!("<<< Exiting should_decompress(path={:?})", path);
         self.decomp_builder.as_ref().is_some_and(|decomp_builder| {
             decomp_builder.get_matcher().has_command(path)
         })
@@ -282,6 +317,7 @@ impl<W: WriteColor> SearchWorker<W> {
     /// Returns true if and only if the given file path should be run through
     /// the preprocessor.
     fn should_preprocess(&self, path: &Path) -> bool {
+		log::debug!(">>> Entering should_preprocess(path={:?})", path);
         if !self.config.preprocessor.is_some() {
             return false;
         }
@@ -297,9 +333,11 @@ impl<W: WriteColor> SearchWorker<W> {
         &mut self,
         path: &Path,
     ) -> io::Result<SearchResult> {
+		log::debug!(">>> Entering search_preprocessor(path={:?})", path);
         use std::{fs::File, process::Stdio};
 
         let bin = self.config.preprocessor.as_ref().unwrap();
+		log::debug!("search_preprocessor(path={:?}): bin → (unprintable)", path);
         let mut cmd = std::process::Command::new(bin);
         cmd.arg(path).stdin(Stdio::from(File::open(path)?));
 
@@ -318,8 +356,11 @@ impl<W: WriteColor> SearchWorker<W> {
             )
         });
         let close_result = rdr.close();
+		log::debug!("search_preprocessor(path={:?}): close_result → (unprintable)", path);
+		log::debug!("search_preprocessor(path={:?}): search_result → (unprintable)", path);
         let search_result = result?;
         close_result?;
+		log::debug!("<<< Exiting search_preprocessor(path={:?})", path);
         Ok(search_result)
     }
 
@@ -327,22 +368,30 @@ impl<W: WriteColor> SearchWorker<W> {
     /// result. If the given file path isn't recognized as a compressed file,
     /// then search it without doing any decompression.
     fn search_decompress(&mut self, path: &Path) -> io::Result<SearchResult> {
+		log::debug!(">>> Entering search_decompress(path={:?})", path);
         let Some(ref decomp_builder) = self.decomp_builder else {
             return self.search_path(path);
         };
         let mut rdr = decomp_builder.build(path)?;
+		log::debug!("search_decompress(path={:?}): rdr → (unprintable)", path);
         let result = self.search_reader(path, &mut rdr);
+		log::debug!("search_decompress(path={:?}): result → {:?}", path, result);
+		log::debug!("search_decompress(path={:?}): close_result → (unprintable)", path);
         let close_result = rdr.close();
         let search_result = result?;
         close_result?;
+		log::debug!("search_decompress(path={:?}): search_result → (unprintable)", path);
+        log::debug!("<<< Exiting search_decompress(path={:?})", path);
         Ok(search_result)
     }
 
     /// Search the contents of the given file path.
     fn search_path(&mut self, path: &Path) -> io::Result<SearchResult> {
+		log::debug!(">>> Entering search_path(path={:?})", path);
         use self::PatternMatcher::*;
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::debug!("<<< Exiting search_path(path={:?})", path);
         match self.matcher {
             RustRegex(ref m) => search_path(m, searcher, printer, path),
             #[cfg(feature = "pcre2")]
@@ -364,9 +413,11 @@ impl<W: WriteColor> SearchWorker<W> {
         path: &Path,
         rdr: &mut R,
     ) -> io::Result<SearchResult> {
+		log::debug!(">>> Entering search_reader(path={:?},rdr=(unprintable))", path);
         use self::PatternMatcher::*;
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::debug!("<<< Exiting search_reader(path={:?},rdr=(unprintable))", path);
         match self.matcher {
             RustRegex(ref m) => search_reader(m, searcher, printer, path, rdr),
             #[cfg(feature = "pcre2")]
@@ -381,6 +432,9 @@ fn search_path<M: Matcher, W: WriteColor>(
     matcher: M,
     searcher: &mut grep::searcher::Searcher,
     printer: &mut Printer<W>,
+	log::debug!(">>> Entering search_path(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?})", path);
+	log::debug!("search_path(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?}): sink → (unprintable)", path);
+	log::debug!("<<< Exiting search_path(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?})", path);
     path: &Path,
 ) -> io::Result<SearchResult> {
     match *printer {
@@ -418,6 +472,9 @@ fn search_reader<M: Matcher, R: io::Read, W: WriteColor>(
     searcher: &mut grep::searcher::Searcher,
     printer: &mut Printer<W>,
     path: &Path,
+	log::debug!(">>> Entering search_reader(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?},rdr=(unprintable))", path);
+	log::debug!("search_reader(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?},rdr=(unprintable)): sink → (unprintable)", path);
+	log::debug!("<<< Exiting search_reader(matcher=(unprintable),searcher=(unprintable),printer=(unprintable),path={:?},rdr=(unprintable))", path);
     mut rdr: R,
 ) -> io::Result<SearchResult> {
     match *printer {

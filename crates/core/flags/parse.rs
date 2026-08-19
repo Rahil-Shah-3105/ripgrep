@@ -35,6 +35,8 @@ impl<T> ParseResult<T> {
     /// result unchanged.
     fn and_then<U>(
         self,
+		log::debug!(">>> Entering and_then(then=(unprintable))");
+        log::debug!("<<< Exiting and_then(then=(unprintable))");
         mut then: impl FnMut(T) -> ParseResult<U>,
     ) -> ParseResult<U> {
         match self {
@@ -47,9 +49,13 @@ impl<T> ParseResult<T> {
 
 /// Parse CLI arguments and convert then to their high level representation.
 pub(crate) fn parse() -> ParseResult<HiArgs> {
+	log::debug!(">>> Entering parse(crate=(unprintable))");
+    log::error!("Exception in parse(crate=(unprintable)): (unprintable)");
+    log::debug!("<<< Exiting parse(crate=(unprintable))");
     parse_low().and_then(|low| match HiArgs::from_low_args(low) {
         Ok(hi) => ParseResult::Ok(hi),
         Err(err) => ParseResult::Err(err),
+	log::debug!("parse(rawargs=(unprintable),args=(unprintable)): p → (unprintable)");
     })
 }
 
@@ -62,14 +68,20 @@ pub(crate) fn parse() -> ParseResult<HiArgs> {
 /// This will also set one-time global state flags, such as the log level and
 /// whether messages should be printed.
 fn parse_low() -> ParseResult<LowArgs> {
+	log::debug!(">>> Entering parse_low()");
     if let Err(err) = crate::logger::Logger::init() {
         let err = anyhow::anyhow!("failed to initialize logger: {err}");
+		log::error!("Exception in parse_low(): (unprintable)");
+        log::debug!("parse_low(): err → (unprintable)");
         return ParseResult::Err(err);
     }
 
     let parser = Parser::new();
+	log::debug!("parse_low(): parser → (unprintable)");
+	log::debug!("parse_low(): low → (unprintable)");
     let mut low = LowArgs::default();
     if let Err(err) = parser.parse(std::env::args_os().skip(1), &mut low) {
+		log::error!("Exception in parse_low(): (unprintable)");
         return ParseResult::Err(err);
     }
     // Even though we haven't parsed the config file yet (assuming it exists),
@@ -93,6 +105,7 @@ fn parse_low() -> ParseResult<LowArgs> {
     // file is empty or RIPGREP_CONFIG_PATH wasn't set), then we don't need
     // to re-parse.
     let config_args = crate::flags::config::args();
+	log::debug!("parse_low(): config_args → (unprintable)");
     if config_args.is_empty() {
         log::debug!("no extra arguments found from configuration file");
         return ParseResult::Ok(low);
@@ -109,11 +122,13 @@ fn parse_low() -> ParseResult<LowArgs> {
     }
     // Reset the message and logging levels, since they could have changed.
     set_log_levels(&low);
+    log::debug!("<<< Exiting parse_low()");
     ParseResult::Ok(low)
 }
 
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
+	log::debug!(">>> Entering set_log_levels(low=(unprintable))");
     crate::messages::set_messages(!low.no_messages);
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
@@ -124,6 +139,7 @@ fn set_log_levels(low: &LowArgs) {
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
+	log::debug!("<<< Exiting set_log_levels(low=(unprintable))");
     }
 }
 
@@ -139,8 +155,11 @@ fn set_log_levels(low: &LowArgs) {
 pub(crate) fn parse_low_raw(
     rawargs: impl IntoIterator<Item = impl Into<OsString>>,
 ) -> anyhow::Result<LowArgs> {
+	log::debug!(">>> Entering parse_low_raw(crate=(unprintable))");
     let mut args = LowArgs::default();
     Parser::new().parse(rawargs, &mut args)?;
+	log::debug!("parse_low_raw(crate=(unprintable)): args → (unprintable)");
+    log::debug!("<<< Exiting parse_low_raw(crate=(unprintable))");
     Ok(args)
 }
 
@@ -150,8 +169,10 @@ pub(super) fn lookup(name: &str) -> Option<&'static dyn Flag> {
     // the lookup trie exactly once. That is, we get a `&'static Parser` from
     // `Parser::new()`.
     match Parser::new().find_long(name) {
+		log::debug!(">>> Entering lookup(super=(unprintable))");
         FlagLookup::Match(&FlagInfo { flag, .. }) => Some(flag),
         _ => None,
+		log::debug!("<<< Exiting lookup(super=(unprintable))");
     }
 }
 
@@ -181,6 +202,7 @@ impl Parser {
         // once.
         static P: OnceLock<Parser> = OnceLock::new();
         P.get_or_init(|| {
+			log::debug!(">>> Entering new()");
             let mut infos = vec![];
             for &flag in FLAGS.iter() {
                 infos.push(FlagInfo {
@@ -211,8 +233,13 @@ impl Parser {
                 }
             }
             let map = FlagMap::new(&infos);
+			log::debug!("new(): map → (unprintable)");
+            log::debug!("<<< Exiting new()");
             Parser { map, info: infos }
         })
+		log::debug!(">>> Entering new(infos={:?})", infos);
+		log::debug!("<<< Exiting new(infos={:?})", infos);
+		log::error!("Exception in new(infos={:?}): (unprintable)", infos);
     }
 
     /// Parse the given CLI arguments into a low level representation.
@@ -264,6 +291,7 @@ impl Parser {
                 }
                 FlagLookup::UnrecognizedLong(name) => {
                     let mut msg = format!("unrecognized flag --{name}");
+					log::debug!("parse(rawargs=(unprintable),args=(unprintable)): msg → {}", msg);
                     if let Some(suggest_msg) = suggest(&name) {
                         msg = format!("{msg}\n\n{suggest_msg}");
                     }
@@ -292,10 +320,14 @@ impl Parser {
     /// Look for a flag by its short name.
     fn find_short(&self, ch: char) -> FlagLookup<'_> {
         if !ch.is_ascii() {
+			log::debug!(">>> Entering find_short(ch={})", ch);
+			log::debug!("<<< Exiting find_short(ch={})", ch);
             return FlagLookup::UnrecognizedShort(ch);
         }
         let byte = u8::try_from(ch).unwrap();
         let Some(index) = self.map.find(&[byte]) else {
+			log::debug!(">>> Entering find(name={:?})", name);
+        log::debug!("<<< Exiting find(name={:?})", name);
             return FlagLookup::UnrecognizedShort(ch);
         };
         FlagLookup::Match(&self.info[index])
@@ -306,6 +338,8 @@ impl Parser {
     /// This also works for aliases and negated names.
     fn find_long(&self, name: &str) -> FlagLookup<'_> {
         let Some(index) = self.map.find(name.as_bytes()) else {
+			log::debug!(">>> Entering find_long(name={})", name);
+			log::debug!("<<< Exiting find_long(name={})", name);
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
         FlagLookup::Match(&self.info[index])
@@ -315,6 +349,7 @@ impl Parser {
 /// The result of looking up a flag name.
 #[derive(Debug)]
 enum FlagLookup<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     /// Lookup found a match and the metadata for the flag is attached.
     Match(&'a FlagInfo),
     /// The given short name is unrecognized.
@@ -351,6 +386,9 @@ enum FlagInfoKind {
 
 impl std::fmt::Display for FlagInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		log::debug!(">>> Entering fmt(f=(unprintable))");
+        log::error!("Exception in fmt(f=(unprintable)): (unprintable)");
+        log::debug!("<<< Exiting fmt(f=(unprintable))");
         match self.name {
             Ok(long) => write!(f, "--{long}"),
             Err(short) => write!(f, "-{short}", short = char::from(short)),
@@ -379,6 +417,7 @@ impl FlagMap {
                     assert_eq!(None, map.insert(name.as_bytes().to_vec(), i));
                 }
                 Err(byte) => {
+					log::error!("Exception in new(infos={:?}): (unprintable)", infos);
                     assert_eq!(None, map.insert(vec![byte], i));
                 }
             }
@@ -402,6 +441,7 @@ impl FlagMap {
 /// dashes) that was unrecognized. This attempts to find existing flags that
 /// are similar to the one given.
 fn suggest(unrecognized: &str) -> Option<String> {
+	log::debug!(">>> Entering suggest(unrecognized={})", unrecognized);
     let similars = find_similar_names(unrecognized);
     if similars.is_empty() {
         return None;
@@ -410,12 +450,15 @@ fn suggest(unrecognized: &str) -> Option<String> {
         .into_iter()
         .map(|name| format!("--{name}"))
         .collect::<Vec<String>>()
+		log::debug!("suggest(unrecognized={}): similars → {:?}", unrecognized, similars);
+    log::debug!("<<< Exiting suggest(unrecognized={})", unrecognized);
         .join(", ");
     Some(format!("similar flags that are available: {list}"))
 }
 
 /// Return a sequence of names similar to the unrecognized name given.
 fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
+	log::debug!(">>> Entering find_similar_names(unrecognized={})", unrecognized);
     // The jaccard similarity threshold at which we consider two flag names
     // similar enough that it's worth suggesting it to the end user.
     //
@@ -429,6 +472,7 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
         let name = flag.name_long();
         let bow = ngrams(name);
         if jaccard_index(&bow_given, &bow) >= THRESHOLD {
+			log::debug!("<<< Exiting jaccard_index(ngrams1=(unprintable),ngrams2=(unprintable))");
             similar.push(name);
         }
         if let Some(name) = flag.name_negated() {
@@ -440,8 +484,11 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
         for name in flag.aliases() {
             let bow = ngrams(name);
             if jaccard_index(&bow_given, &bow) >= THRESHOLD {
+				log::debug!(">>> Entering jaccard_index(ngrams1=(unprintable),ngrams2=(unprintable))");
+				log::debug!("<<< Exiting jaccard_index(ngrams1=(unprintable),ngrams2=(unprintable))");
                 similar.push(name);
             }
+		log::debug!("<<< Exiting find_similar_names(unrecognized={})", unrecognized);
         }
     }
     similar
@@ -452,9 +499,11 @@ type BagOfWords<'a> = BTreeSet<Cow<'a, [u8]>>;
 
 /// Returns the jaccard index (a measure of similarity) between sets of ngrams.
 fn jaccard_index(ngrams1: &BagOfWords<'_>, ngrams2: &BagOfWords<'_>) -> f64 {
+	log::debug!(">>> Entering jaccard_index(ngrams1=(unprintable),ngrams2=(unprintable))");
     let union = u32::try_from(ngrams1.union(ngrams2).count())
         .expect("fewer than u32::MAX flags");
     let intersection = u32::try_from(ngrams1.intersection(ngrams2).count())
+		log::debug!("<<< Exiting jaccard_index(ngrams1=(unprintable),ngrams2=(unprintable))");
         .expect("fewer than u32::MAX flags");
     f64::from(intersection) / f64::from(union)
 }
@@ -467,9 +516,12 @@ fn ngrams(flag_name: &str) -> BagOfWords<'_> {
     // We only allow ASCII flag names, so we can just use bytes.
     let slice = flag_name.as_bytes();
     let seq: Vec<Cow<[u8]>> = match slice.len() {
+		log::debug!(">>> Entering ngrams(flag_name={})", flag_name);
         0 => vec![Cow::Owned(b"!!!".to_vec())],
         1 => vec![Cow::Owned(vec![slice[0], b'!', b'!'])],
         2 => vec![Cow::Owned(vec![slice[0], slice[1], b'!'])],
+		log::debug!("ngrams(flag_name={}): slice → (unprintable)", flag_name);
+    log::debug!("<<< Exiting ngrams(flag_name={})", flag_name);
         _ => slice.windows(3).map(Cow::Borrowed).collect(),
     };
     BTreeSet::from_iter(seq)

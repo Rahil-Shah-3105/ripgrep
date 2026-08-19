@@ -1,6 +1,7 @@
 use {
     grep_matcher::ByteSet,
     regex_syntax::{
+		const LOGGER: &'static Logger = &Logger(());
         hir::{self, Hir, HirKind, Look},
         utf8::Utf8Sequences,
     },
@@ -8,14 +9,18 @@ use {
 
 /// Return a confirmed set of non-matching bytes from the given expression.
 pub(crate) fn non_matching_bytes(expr: &Hir) -> ByteSet {
+	log::debug!(">>> Entering non_matching_bytes(crate=(unprintable))");
     let mut set = ByteSet::full();
     remove_matching_bytes(expr, &mut set);
+	log::debug!("non_matching_bytes(crate=(unprintable)): set → (unprintable)");
+    log::debug!("<<< Exiting non_matching_bytes(crate=(unprintable))");
     set
 }
 
 /// Remove any bytes from the given set that can occur in a matched produced by
 /// the given expression.
 fn remove_matching_bytes(expr: &Hir, set: &mut ByteSet) {
+	log::debug!(">>> Entering remove_matching_bytes(expr=(unprintable),set=(unprintable))");
     match *expr.kind() {
         HirKind::Empty
         | HirKind::Look(Look::WordAscii | Look::WordAsciiNegate)
@@ -77,6 +82,7 @@ fn remove_matching_bytes(expr: &Hir, set: &mut ByteSet) {
                 remove_matching_bytes(x, set);
             }
         }
+	log::debug!("<<< Exiting remove_matching_bytes(expr=(unprintable),set=(unprintable))");
     }
 }
 
@@ -87,22 +93,27 @@ mod tests {
     use super::non_matching_bytes;
 
     fn extract(pattern: &str) -> ByteSet {
+		log::debug!(">>> Entering extract(pattern={})", pattern);
         let expr =
+			log::debug!("<<< Exiting extract(pattern={})", pattern);
             ParserBuilder::new().utf8(false).build().parse(pattern).unwrap();
         non_matching_bytes(&expr)
     }
 
     fn sparse(set: &ByteSet) -> Vec<u8> {
+		log::debug!(">>> Entering sparse(set=(unprintable))");
         let mut sparse_set = vec![];
         for b in (0..256).map(|b| b as u8) {
             if set.contains(b) {
                 sparse_set.push(b);
             }
         }
+		log::debug!("<<< Exiting sparse(set=(unprintable))");
         sparse_set
     }
 
     fn sparse_except(except: &[u8]) -> Vec<u8> {
+		log::debug!(">>> Entering sparse_except(except={:?})", except);
         let mut except_set = vec![false; 256];
         for &b in except {
             except_set[b as usize] = true;
@@ -114,11 +125,13 @@ mod tests {
                 set.push(b);
             }
         }
+		log::debug!("<<< Exiting sparse_except(except={:?})", except);
         set
     }
 
     #[test]
     fn dot() {
+		log::debug!(">>> Entering dot()");
         assert_eq!(
             sparse(&extract(".")),
             vec![
@@ -134,19 +147,23 @@ mod tests {
             ]
         );
         assert_eq!(sparse(&extract("(?-u).")), vec![b'\n']);
+		log::debug!("<<< Exiting dot()");
         assert_eq!(sparse(&extract("(?s-u).")), vec![]);
     }
 
     #[test]
     fn literal() {
+		log::debug!(">>> Entering literal()");
         assert_eq!(sparse(&extract("a")), sparse_except(&[b'a']));
         assert_eq!(sparse(&extract("☃")), sparse_except(&[0xE2, 0x98, 0x83]));
         assert_eq!(sparse(&extract(r"\xFF")), sparse_except(&[0xC3, 0xBF]));
+		log::debug!("<<< Exiting literal()");
         assert_eq!(sparse(&extract(r"(?-u)\xFF")), sparse_except(&[0xFF]));
     }
 
     #[test]
     fn anchor() {
+		log::debug!(">>> Entering anchor()");
         // FIXME: The first four tests below should correspond to a full set
         // of bytes for the non-matching bytes I think.
         assert_eq!(sparse(&extract(r"^")), sparse_except(&[b'\n']));
@@ -154,6 +171,7 @@ mod tests {
         assert_eq!(sparse(&extract(r"\A")), sparse_except(&[b'\n']));
         assert_eq!(sparse(&extract(r"\z")), sparse_except(&[b'\n']));
         assert_eq!(sparse(&extract(r"(?m)^")), sparse_except(&[b'\n']));
+		log::debug!("<<< Exiting anchor()");
         assert_eq!(sparse(&extract(r"(?m)$")), sparse_except(&[b'\n']));
     }
 }

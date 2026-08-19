@@ -168,6 +168,8 @@ impl LowArgs {
         &self,
     ) -> Option<&'static dyn Flag> {
         if matches!(self.mode, Mode::Search(SearchMode::FilesWithoutMatch)) {
+			log::debug!(">>> Entering indexing_unsupported_flag(super=(unprintable))");
+			log::debug!("<<< Exiting indexing_unsupported_flag(super=(unprintable))");
             return Some(&FilesWithoutMatch);
         }
         if matches!(self.binary, BinaryMode::AsText) {
@@ -234,21 +236,33 @@ struct AfterContext;
 
 impl Flag for AfterContext {
     fn is_switch(&self) -> bool {
+		log::debug!(">>> Entering is_switch()");
+        log::debug!("<<< Exiting is_switch()");
         false
     }
     fn name_short(&self) -> Option<u8> {
+		log::debug!(">>> Entering name_short()");
+        log::debug!("<<< Exiting name_short()");
         Some(b'A')
     }
     fn name_long(&self) -> &'static str {
+		log::debug!(">>> Entering name_long()");
+        log::debug!("<<< Exiting name_long()");
         "after-context"
     }
     fn doc_variable(&self) -> Option<&'static str> {
+		log::debug!(">>> Entering doc_variable()");
+        log::debug!("<<< Exiting doc_variable()");
         Some("NUM")
     }
     fn doc_category(&self) -> Category {
+		log::debug!(">>> Entering doc_category()");
+        log::debug!("<<< Exiting doc_category()");
         Category::Output
     }
     fn doc_short(&self) -> &'static str {
+		log::debug!(">>> Entering doc_short()");
+        log::debug!("<<< Exiting doc_short()");
         "Show NUM lines after each match."
     }
     fn doc_long(&self) -> &'static str {
@@ -258,10 +272,12 @@ Show \fINUM\fP lines after each match.
 This overrides the \flag{passthru} flag and partially overrides the
 \flag{context} flag.
 "
+	log::debug!("<<< Exiting doc_long()");
     }
 
     fn update(&self, v: FlagValue, args: &mut LowArgs) -> anyhow::Result<()> {
         args.context.set_after(convert::usize(&v.unwrap_value())?);
+		log::debug!("<<< Exiting update(v=(unprintable))");
         Ok(())
     }
 }
@@ -269,13 +285,16 @@ This overrides the \flag{passthru} flag and partially overrides the
 #[cfg(test)]
 #[test]
 fn test_after_context() {
+	log::debug!(">>> Entering test_after_context()");
     let mkctx = |lines| {
         let mut mode = ContextMode::default();
         mode.set_after(lines);
+		log::debug!("test_after_context(): mode → (unprintable)");
         mode
     };
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_after_context(): args → (unprintable)");
     assert_eq!(ContextMode::default(), args.context);
 
     let args = parse_low_raw(["--after-context", "5"]).unwrap();
@@ -303,6 +322,7 @@ fn test_after_context() {
     assert_eq!(mkctx(5), args.context);
 
     let n = usize::MAX.to_string();
+	log::debug!("test_after_context(): n → {}", n);
     let args = parse_low_raw(["--after-context", n.as_str()]).unwrap();
     assert_eq!(mkctx(usize::MAX), args.context);
 
@@ -310,7 +330,9 @@ fn test_after_context() {
     {
         let n = (u128::from(u64::MAX) + 1).to_string();
         let result = parse_low_raw(["--after-context", n.as_str()]);
+		log::debug!("test_after_context(): result → (unprintable)");
         assert!(result.is_err(), "{result:?}");
+	log::debug!("<<< Exiting test_after_context()");
     }
 }
 
@@ -326,6 +348,8 @@ impl Flag for AutoHybridRegex {
         "auto-hybrid-regex"
     }
     fn name_negated(&self) -> Option<&'static str> {
+		log::debug!(">>> Entering name_negated()");
+        log::debug!("<<< Exiting name_negated()");
         Some("no-auto-hybrid-regex")
     }
     fn doc_category(&self) -> Category {
@@ -378,8 +402,10 @@ backreferences without explicitly needing to enable them.
 #[cfg(test)]
 #[test]
 fn test_auto_hybrid_regex() {
+	log::debug!(">>> Entering test_auto_hybrid_regex()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(EngineChoice::Default, args.engine);
+	log::debug!("test_auto_hybrid_regex(): args → (unprintable)");
 
     let args = parse_low_raw(["--auto-hybrid-regex"]).unwrap();
     assert_eq!(EngineChoice::Auto, args.engine);
@@ -410,6 +436,7 @@ fn test_auto_hybrid_regex() {
 
     let args =
         parse_low_raw(["--auto-hybrid-regex", "--engine=default"]).unwrap();
+	log::debug!("<<< Exiting test_auto_hybrid_regex()");
     assert_eq!(EngineChoice::Default, args.engine);
 }
 
@@ -454,13 +481,16 @@ This overrides the \flag{passthru} flag and partially overrides the
 #[cfg(test)]
 #[test]
 fn test_before_context() {
+	log::debug!(">>> Entering test_before_context()");
     let mkctx = |lines| {
         let mut mode = ContextMode::default();
         mode.set_before(lines);
+		log::debug!("test_before_context(): mode → (unprintable)");
         mode
     };
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_before_context(): args → (unprintable)");
     assert_eq!(ContextMode::default(), args.context);
 
     let args = parse_low_raw(["--before-context", "5"]).unwrap();
@@ -488,6 +518,7 @@ fn test_before_context() {
     assert_eq!(mkctx(5), args.context);
 
     let n = usize::MAX.to_string();
+	log::debug!("test_before_context(): n → {}", n);
     let args = parse_low_raw(["--before-context", n.as_str()]).unwrap();
     assert_eq!(mkctx(usize::MAX), args.context);
 
@@ -495,7 +526,9 @@ fn test_before_context() {
     {
         let n = (u128::from(u64::MAX) + 1).to_string();
         let result = parse_low_raw(["--before-context", n.as_str()]);
+		log::debug!("test_before_context(): result → (unprintable)");
         assert!(result.is_err(), "{result:?}");
+	log::debug!("<<< Exiting test_before_context()");
     }
 }
 
@@ -568,8 +601,10 @@ This flag overrides the \flag{text} flag.
 #[cfg(test)]
 #[test]
 fn test_binary() {
+	log::debug!(">>> Entering test_binary()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(BinaryMode::Auto, args.binary);
+	log::debug!("test_binary(): args → (unprintable)");
 
     let args = parse_low_raw(["--binary"]).unwrap();
     assert_eq!(BinaryMode::SearchAndSuppress, args.binary);
@@ -587,6 +622,7 @@ fn test_binary() {
     assert_eq!(BinaryMode::SearchAndSuppress, args.binary);
 
     let args = parse_low_raw(["-a", "--no-binary"]).unwrap();
+	log::debug!("<<< Exiting test_binary()");
     assert_eq!(BinaryMode::Auto, args.binary);
 }
 
@@ -636,8 +672,10 @@ This overrides the \flag{line-buffered} flag.
 #[cfg(test)]
 #[test]
 fn test_block_buffered() {
+	log::debug!(">>> Entering test_block_buffered()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(BufferMode::Auto, args.buffer);
+	log::debug!("test_block_buffered(): args → (unprintable)");
 
     let args = parse_low_raw(["--block-buffered"]).unwrap();
     assert_eq!(BufferMode::Block, args.buffer);
@@ -647,6 +685,7 @@ fn test_block_buffered() {
     assert_eq!(BufferMode::Auto, args.buffer);
 
     let args = parse_low_raw(["--block-buffered", "--line-buffered"]).unwrap();
+	log::debug!("<<< Exiting test_block_buffered()");
     assert_eq!(BufferMode::Line, args.buffer);
 }
 
@@ -694,8 +733,10 @@ transformations on the data, such as decompression or a \flag{pre} filter.
 #[cfg(test)]
 #[test]
 fn test_byte_offset() {
+	log::debug!(">>> Entering test_byte_offset()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.byte_offset);
+	log::debug!("test_byte_offset(): args → (unprintable)");
 
     let args = parse_low_raw(["--byte-offset"]).unwrap();
     assert_eq!(true, args.byte_offset);
@@ -707,6 +748,7 @@ fn test_byte_offset() {
     assert_eq!(false, args.byte_offset);
 
     let args = parse_low_raw(["--no-byte-offset", "-b"]).unwrap();
+	log::debug!("<<< Exiting test_byte_offset()");
     assert_eq!(true, args.byte_offset);
 }
 
@@ -753,13 +795,16 @@ This flag overrides the \flag{ignore-case} and \flag{smart-case} flags.
 #[cfg(test)]
 #[test]
 fn test_case_sensitive() {
+	log::debug!(">>> Entering test_case_sensitive()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(CaseMode::Sensitive, args.case);
+	log::debug!("test_case_sensitive(): args → (unprintable)");
 
     let args = parse_low_raw(["--case-sensitive"]).unwrap();
     assert_eq!(CaseMode::Sensitive, args.case);
 
     let args = parse_low_raw(["-s"]).unwrap();
+	log::debug!("<<< Exiting test_case_sensitive()");
     assert_eq!(CaseMode::Sensitive, args.case);
 }
 
@@ -853,8 +898,10 @@ the \flag{colors} flag to manually set all color styles to \fBnone\fP:
 #[cfg(test)]
 #[test]
 fn test_color() {
+	log::debug!(">>> Entering test_color()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(ColorChoice::Auto, args.color);
+	log::debug!("test_color(): args → (unprintable)");
 
     let args = parse_low_raw(["--color", "never"]).unwrap();
     assert_eq!(ColorChoice::Never, args.color);
@@ -880,9 +927,11 @@ fn test_color() {
     assert_eq!(ColorChoice::Always, args.color);
 
     let result = parse_low_raw(["--color", "foofoo"]);
+	log::debug!("test_color(): result → (unprintable)");
     assert!(result.is_err(), "{result:?}");
 
     let result = parse_low_raw(["--color", "Always"]);
+	log::debug!("<<< Exiting test_color()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -977,8 +1026,10 @@ used alongside these extended color codes.
 #[cfg(test)]
 #[test]
 fn test_colors() {
+	log::debug!(">>> Entering test_colors()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert!(args.colors.is_empty());
+	log::debug!("test_colors(): args → (unprintable)");
 
     let args = parse_low_raw(["--colors", "match:fg:magenta"]).unwrap();
     assert_eq!(args.colors, vec!["match:fg:magenta".parse().unwrap()]);
@@ -1014,6 +1065,7 @@ fn test_colors() {
             "match:fg:magenta".parse().unwrap(),
             "highlight:bg:blue".parse().unwrap()
         ]
+	log::debug!("<<< Exiting test_colors()");
     );
 }
 
@@ -1057,8 +1109,10 @@ to the start of each match.
 #[cfg(test)]
 #[test]
 fn test_column() {
+	log::debug!(">>> Entering test_column()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.column);
+	log::debug!("test_column(): args → (unprintable)");
 
     let args = parse_low_raw(["--column"]).unwrap();
     assert_eq!(Some(true), args.column);
@@ -1067,6 +1121,7 @@ fn test_column() {
     assert_eq!(Some(false), args.column);
 
     let args = parse_low_raw(["--no-column", "--column"]).unwrap();
+	log::debug!("<<< Exiting test_column()");
     assert_eq!(Some(true), args.column);
 }
 
@@ -1114,13 +1169,16 @@ the order. For example, \fB\-A2 \-C1\fP is equivalent to \fB\-A2 \-B1\fP.
 #[cfg(test)]
 #[test]
 fn test_context() {
+	log::debug!(">>> Entering test_context()");
     let mkctx = |lines| {
         let mut mode = ContextMode::default();
         mode.set_both(lines);
+		log::debug!("test_context(): mode → (unprintable)");
         mode
     };
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_context(): args → (unprintable)");
     assert_eq!(ContextMode::default(), args.context);
 
     let args = parse_low_raw(["--context", "5"]).unwrap();
@@ -1148,6 +1206,7 @@ fn test_context() {
     assert_eq!(mkctx(5), args.context);
 
     let n = usize::MAX.to_string();
+	log::debug!("test_context(): n → {}", n);
     let args = parse_low_raw(["--context", n.as_str()]).unwrap();
     assert_eq!(mkctx(usize::MAX), args.context);
 
@@ -1155,6 +1214,7 @@ fn test_context() {
     {
         let n = (u128::from(u64::MAX) + 1).to_string();
         let result = parse_low_raw(["--context", n.as_str()]);
+		log::debug!("test_context(): result → (unprintable)");
         assert!(result.is_err(), "{result:?}");
     }
 
@@ -1207,6 +1267,7 @@ fn test_context() {
     mode.set_after(1);
     mode.set_both(5);
     assert_eq!(mode, args.context);
+	log::debug!("<<< Exiting test_context()");
     assert_eq!((2, 1), args.context.get_limited());
 }
 
@@ -1263,13 +1324,16 @@ is still inserted. To completely disable context separators, use the
 #[cfg(test)]
 #[test]
 fn test_context_separator() {
+	log::debug!(">>> Entering test_context_separator()");
     use bstr::BString;
 
     use crate::flags::lowargs::ContextSeparator as Separator;
 
     let getbytes = |ctxsep: Separator| ctxsep.into_bytes().map(BString::from);
+	log::debug!("test_context_separator(): getbytes → (unprintable)");
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_context_separator(): args → (unprintable)");
     assert_eq!(Some(BString::from("--")), getbytes(args.context_separator));
 
     let args = parse_low_raw(["--context-separator", "XYZ"]).unwrap();
@@ -1316,6 +1380,7 @@ fn test_context_separator() {
             OsStr::from_bytes(&[0xFF]),
         ]);
         assert!(result.is_err(), "{result:?}");
+	log::debug!("<<< Exiting test_context_separator()");
     }
 }
 
@@ -1378,8 +1443,10 @@ is combined with \flag{only-matching}, then ripgrep behaves as if
 #[cfg(test)]
 #[test]
 fn test_count() {
+	log::debug!(">>> Entering test_count()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_count(): args → (unprintable)");
 
     let args = parse_low_raw(["--count"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::Count), args.mode);
@@ -1391,6 +1458,7 @@ fn test_count() {
     assert_eq!(Mode::Search(SearchMode::Count), args.mode);
 
     let args = parse_low_raw(["--count-matches", "-c"]).unwrap();
+	log::debug!("<<< Exiting test_count()");
     assert_eq!(Mode::Search(SearchMode::Count), args.mode);
 }
 
@@ -1441,8 +1509,10 @@ given.
 #[cfg(test)]
 #[test]
 fn test_count_matches() {
+	log::debug!(">>> Entering test_count_matches()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_count_matches(): args → (unprintable)");
 
     let args = parse_low_raw(["--count-matches"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::CountMatches), args.mode);
@@ -1451,6 +1521,7 @@ fn test_count_matches() {
     assert_eq!(Mode::Search(SearchMode::CountMatches), args.mode);
 
     let args = parse_low_raw(["-c", "--count-matches"]).unwrap();
+	log::debug!("<<< Exiting test_count_matches()");
     assert_eq!(Mode::Search(SearchMode::CountMatches), args.mode);
 }
 
@@ -1504,8 +1575,10 @@ This flag overrides \flag{null-data}.
 #[cfg(test)]
 #[test]
 fn test_crlf() {
+	log::debug!(">>> Entering test_crlf()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.crlf);
+	log::debug!("test_crlf(): args → (unprintable)");
 
     let args = parse_low_raw(["--crlf"]).unwrap();
     assert_eq!(true, args.crlf);
@@ -1525,6 +1598,7 @@ fn test_crlf() {
 
     let args = parse_low_raw(["--null-data", "--crlf", "--no-crlf"]).unwrap();
     assert_eq!(false, args.crlf);
+	log::debug!("<<< Exiting test_crlf()");
     assert_eq!(false, args.null_data);
 }
 
@@ -1568,13 +1642,16 @@ To get even more debug output, use the \flag{trace} flag, which implies
 #[cfg(test)]
 #[test]
 fn test_debug() {
+	log::debug!(">>> Entering test_debug()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.logging);
+	log::debug!("test_debug(): args → (unprintable)");
 
     let args = parse_low_raw(["--debug"]).unwrap();
     assert_eq!(Some(LoggingMode::Debug), args.logging);
 
     let args = parse_low_raw(["--trace", "--debug"]).unwrap();
+	log::debug!("<<< Exiting test_debug()");
     assert_eq!(Some(LoggingMode::Debug), args.logging);
 }
 
@@ -1614,6 +1691,8 @@ provided the input is treated as bytes.
     fn update(&self, v: FlagValue, args: &mut LowArgs) -> anyhow::Result<()> {
         let v = v.unwrap_value();
         args.dfa_size_limit = Some(convert::human_readable_usize(&v)?);
+		log::debug!(">>> Entering update(v=(unprintable),args=(unprintable))");
+		log::debug!("update(v=(unprintable),args=(unprintable)): args.encoding → (unprintable)");
         Ok(())
     }
 }
@@ -1621,8 +1700,10 @@ provided the input is treated as bytes.
 #[cfg(test)]
 #[test]
 fn test_dfa_size_limit() {
+	log::debug!(">>> Entering test_dfa_size_limit()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.dfa_size_limit);
+	log::debug!("test_dfa_size_limit(): args → (unprintable)");
 
     #[cfg(target_pointer_width = "64")]
     {
@@ -1648,9 +1729,11 @@ fn test_dfa_size_limit() {
     assert_eq!(Some(0), args.dfa_size_limit);
 
     let result = parse_low_raw(["--dfa-size-limit", "9999999999999999999999"]);
+	log::debug!("test_dfa_size_limit(): result → (unprintable)");
     assert!(result.is_err(), "{result:?}");
 
     let result = parse_low_raw(["--dfa-size-limit", "9999999999999999G"]);
+	log::debug!("<<< Exiting test_dfa_size_limit()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -1701,6 +1784,8 @@ via the \flag-negate{encoding} flag.
 "
     }
     fn completion_type(&self) -> CompletionType {
+		log::debug!(">>> Entering completion_type()");
+        log::debug!("<<< Exiting completion_type()");
         CompletionType::Encoding
     }
 
@@ -1721,6 +1806,8 @@ via the \flag-negate{encoding} flag.
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		log::debug!("update(v=(unprintable),args=(unprintable)): label → {}", label);
+        log::debug!("<<< Exiting update(v=(unprintable),args=(unprintable))");
         Ok(())
     }
 }
@@ -1728,8 +1815,10 @@ via the \flag-negate{encoding} flag.
 #[cfg(test)]
 #[test]
 fn test_encoding() {
+	log::debug!(">>> Entering test_encoding()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(EncodingMode::Auto, args.encoding);
+	log::debug!("test_encoding(): args → (unprintable)");
 
     let args = parse_low_raw(["--encoding", "auto"]).unwrap();
     assert_eq!(EncodingMode::Auto, args.encoding);
@@ -1754,12 +1843,15 @@ fn test_encoding() {
 
     let args = parse_low_raw(["-E", "utf-16"]).unwrap();
     let enc = grep::searcher::Encoding::new("utf-16").unwrap();
+	log::debug!("test_encoding(): enc → (unprintable)");
     assert_eq!(EncodingMode::Some(enc), args.encoding);
 
     let args = parse_low_raw(["-E", "utf-16", "--no-encoding"]).unwrap();
     assert_eq!(EncodingMode::Auto, args.encoding);
 
     let result = parse_low_raw(["-E", "foo"]);
+	log::debug!("test_encoding(): result → (unprintable)");
+	log::debug!("<<< Exiting test_encoding()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -1816,6 +1908,8 @@ flags.
             "default" => EngineChoice::Default,
             "pcre2" => EngineChoice::PCRE2,
             "auto" => EngineChoice::Auto,
+			log::debug!(">>> Entering string(super=(unprintable))");
+			log::debug!("<<< Exiting string(super=(unprintable))");
             _ => anyhow::bail!("unrecognized regex engine '{string}'"),
         };
         Ok(())
@@ -1825,8 +1919,10 @@ flags.
 #[cfg(test)]
 #[test]
 fn test_engine() {
+	log::debug!(">>> Entering test_engine()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(EngineChoice::Default, args.engine);
+	log::debug!("test_engine(): args → (unprintable)");
 
     let args = parse_low_raw(["--engine", "pcre2"]).unwrap();
     assert_eq!(EngineChoice::PCRE2, args.engine);
@@ -1852,6 +1948,7 @@ fn test_engine() {
 
     let args =
         parse_low_raw(["--engine=pcre2", "--no-auto-hybrid-regex"]).unwrap();
+	log::debug!("<<< Exiting test_engine()");
     assert_eq!(EngineChoice::Default, args.engine);
 }
 
@@ -1897,9 +1994,11 @@ The \fB-\fP character is the default value.
 #[cfg(test)]
 #[test]
 fn test_field_context_separator() {
+	log::debug!(">>> Entering test_field_context_separator()");
     use bstr::BString;
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_field_context_separator(): args → (unprintable)");
     assert_eq!(BString::from("-"), args.field_context_separator.into_bytes());
 
     let args = parse_low_raw(["--field-context-separator", "XYZ"]).unwrap();
@@ -1960,6 +2059,7 @@ fn test_field_context_separator() {
             OsStr::from_bytes(&[0xFF]),
         ]);
         assert!(result.is_err(), "{result:?}");
+	log::debug!("<<< Exiting test_field_context_separator()");
     }
 }
 
@@ -2005,9 +2105,11 @@ The \fB:\fP character is the default value.
 #[cfg(test)]
 #[test]
 fn test_field_match_separator() {
+	log::debug!(">>> Entering test_field_match_separator()");
     use bstr::BString;
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_field_match_separator(): args → (unprintable)");
     assert_eq!(BString::from(":"), args.field_match_separator.into_bytes());
 
     let args = parse_low_raw(["--field-match-separator", "XYZ"]).unwrap();
@@ -2056,6 +2158,7 @@ fn test_field_match_separator() {
             OsStr::from_bytes(&[0xFF]),
         ]);
         assert!(result.is_err(), "{result:?}");
+	log::debug!("<<< Exiting test_field_match_separator()");
     }
 }
 
@@ -2112,8 +2215,10 @@ arguments as files or directories to search.
 #[cfg(test)]
 #[test]
 fn test_file() {
+	log::debug!(">>> Entering test_file()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<PatternSource>::new(), args.patterns);
+	log::debug!("test_file(): args → (unprintable)");
 
     let args = parse_low_raw(["--file", "foo"]).unwrap();
     assert_eq!(vec![PatternSource::File(PathBuf::from("foo"))], args.patterns);
@@ -2173,6 +2278,8 @@ fn test_file() {
         };
 
         let bytes = &[b'A', 0xFF, b'Z'][..];
+		log::debug!("test_file(): bytes → (unprintable)");
+		log::debug!("test_file(): path → (unprintable)");
         let path = PathBuf::from(OsString::from_vec(bytes.to_vec()));
 
         let args = parse_low_raw([
@@ -2200,6 +2307,7 @@ fn test_file() {
         bytes.push(b'Z');
         let args = parse_low_raw([OsStr::from_bytes(&bytes)]).unwrap();
         assert_eq!(vec![PatternSource::File(path.clone())], args.patterns);
+	log::debug!("<<< Exiting test_file()");
     }
 }
 
@@ -2239,10 +2347,13 @@ This overrides \flag{type-list}.
 #[cfg(test)]
 #[test]
 fn test_files() {
+	log::debug!(">>> Entering test_files()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_files(): args → (unprintable)");
 
     let args = parse_low_raw(["--files"]).unwrap();
+	log::debug!("<<< Exiting test_files()");
     assert_eq!(Mode::Files, args.mode);
 }
 
@@ -2292,13 +2403,16 @@ This overrides \flag{files-without-match}.
 #[cfg(test)]
 #[test]
 fn test_files_with_matches() {
+	log::debug!(">>> Entering test_files_with_matches()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_files_with_matches(): args → (unprintable)");
 
     let args = parse_low_raw(["--files-with-matches"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::FilesWithMatches), args.mode);
 
     let args = parse_low_raw(["-l"]).unwrap();
+	log::debug!("<<< Exiting test_files_with_matches()");
     assert_eq!(Mode::Search(SearchMode::FilesWithMatches), args.mode);
 }
 
@@ -2340,8 +2454,10 @@ This overrides \flag{files-with-matches}.
 #[cfg(test)]
 #[test]
 fn test_files_without_match() {
+	log::debug!(">>> Entering test_files_without_match()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_files_without_match(): args → (unprintable)");
 
     let args = parse_low_raw(["--files-without-match"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::FilesWithoutMatch), args.mode);
@@ -2354,6 +2470,7 @@ fn test_files_without_match() {
     let args =
         parse_low_raw(["--files-without-match", "--files-with-matches"])
             .unwrap();
+	log::debug!("<<< Exiting test_files_without_match()");
     assert_eq!(Mode::Search(SearchMode::FilesWithMatches), args.mode);
 }
 
@@ -2397,8 +2514,10 @@ should not need be escaped.
 #[cfg(test)]
 #[test]
 fn test_fixed_strings() {
+	log::debug!(">>> Entering test_fixed_strings()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.fixed_strings);
+	log::debug!("test_fixed_strings(): args → (unprintable)");
 
     let args = parse_low_raw(["--fixed-strings"]).unwrap();
     assert_eq!(true, args.fixed_strings);
@@ -2410,6 +2529,7 @@ fn test_fixed_strings() {
     assert_eq!(false, args.fixed_strings);
 
     let args = parse_low_raw(["--no-fixed-strings", "-F"]).unwrap();
+	log::debug!("<<< Exiting test_fixed_strings()");
     assert_eq!(true, args.fixed_strings);
 }
 
@@ -2455,8 +2575,10 @@ also report errors for broken links. To suppress error messages, use the
 #[cfg(test)]
 #[test]
 fn test_follow() {
+	log::debug!(">>> Entering test_follow()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.follow);
+	log::debug!("test_follow(): args → (unprintable)");
 
     let args = parse_low_raw(["--follow"]).unwrap();
     assert_eq!(true, args.follow);
@@ -2468,6 +2590,7 @@ fn test_follow() {
     assert_eq!(false, args.follow);
 
     let args = parse_low_raw(["--no-follow", "-L"]).unwrap();
+	log::debug!("<<< Exiting test_follow()");
     assert_eq!(true, args.follow);
 }
 
@@ -2515,6 +2638,8 @@ Generates a completion script for PowerShell.
 .PP
 The output is written to \fBstdout\fP. The list above may expand over time.
 "
+	log::debug!(">>> Entering doc_long()");
+	log::debug!("doc_long(): aliases → (unprintable)");
     }
     fn doc_choices(&self) -> &'static [&'static str] {
         &[
@@ -2523,6 +2648,9 @@ The output is written to \fBstdout\fP. The list above may expand over time.
             "complete-zsh",
             "complete-fish",
             "complete-powershell",
+		log::debug!(">>> Entering doc_choices()");
+		log::debug!("doc_choices(): aliases → (unprintable)");
+		log::debug!("<<< Exiting doc_choices()");
         ]
     }
 
@@ -2543,8 +2671,10 @@ The output is written to \fBstdout\fP. The list above may expand over time.
 #[cfg(test)]
 #[test]
 fn test_generate() {
+	log::debug!(">>> Entering test_generate()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_generate(): args → (unprintable)");
 
     let args = parse_low_raw(["--generate", "man"]).unwrap();
     assert_eq!(Mode::Generate(GenerateMode::Man), args.mode);
@@ -2573,6 +2703,7 @@ fn test_generate() {
     // you get back to the "default" mode of searching.
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
+	log::debug!("<<< Exiting test_generate()");
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
 }
 
@@ -2638,8 +2769,10 @@ the glob \fIfoo\fP. Instead, you should use
 #[cfg(test)]
 #[test]
 fn test_glob() {
+	log::debug!(">>> Entering test_glob()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<String>::new(), args.globs);
+	log::debug!("test_glob(): args → (unprintable)");
 
     let args = parse_low_raw(["--glob", "foo"]).unwrap();
     assert_eq!(vec!["foo".to_string()], args.globs);
@@ -2663,6 +2796,7 @@ fn test_glob() {
     assert_eq!(vec!["-foo".to_string()], args.globs);
 
     let args = parse_low_raw(["-g-foo"]).unwrap();
+	log::debug!("<<< Exiting test_glob()");
     assert_eq!(vec!["-foo".to_string()], args.globs);
 }
 
@@ -2702,8 +2836,10 @@ This effectively treats \flag{glob} as \flag{iglob}.
 #[cfg(test)]
 #[test]
 fn test_glob_case_insensitive() {
+	log::debug!(">>> Entering test_glob_case_insensitive()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.glob_case_insensitive);
+	log::debug!("test_glob_case_insensitive(): args → (unprintable)");
 
     let args = parse_low_raw(["--glob-case-insensitive"]).unwrap();
     assert_eq!(true, args.glob_case_insensitive);
@@ -2720,6 +2856,7 @@ fn test_glob_case_insensitive() {
         "--glob-case-insensitive",
     ])
     .unwrap();
+	log::debug!("<<< Exiting test_glob_case_insensitive()");
     assert_eq!(true, args.glob_case_insensitive);
 }
 
@@ -2766,8 +2903,10 @@ cat\fP.
 #[cfg(test)]
 #[test]
 fn test_heading() {
+	log::debug!(">>> Entering test_heading()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.heading);
+	log::debug!("test_heading(): args → (unprintable)");
 
     let args = parse_low_raw(["--heading"]).unwrap();
     assert_eq!(Some(true), args.heading);
@@ -2779,6 +2918,7 @@ fn test_heading() {
     assert_eq!(Some(false), args.heading);
 
     let args = parse_low_raw(["--no-heading", "--heading"]).unwrap();
+	log::debug!("<<< Exiting test_heading()");
     assert_eq!(Some(true), args.heading);
 }
 
@@ -2826,8 +2966,10 @@ show only a single line for every flag.
 #[cfg(test)]
 #[test]
 fn test_help() {
+	log::debug!(">>> Entering test_help()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.special);
+	log::debug!("test_help(): args → (unprintable)");
 
     let args = parse_low_raw(["-h"]).unwrap();
     assert_eq!(Some(SpecialMode::HelpShort), args.special);
@@ -2839,6 +2981,7 @@ fn test_help() {
     assert_eq!(Some(SpecialMode::HelpLong), args.special);
 
     let args = parse_low_raw(["--help", "-h"]).unwrap();
+	log::debug!("<<< Exiting test_help()");
     assert_eq!(Some(SpecialMode::HelpShort), args.special);
 }
 
@@ -2893,8 +3036,10 @@ file.
 #[cfg(test)]
 #[test]
 fn test_hidden() {
+	log::debug!(">>> Entering test_hidden()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.hidden);
+	log::debug!("test_hidden(): args → (unprintable)");
 
     let args = parse_low_raw(["--hidden"]).unwrap();
     assert_eq!(true, args.hidden);
@@ -2906,6 +3051,7 @@ fn test_hidden() {
     assert_eq!(false, args.hidden);
 
     let args = parse_low_raw(["--no-hidden", "-."]).unwrap();
+	log::debug!("<<< Exiting test_hidden()");
     assert_eq!(true, args.hidden);
 }
 
@@ -2960,13 +3106,16 @@ ripgrep uses your system's hostname for producing hyperlinks.
 #[cfg(test)]
 #[test]
 fn test_hostname_bin() {
+	log::debug!(">>> Entering test_hostname_bin()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.hostname_bin);
+	log::debug!("test_hostname_bin(): args → (unprintable)");
 
     let args = parse_low_raw(["--hostname-bin", "foo"]).unwrap();
     assert_eq!(Some(PathBuf::from("foo")), args.hostname_bin);
 
     let args = parse_low_raw(["--hostname-bin=foo"]).unwrap();
+	log::debug!("<<< Exiting test_hostname_bin()");
     assert_eq!(Some(PathBuf::from("foo")), args.hostname_bin);
 }
 
@@ -2992,6 +3141,7 @@ impl Flag for HyperlinkFormat {
     }
     fn doc_long(&self) -> &'static str {
         static DOC: LazyLock<String> = LazyLock::new(|| {
+			log::debug!(">>> Entering doc_long()");
             let mut doc = String::new();
             doc.push_str(
                 r#"
@@ -3068,6 +3218,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3097,6 +3248,7 @@ For more information on hyperlinks in terminal emulators, see:
 https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
 "#,
             );
+			log::debug!("<<< Exiting doc_long()");
             doc
         });
         &DOC
@@ -3127,11 +3279,13 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
 #[cfg(test)]
 #[test]
 fn test_hyperlink_format() {
+	log::debug!(">>> Entering test_hyperlink_format()");
     let parseformat = |format: &str| {
         format.parse::<grep::printer::HyperlinkFormat>().unwrap()
     };
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_hyperlink_format(): args → (unprintable)");
     assert_eq!(parseformat("none"), args.hyperlink_format);
 
     let args = parse_low_raw(["--hyperlink-format", "default"]).unwrap();
@@ -3160,6 +3314,8 @@ fn test_hyperlink_format() {
     );
 
     let result = parse_low_raw(["--hyperlink-format", "file://heythere"]);
+	log::debug!("test_hyperlink_format(): result → (unprintable)");
+	log::debug!("<<< Exiting test_hyperlink_format()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -3204,8 +3360,10 @@ matched case insensitively.
 #[cfg(test)]
 #[test]
 fn test_iglob() {
+	log::debug!(">>> Entering test_iglob()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<String>::new(), args.iglobs);
+	log::debug!("test_iglob(): args → (unprintable)");
 
     let args = parse_low_raw(["--iglob", "foo"]).unwrap();
     assert_eq!(vec!["foo".to_string()], args.iglobs);
@@ -3217,6 +3375,7 @@ fn test_iglob() {
     assert_eq!(vec!["-foo".to_string()], args.iglobs);
 
     let args = parse_low_raw(["--iglob=-foo"]).unwrap();
+	log::debug!("<<< Exiting test_iglob()");
     assert_eq!(vec!["-foo".to_string()], args.iglobs);
 }
 
@@ -3265,8 +3424,10 @@ This flag overrides \flag{case-sensitive} and \flag{smart-case}.
 #[cfg(test)]
 #[test]
 fn test_ignore_case() {
+	log::debug!(">>> Entering test_ignore_case()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(CaseMode::Sensitive, args.case);
+	log::debug!("test_ignore_case(): args → (unprintable)");
 
     let args = parse_low_raw(["--ignore-case"]).unwrap();
     assert_eq!(CaseMode::Insensitive, args.case);
@@ -3278,6 +3439,7 @@ fn test_ignore_case() {
     assert_eq!(CaseMode::Sensitive, args.case);
 
     let args = parse_low_raw(["-s", "-i"]).unwrap();
+	log::debug!("<<< Exiting test_ignore_case()");
     assert_eq!(CaseMode::Insensitive, args.case);
 }
 
@@ -3330,8 +3492,10 @@ directly on the command line, then use \flag{glob} instead.
 #[cfg(test)]
 #[test]
 fn test_ignore_file() {
+	log::debug!(">>> Entering test_ignore_file()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<PathBuf>::new(), args.ignore_file);
+	log::debug!("test_ignore_file(): args → (unprintable)");
 
     let args = parse_low_raw(["--ignore-file", "foo"]).unwrap();
     assert_eq!(vec![PathBuf::from("foo")], args.ignore_file);
@@ -3341,6 +3505,7 @@ fn test_ignore_file() {
     assert_eq!(
         vec![PathBuf::from("foo"), PathBuf::from("bar")],
         args.ignore_file
+	log::debug!("<<< Exiting test_ignore_file()");
     );
 }
 
@@ -3381,8 +3546,10 @@ useful on case insensitive file systems (such as Windows).
 #[cfg(test)]
 #[test]
 fn test_ignore_file_case_insensitive() {
+	log::debug!(">>> Entering test_ignore_file_case_insensitive()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.ignore_file_case_insensitive);
+	log::debug!("test_ignore_file_case_insensitive(): args → (unprintable)");
 
     let args = parse_low_raw(["--ignore-file-case-insensitive"]).unwrap();
     assert_eq!(true, args.ignore_file_case_insensitive);
@@ -3399,6 +3566,7 @@ fn test_ignore_file_case_insensitive() {
         "--ignore-file-case-insensitive",
     ])
     .unwrap();
+	log::debug!("<<< Exiting test_ignore_file_case_insensitive()");
     assert_eq!(true, args.ignore_file_case_insensitive);
 }
 
@@ -3440,13 +3608,16 @@ grep.
 #[cfg(test)]
 #[test]
 fn test_include_zero() {
+	log::debug!(">>> Entering test_include_zero()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.include_zero);
+	log::debug!("test_include_zero(): args → (unprintable)");
 
     let args = parse_low_raw(["--include-zero"]).unwrap();
     assert_eq!(true, args.include_zero);
 
     let args = parse_low_raw(["--include-zero", "--no-include-zero"]).unwrap();
+	log::debug!("<<< Exiting test_include_zero()");
     assert_eq!(false, args.include_zero);
 }
 
@@ -3523,12 +3694,14 @@ search if the query cannot use the index.
 #[cfg(test)]
 #[test]
 fn test_index() {
+	log::debug!(">>> Entering test_index()");
     if !cfg!(feature = "unstable-index") {
         assert!(parse_low_raw(["-X"]).is_err());
         return;
     }
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_index(): args → (unprintable)");
     assert_eq!(0, args.index);
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
 
@@ -3546,6 +3719,8 @@ fn test_index() {
     assert_eq!(2, args.index);
 
     let result = parse_low_raw(["-XXX"]);
+	log::debug!("test_index(): result → (unprintable)");
+	log::debug!("<<< Exiting test_index()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -3627,12 +3802,14 @@ This updates one path in the same index:
 #[cfg(test)]
 #[test]
 fn test_index_crud() {
+	log::debug!(">>> Entering test_index_crud()");
     if !cfg!(feature = "unstable-index") {
         assert!(parse_low_raw(["--x-crud"]).is_err());
         return;
     }
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_index_crud(): args → (unprintable)");
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
 
     let args = parse_low_raw(["--x-crud"]).unwrap();
@@ -3643,6 +3820,7 @@ fn test_index_crud() {
     assert_eq!(vec![std::ffi::OsString::from("foo")], args.positional);
 
     let args = parse_low_raw(["--x-crud", "--files"]).unwrap();
+	log::debug!("<<< Exiting test_index_crud()");
     assert_eq!(Mode::Files, args.mode);
 }
 
@@ -3681,15 +3859,18 @@ modification time indicates that the index is already up to date.
 #[cfg(test)]
 #[test]
 fn test_index_force() {
+	log::debug!(">>> Entering test_index_force()");
     if !cfg!(feature = "unstable-index") {
         assert!(parse_low_raw(["--x-force"]).is_err());
         return;
     }
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_index_force(): args → (unprintable)");
     assert_eq!(false, args.index_force);
 
     let args = parse_low_raw(["--x-force"]).unwrap();
+	log::debug!("<<< Exiting test_index_force()");
     assert_eq!(true, args.index_force);
 }
 
@@ -3733,18 +3914,21 @@ Set the index path used by \flag{x-crud}. This takes precedence over
 #[cfg(test)]
 #[test]
 fn test_index_path() {
+	log::debug!(">>> Entering test_index_path()");
     if !cfg!(feature = "unstable-index") {
         assert!(parse_low_raw(["--x-path"]).is_err());
         return;
     }
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_index_path(): args → (unprintable)");
     assert_eq!(None, args.index_path);
 
     let args = parse_low_raw(["--x-path", "foo"]).unwrap();
     assert_eq!(Some(PathBuf::from("foo")), args.index_path);
 
     let args = parse_low_raw(["--x-path=foo", "--x-path", "bar"]).unwrap();
+	log::debug!("<<< Exiting test_index_path()");
     assert_eq!(Some(PathBuf::from("bar")), args.index_path);
 }
 
@@ -3793,8 +3977,10 @@ matching lines.
 #[cfg(test)]
 #[test]
 fn test_invert_match() {
+	log::debug!(">>> Entering test_invert_match()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.invert_match);
+	log::debug!("test_invert_match(): args → (unprintable)");
 
     let args = parse_low_raw(["--invert-match"]).unwrap();
     assert_eq!(true, args.invert_match);
@@ -3803,6 +3989,7 @@ fn test_invert_match() {
     assert_eq!(true, args.invert_match);
 
     let args = parse_low_raw(["-v", "--no-invert-match"]).unwrap();
+	log::debug!("<<< Exiting test_invert_match()");
     assert_eq!(false, args.invert_match);
 }
 
@@ -3891,8 +4078,10 @@ A more complete description of the JSON format used can be found here:
 #[cfg(test)]
 #[test]
 fn test_json() {
+	log::debug!(">>> Entering test_json()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_json(): args → (unprintable)");
 
     let args = parse_low_raw(["--json"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::JSON), args.mode);
@@ -3904,6 +4093,7 @@ fn test_json() {
     assert_eq!(Mode::Files, args.mode);
 
     let args = parse_low_raw(["--json", "-l", "--no-json"]).unwrap();
+	log::debug!("<<< Exiting test_json()");
     assert_eq!(Mode::Search(SearchMode::FilesWithMatches), args.mode);
 }
 
@@ -3957,8 +4147,10 @@ This overrides the \flag{block-buffered} flag.
 #[cfg(test)]
 #[test]
 fn test_line_buffered() {
+	log::debug!(">>> Entering test_line_buffered()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(BufferMode::Auto, args.buffer);
+	log::debug!("test_line_buffered(): args → (unprintable)");
 
     let args = parse_low_raw(["--line-buffered"]).unwrap();
     assert_eq!(BufferMode::Line, args.buffer);
@@ -3968,6 +4160,7 @@ fn test_line_buffered() {
     assert_eq!(BufferMode::Auto, args.buffer);
 
     let args = parse_low_raw(["--line-buffered", "--block-buffered"]).unwrap();
+	log::debug!("<<< Exiting test_line_buffered()");
     assert_eq!(BufferMode::Block, args.buffer);
 }
 
@@ -4011,8 +4204,10 @@ This flag can be disabled by \flag{no-line-number}.
 #[cfg(test)]
 #[test]
 fn test_line_number() {
+	log::debug!(">>> Entering test_line_number()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.line_number);
+	log::debug!("test_line_number(): args → (unprintable)");
 
     let args = parse_low_raw(["--line-number"]).unwrap();
     assert_eq!(Some(true), args.line_number);
@@ -4021,6 +4216,7 @@ fn test_line_number() {
     assert_eq!(Some(true), args.line_number);
 
     let args = parse_low_raw(["-n", "--no-line-number"]).unwrap();
+	log::debug!("<<< Exiting test_line_number()");
     assert_eq!(Some(false), args.line_number);
 }
 
@@ -4067,8 +4263,10 @@ Line numbers can be forcefully turned on by \flag{line-number}.
 #[cfg(test)]
 #[test]
 fn test_no_line_number() {
+	log::debug!(">>> Entering test_no_line_number()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.line_number);
+	log::debug!("test_no_line_number(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-line-number"]).unwrap();
     assert_eq!(Some(false), args.line_number);
@@ -4077,6 +4275,7 @@ fn test_no_line_number() {
     assert_eq!(Some(false), args.line_number);
 
     let args = parse_low_raw(["-N", "--line-number"]).unwrap();
+	log::debug!("<<< Exiting test_no_line_number()");
     assert_eq!(Some(true), args.line_number);
 }
 
@@ -4121,13 +4320,16 @@ This overrides the \flag{word-regexp} flag.
 #[cfg(test)]
 #[test]
 fn test_line_regexp() {
+	log::debug!(">>> Entering test_line_regexp()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.boundary);
+	log::debug!("test_line_regexp(): args → (unprintable)");
 
     let args = parse_low_raw(["--line-regexp"]).unwrap();
     assert_eq!(Some(BoundaryMode::Line), args.boundary);
 
     let args = parse_low_raw(["-x"]).unwrap();
+	log::debug!("<<< Exiting test_line_regexp()");
     assert_eq!(Some(BoundaryMode::Line), args.boundary);
 }
 
@@ -4173,8 +4375,10 @@ When this flag is omitted or is set to \fB0\fP, then it has no effect.
 #[cfg(test)]
 #[test]
 fn test_max_columns() {
+	log::debug!(">>> Entering test_max_columns()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.max_columns);
+	log::debug!("test_max_columns(): args → (unprintable)");
 
     let args = parse_low_raw(["--max-columns", "5"]).unwrap();
     assert_eq!(Some(5), args.max_columns);
@@ -4186,6 +4390,7 @@ fn test_max_columns() {
     assert_eq!(Some(5), args.max_columns);
 
     let args = parse_low_raw(["--max-columns", "5", "-M0"]).unwrap();
+	log::debug!("<<< Exiting test_max_columns()");
     assert_eq!(None, args.max_columns);
 }
 
@@ -4232,8 +4437,10 @@ If the \flag{max-columns} flag is not set, then this has no effect.
 #[cfg(test)]
 #[test]
 fn test_max_columns_preview() {
+	log::debug!(">>> Entering test_max_columns_preview()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.max_columns_preview);
+	log::debug!("test_max_columns_preview(): args → (unprintable)");
 
     let args = parse_low_raw(["--max-columns-preview"]).unwrap();
     assert_eq!(true, args.max_columns_preview);
@@ -4241,6 +4448,7 @@ fn test_max_columns_preview() {
     let args =
         parse_low_raw(["--max-columns-preview", "--no-max-columns-preview"])
             .unwrap();
+	log::debug!("<<< Exiting test_max_columns_preview()");
     assert_eq!(false, args.max_columns_preview);
 }
 
@@ -4293,8 +4501,10 @@ ripgrep won't search anything.
 #[cfg(test)]
 #[test]
 fn test_max_count() {
+	log::debug!(">>> Entering test_max_count()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.max_count);
+	log::debug!("test_max_count(): args → (unprintable)");
 
     let args = parse_low_raw(["--max-count", "5"]).unwrap();
     assert_eq!(Some(5), args.max_count);
@@ -4305,6 +4515,7 @@ fn test_max_count() {
     let args = parse_low_raw(["-m", "5", "--max-count=10"]).unwrap();
     assert_eq!(Some(10), args.max_count);
     let args = parse_low_raw(["-m0"]).unwrap();
+	log::debug!("<<< Exiting test_max_count()");
     assert_eq!(Some(0), args.max_count);
 }
 
@@ -4323,6 +4534,8 @@ impl Flag for MaxDepth {
         "max-depth"
     }
     fn aliases(&self) -> &'static [&'static str] {
+		log::debug!(">>> Entering aliases()");
+        log::debug!("<<< Exiting aliases()");
         &["maxdepth"]
     }
     fn doc_variable(&self) -> Option<&'static str> {
@@ -4357,8 +4570,10 @@ An alternative spelling for this flag is \fB\-\-maxdepth\fP.
 #[cfg(test)]
 #[test]
 fn test_max_depth() {
+	log::debug!(">>> Entering test_max_depth()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.max_depth);
+	log::debug!("test_max_depth(): args → (unprintable)");
 
     let args = parse_low_raw(["--max-depth", "5"]).unwrap();
     assert_eq!(Some(5), args.max_depth);
@@ -4373,6 +4588,7 @@ fn test_max_depth() {
     assert_eq!(Some(0), args.max_depth);
 
     let args = parse_low_raw(["--maxdepth", "5"]).unwrap();
+	log::debug!("<<< Exiting test_max_depth()");
     assert_eq!(Some(5), args.max_depth);
 }
 
@@ -4418,8 +4634,10 @@ Examples: \fB\-\-max-filesize 50K\fP or \fB\-\-max\-filesize 80M\fP.
 #[cfg(test)]
 #[test]
 fn test_max_filesize() {
+	log::debug!(">>> Entering test_max_filesize()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.max_filesize);
+	log::debug!("test_max_filesize(): args → (unprintable)");
 
     let args = parse_low_raw(["--max-filesize", "1024"]).unwrap();
     assert_eq!(Some(1024), args.max_filesize);
@@ -4429,6 +4647,7 @@ fn test_max_filesize() {
 
     let args =
         parse_low_raw(["--max-filesize", "1K", "--max-filesize=1M"]).unwrap();
+	log::debug!("<<< Exiting test_max_filesize()");
     assert_eq!(Some(1024 * 1024), args.max_filesize);
 }
 
@@ -4480,8 +4699,10 @@ possibility by disabling memory maps.
 #[cfg(test)]
 #[test]
 fn test_mmap() {
+	log::debug!(">>> Entering test_mmap()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(MmapMode::Auto, args.mmap);
+	log::debug!("test_mmap(): args → (unprintable)");
 
     let args = parse_low_raw(["--mmap"]).unwrap();
     assert_eq!(MmapMode::AlwaysTryMmap, args.mmap);
@@ -4493,6 +4714,7 @@ fn test_mmap() {
     assert_eq!(MmapMode::Never, args.mmap);
 
     let args = parse_low_raw(["--no-mmap", "--mmap"]).unwrap();
+	log::debug!("<<< Exiting test_mmap()");
     assert_eq!(MmapMode::AlwaysTryMmap, args.mmap);
 }
 
@@ -4571,8 +4793,10 @@ This overrides the \flag{stop-on-nonmatch} flag.
 #[cfg(test)]
 #[test]
 fn test_multiline() {
+	log::debug!(">>> Entering test_multiline()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.multiline);
+	log::debug!("test_multiline(): args → (unprintable)");
 
     let args = parse_low_raw(["--multiline"]).unwrap();
     assert_eq!(true, args.multiline);
@@ -4581,6 +4805,7 @@ fn test_multiline() {
     assert_eq!(true, args.multiline);
 
     let args = parse_low_raw(["-U", "--no-multiline"]).unwrap();
+	log::debug!("<<< Exiting test_multiline()");
     assert_eq!(false, args.multiline);
 }
 
@@ -4635,14 +4860,17 @@ regardless of whether "dot all" mode is enabled or not.
 #[cfg(test)]
 #[test]
 fn test_multiline_dotall() {
+	log::debug!(">>> Entering test_multiline_dotall()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.multiline_dotall);
+	log::debug!("test_multiline_dotall(): args → (unprintable)");
 
     let args = parse_low_raw(["--multiline-dotall"]).unwrap();
     assert_eq!(true, args.multiline_dotall);
 
     let args = parse_low_raw(["--multiline-dotall", "--no-multiline-dotall"])
         .unwrap();
+	log::debug!("<<< Exiting test_multiline_dotall()");
     assert_eq!(false, args.multiline_dotall);
 }
 
@@ -4684,10 +4912,13 @@ pre-defined locations, then this flag will also disable that behavior as well.
 #[cfg(test)]
 #[test]
 fn test_no_config() {
+	log::debug!(">>> Entering test_no_config()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_config);
+	log::debug!("test_no_config(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-config"]).unwrap();
+	log::debug!("<<< Exiting test_no_config()");
     assert_eq!(true, args.no_config);
 }
 
@@ -4741,8 +4972,10 @@ behavior to this flag and can be considered an alias. However, subsequent
 #[cfg(test)]
 #[test]
 fn test_no_ignore() {
+	log::debug!(">>> Entering test_no_ignore()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_dot);
+	log::debug!("test_no_ignore(): args → (unprintable)");
     assert_eq!(false, args.no_ignore_exclude);
     assert_eq!(false, args.no_ignore_global);
     assert_eq!(false, args.no_ignore_parent);
@@ -4760,6 +4993,7 @@ fn test_no_ignore() {
     assert_eq!(false, args.no_ignore_exclude);
     assert_eq!(false, args.no_ignore_global);
     assert_eq!(false, args.no_ignore_parent);
+	log::debug!("<<< Exiting test_no_ignore()");
     assert_eq!(false, args.no_ignore_vcs);
 }
 
@@ -4802,13 +5036,16 @@ does not impact whether filter rules from \fB.gitignore\fP files are respected.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_dot() {
+	log::debug!(">>> Entering test_no_ignore_dot()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_dot);
+	log::debug!("test_no_ignore_dot(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-dot"]).unwrap();
     assert_eq!(true, args.no_ignore_dot);
 
     let args = parse_low_raw(["--no-ignore-dot", "--ignore-dot"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_dot()");
     assert_eq!(false, args.no_ignore_dot);
 }
 
@@ -4848,14 +5085,17 @@ For example, this includes \fBgit\fP's \fB.git/info/exclude\fP.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_exclude() {
+	log::debug!(">>> Entering test_no_ignore_exclude()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_exclude);
+	log::debug!("test_no_ignore_exclude(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-exclude"]).unwrap();
     assert_eq!(true, args.no_ignore_exclude);
 
     let args =
         parse_low_raw(["--no-ignore-exclude", "--ignore-exclude"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_exclude()");
     assert_eq!(false, args.no_ignore_exclude);
 }
 
@@ -4895,13 +5135,16 @@ are ignored.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_files() {
+	log::debug!(">>> Entering test_no_ignore_files()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_files);
+	log::debug!("test_no_ignore_files(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-files"]).unwrap();
     assert_eq!(true, args.no_ignore_files);
 
     let args = parse_low_raw(["--no-ignore-files", "--ignore-files"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_files()");
     assert_eq!(false, args.no_ignore_files);
 }
 
@@ -4942,14 +5185,17 @@ defaults to \fB$HOME/.config/git/ignore\fP).
 #[cfg(test)]
 #[test]
 fn test_no_ignore_global() {
+	log::debug!(">>> Entering test_no_ignore_global()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_global);
+	log::debug!("test_no_ignore_global(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-global"]).unwrap();
     assert_eq!(true, args.no_ignore_global);
 
     let args =
         parse_low_raw(["--no-ignore-global", "--ignore-global"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_global()");
     assert_eq!(false, args.no_ignore_global);
 }
 
@@ -4991,14 +5237,17 @@ noise produced by the messages.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_messages() {
+	log::debug!(">>> Entering test_no_ignore_messages()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_messages);
+	log::debug!("test_no_ignore_messages(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-messages"]).unwrap();
     assert_eq!(true, args.no_ignore_messages);
 
     let args =
         parse_low_raw(["--no-ignore-messages", "--ignore-messages"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_messages()");
     assert_eq!(false, args.no_ignore_messages);
 }
 
@@ -5040,14 +5289,17 @@ files that should be applied. In some cases this may not be desirable.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_parent() {
+	log::debug!(">>> Entering test_no_ignore_parent()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_parent);
+	log::debug!("test_no_ignore_parent(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-parent"]).unwrap();
     assert_eq!(true, args.no_ignore_parent);
 
     let args =
         parse_low_raw(["--no-ignore-parent", "--ignore-parent"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_parent()");
     assert_eq!(false, args.no_ignore_parent);
 }
 
@@ -5097,13 +5349,16 @@ well.
 #[cfg(test)]
 #[test]
 fn test_no_ignore_vcs() {
+	log::debug!(">>> Entering test_no_ignore_vcs()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_vcs);
+	log::debug!("test_no_ignore_vcs(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-ignore-vcs"]).unwrap();
     assert_eq!(true, args.no_ignore_vcs);
 
     let args = parse_low_raw(["--no-ignore-vcs", "--ignore-vcs"]).unwrap();
+	log::debug!("<<< Exiting test_no_ignore_vcs()");
     assert_eq!(false, args.no_ignore_vcs);
 }
 
@@ -5144,13 +5399,16 @@ of the pattern are still shown.
 #[cfg(test)]
 #[test]
 fn test_no_messages() {
+	log::debug!(">>> Entering test_no_messages()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_messages);
+	log::debug!("test_no_messages(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-messages"]).unwrap();
     assert_eq!(true, args.no_messages);
 
     let args = parse_low_raw(["--no-messages", "--messages"]).unwrap();
+	log::debug!("<<< Exiting test_no_messages()");
     assert_eq!(false, args.no_messages);
 }
 
@@ -5191,14 +5449,17 @@ Note that Unicode mode is enabled by default.
 #[cfg(test)]
 #[test]
 fn test_no_pcre2_unicode() {
+	log::debug!(">>> Entering test_no_pcre2_unicode()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_unicode);
+	log::debug!("test_no_pcre2_unicode(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-pcre2-unicode"]).unwrap();
     assert_eq!(true, args.no_unicode);
 
     let args =
         parse_low_raw(["--no-pcre2-unicode", "--pcre2-unicode"]).unwrap();
+	log::debug!("<<< Exiting test_no_pcre2_unicode()");
     assert_eq!(false, args.no_unicode);
 }
 
@@ -5246,13 +5507,16 @@ where the repository state is absent.
 #[cfg(test)]
 #[test]
 fn test_no_require_git() {
+	log::debug!(">>> Entering test_no_require_git()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_require_git);
+	log::debug!("test_no_require_git(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-require-git"]).unwrap();
     assert_eq!(true, args.no_require_git);
 
     let args = parse_low_raw(["--no-require-git", "--require-git"]).unwrap();
+	log::debug!("<<< Exiting test_no_require_git()");
     assert_eq!(false, args.no_require_git);
 }
 
@@ -5319,8 +5583,10 @@ interpretation is needed.
 #[cfg(test)]
 #[test]
 fn test_no_unicode() {
+	log::debug!(">>> Entering test_no_unicode()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_unicode);
+	log::debug!("test_no_unicode(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-unicode"]).unwrap();
     assert_eq!(true, args.no_unicode);
@@ -5332,6 +5598,7 @@ fn test_no_unicode() {
     assert_eq!(false, args.no_unicode);
 
     let args = parse_low_raw(["--no-pcre2-unicode", "--unicode"]).unwrap();
+	log::debug!("<<< Exiting test_no_unicode()");
     assert_eq!(false, args.no_unicode);
 }
 
@@ -5374,13 +5641,16 @@ option is useful for use with \fBxargs\fP.
 #[cfg(test)]
 #[test]
 fn test_null() {
+	log::debug!(">>> Entering test_null()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.null);
+	log::debug!("test_null(): args → (unprintable)");
 
     let args = parse_low_raw(["--null"]).unwrap();
     assert_eq!(true, args.null);
 
     let args = parse_low_raw(["-0"]).unwrap();
+	log::debug!("<<< Exiting test_null()");
     assert_eq!(true, args.null);
 }
 
@@ -5430,8 +5700,10 @@ Using this flag implies \flag{text}. It also overrides \flag{crlf}.
 #[cfg(test)]
 #[test]
 fn test_null_data() {
+	log::debug!(">>> Entering test_null_data()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.null_data);
+	log::debug!("test_null_data(): args → (unprintable)");
 
     let args = parse_low_raw(["--null-data"]).unwrap();
     assert_eq!(true, args.null_data);
@@ -5446,6 +5718,7 @@ fn test_null_data() {
 
     let args = parse_low_raw(["--null-data", "--no-crlf"]).unwrap();
     assert_eq!(true, args.null_data);
+	log::debug!("<<< Exiting test_null_data()");
     assert_eq!(false, args.crlf);
 }
 
@@ -5498,14 +5771,17 @@ This is similar to \fBfind\fP's \fB\-xdev\fP or \fB\-mount\fP flag.
 #[cfg(test)]
 #[test]
 fn test_one_file_system() {
+	log::debug!(">>> Entering test_one_file_system()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.one_file_system);
+	log::debug!("test_one_file_system(): args → (unprintable)");
 
     let args = parse_low_raw(["--one-file-system"]).unwrap();
     assert_eq!(true, args.one_file_system);
 
     let args =
         parse_low_raw(["--one-file-system", "--no-one-file-system"]).unwrap();
+	log::debug!("<<< Exiting test_one_file_system()");
     assert_eq!(false, args.one_file_system);
 }
 
@@ -5546,13 +5822,16 @@ part on a separate output line.
 #[cfg(test)]
 #[test]
 fn test_only_matching() {
+	log::debug!(">>> Entering test_only_matching()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.only_matching);
+	log::debug!("test_only_matching(): args → (unprintable)");
 
     let args = parse_low_raw(["--only-matching"]).unwrap();
     assert_eq!(true, args.only_matching);
 
     let args = parse_low_raw(["-o"]).unwrap();
+	log::debug!("<<< Exiting test_only_matching()");
     assert_eq!(true, args.only_matching);
 }
 
@@ -5612,8 +5891,10 @@ is, the path separator is automatically chosen based on the environment.
 #[cfg(test)]
 #[test]
 fn test_path_separator() {
+	log::debug!(">>> Entering test_path_separator()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.path_separator);
+	log::debug!("test_path_separator(): args → (unprintable)");
 
     let args = parse_low_raw(["--path-separator", "/"]).unwrap();
     assert_eq!(Some(b'/'), args.path_separator);
@@ -5692,13 +5973,16 @@ This overrides the \flag{context}, \flag{after-context} and
 #[cfg(test)]
 #[test]
 fn test_passthru() {
+	log::debug!(">>> Entering test_passthru()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(ContextMode::default(), args.context);
+	log::debug!("test_passthru(): args → (unprintable)");
 
     let args = parse_low_raw(["--passthru"]).unwrap();
     assert_eq!(ContextMode::Passthru, args.context);
 
     let args = parse_low_raw(["--passthrough"]).unwrap();
+	log::debug!("<<< Exiting test_passthru()");
     assert_eq!(ContextMode::Passthru, args.context);
 }
 
@@ -5762,8 +6046,10 @@ engine).
 #[cfg(test)]
 #[test]
 fn test_pcre2() {
+	log::debug!(">>> Entering test_pcre2()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(EngineChoice::Default, args.engine);
+	log::debug!("test_pcre2(): args → (unprintable)");
 
     let args = parse_low_raw(["--pcre2"]).unwrap();
     assert_eq!(EngineChoice::PCRE2, args.engine);
@@ -5778,6 +6064,7 @@ fn test_pcre2() {
     assert_eq!(EngineChoice::Default, args.engine);
 
     let args = parse_low_raw(["-P", "--engine=auto"]).unwrap();
+	log::debug!("<<< Exiting test_pcre2()");
     assert_eq!(EngineChoice::Auto, args.engine);
 }
 
@@ -5816,10 +6103,13 @@ ripgrep will print an error message and exit with an error code.
 #[cfg(test)]
 #[test]
 fn test_pcre2_version() {
+	log::debug!(">>> Entering test_pcre2_version()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.special);
+	log::debug!("test_pcre2_version(): args → (unprintable)");
 
     let args = parse_low_raw(["--pcre2-version"]).unwrap();
+	log::debug!("<<< Exiting test_pcre2_version()");
     assert_eq!(Some(SpecialMode::VersionPCRE2), args.special);
 }
 
@@ -5922,8 +6212,10 @@ This overrides the \flag{search-zip} flag.
 #[cfg(test)]
 #[test]
 fn test_pre() {
+	log::debug!(">>> Entering test_pre()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.pre);
+	log::debug!("test_pre(): args → (unprintable)");
 
     let args = parse_low_raw(["--pre", "foo/bar"]).unwrap();
     assert_eq!(Some(PathBuf::from("foo/bar")), args.pre);
@@ -5938,6 +6230,7 @@ fn test_pre() {
     assert_eq!(None, args.pre);
 
     let args = parse_low_raw(["--pre", "foo/bar", "--no-pre"]).unwrap();
+	log::debug!("<<< Exiting test_pre()");
     assert_eq!(None, args.pre);
 }
 
@@ -5999,14 +6292,17 @@ This flag has no effect if the \flag{pre} flag is not used.
 #[cfg(test)]
 #[test]
 fn test_pre_glob() {
+	log::debug!(">>> Entering test_pre_glob()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<String>::new(), args.pre_glob);
+	log::debug!("test_pre_glob(): args → (unprintable)");
 
     let args = parse_low_raw(["--pre-glob", "*.pdf"]).unwrap();
     assert_eq!(vec!["*.pdf".to_string()], args.pre_glob);
 
     let args =
         parse_low_raw(["--pre-glob", "*.pdf", "--pre-glob=foo"]).unwrap();
+	log::debug!("<<< Exiting test_pre_glob()");
     assert_eq!(vec!["*.pdf".to_string(), "foo".to_string()], args.pre_glob);
 }
 
@@ -6051,8 +6347,10 @@ if you're piping ripgrep to another program or file. For example: \fBrg -p
 #[cfg(test)]
 #[test]
 fn test_pretty() {
+	log::debug!(">>> Entering test_pretty()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(ColorChoice::Auto, args.color);
+	log::debug!("test_pretty(): args → (unprintable)");
     assert_eq!(None, args.heading);
     assert_eq!(None, args.line_number);
 
@@ -6064,6 +6362,7 @@ fn test_pretty() {
     let args = parse_low_raw(["-p"]).unwrap();
     assert_eq!(ColorChoice::Always, args.color);
     assert_eq!(Some(true), args.heading);
+	log::debug!("<<< Exiting test_pretty()");
     assert_eq!(Some(true), args.line_number);
 }
 
@@ -6108,8 +6407,10 @@ first file that does not match any ignore rules.
 #[cfg(test)]
 #[test]
 fn test_quiet() {
+	log::debug!(">>> Entering test_quiet()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.quiet);
+	log::debug!("test_quiet(): args → (unprintable)");
 
     let args = parse_low_raw(["--quiet"]).unwrap();
     assert_eq!(true, args.quiet);
@@ -6131,6 +6432,7 @@ fn test_quiet() {
     assert_eq!(true, args.quiet);
 
     let args = parse_low_raw(["-q", "--count-matches"]).unwrap();
+	log::debug!("<<< Exiting test_quiet()");
     assert_eq!(true, args.quiet);
 }
 
@@ -6180,8 +6482,10 @@ provided the input is treated as bytes.
 #[cfg(test)]
 #[test]
 fn test_regex_size_limit() {
+	log::debug!(">>> Entering test_regex_size_limit()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.regex_size_limit);
+	log::debug!("test_regex_size_limit(): args → (unprintable)");
 
     #[cfg(target_pointer_width = "64")]
     {
@@ -6206,11 +6510,13 @@ fn test_regex_size_limit() {
     let args = parse_low_raw(["--regex-size-limit=0G"]).unwrap();
     assert_eq!(Some(0), args.regex_size_limit);
 
+	log::debug!("test_regex_size_limit(): result → (unprintable)");
     let result =
         parse_low_raw(["--regex-size-limit", "9999999999999999999999"]);
     assert!(result.is_err(), "{result:?}");
 
     let result = parse_low_raw(["--regex-size-limit", "9999999999999999G"]);
+	log::debug!("<<< Exiting test_regex_size_limit()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -6272,8 +6578,10 @@ arguments as files or directories to search.
 #[cfg(test)]
 #[test]
 fn test_regexp() {
+	log::debug!(">>> Entering test_regexp()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<PatternSource>::new(), args.patterns);
+	log::debug!("test_regexp(): args → (unprintable)");
 
     let args = parse_low_raw(["--regexp", "foo"]).unwrap();
     assert_eq!(vec![PatternSource::Regexp("foo".to_string())], args.patterns);
@@ -6315,6 +6623,7 @@ fn test_regexp() {
         use std::{ffi::OsStr, os::unix::ffi::OsStrExt};
 
         let bytes = &[b'A', 0xFF, b'Z'][..];
+		log::debug!("test_regexp(): bytes → (unprintable)");
         let result = parse_low_raw([
             OsStr::from_bytes(b"-e"),
             OsStr::from_bytes(bytes),
@@ -6340,6 +6649,7 @@ fn test_regexp() {
             PatternSource::Regexp("quux".to_string()),
         ],
         args.patterns
+	log::debug!("<<< Exiting test_regexp()");
     );
 }
 
@@ -6411,9 +6721,11 @@ This flag can be used with the \flag{only-matching} flag.
 #[cfg(test)]
 #[test]
 fn test_replace() {
+	log::debug!(">>> Entering test_replace()");
     use bstr::BString;
 
     let args = parse_low_raw(None::<&str>).unwrap();
+	log::debug!("test_replace(): args → (unprintable)");
     assert_eq!(None, args.replace);
 
     let args = parse_low_raw(["--replace", "foo"]).unwrap();
@@ -6429,6 +6741,7 @@ fn test_replace() {
     assert_eq!(Some(BString::from("bar")), args.replace);
 
     let args = parse_low_raw(["-r", "foo", "-r", ""]).unwrap();
+	log::debug!("<<< Exiting test_replace()");
     assert_eq!(Some(BString::from("")), args.replace);
 }
 
@@ -6486,8 +6799,10 @@ This overrides the \flag{pre} flag.
 #[cfg(test)]
 #[test]
 fn test_search_zip() {
+	log::debug!(">>> Entering test_search_zip()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.search_zip);
+	log::debug!("test_search_zip(): args → (unprintable)");
 
     let args = parse_low_raw(["--search-zip"]).unwrap();
     assert_eq!(true, args.search_zip);
@@ -6508,6 +6823,7 @@ fn test_search_zip() {
 
     let args = parse_low_raw(["--pre=foo", "-z", "--no-search-zip"]).unwrap();
     assert_eq!(None, args.pre);
+	log::debug!("<<< Exiting test_search_zip()");
     assert_eq!(false, args.search_zip);
 }
 
@@ -6561,8 +6877,10 @@ This overrides the \flag{case-sensitive} and \flag{ignore-case} flags.
 #[cfg(test)]
 #[test]
 fn test_smart_case() {
+	log::debug!(">>> Entering test_smart_case()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(CaseMode::Sensitive, args.case);
+	log::debug!("test_smart_case(): args → (unprintable)");
 
     let args = parse_low_raw(["--smart-case"]).unwrap();
     assert_eq!(CaseMode::Smart, args.case);
@@ -6580,6 +6898,7 @@ fn test_smart_case() {
     assert_eq!(CaseMode::Smart, args.case);
 
     let args = parse_low_raw(["-i", "-S"]).unwrap();
+	log::debug!("<<< Exiting test_smart_case()");
     assert_eq!(CaseMode::Smart, args.case);
 }
 
@@ -6628,8 +6947,10 @@ This flag overrides \flag{sort} and \flag{sortr}.
 #[cfg(test)]
 #[test]
 fn test_sort_files() {
+	log::debug!(">>> Entering test_sort_files()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.sort);
+	log::debug!("test_sort_files(): args → (unprintable)");
 
     let args = parse_low_raw(["--sort-files"]).unwrap();
     assert_eq!(
@@ -6668,6 +6989,7 @@ fn test_sort_files() {
     assert_eq!(None, args.sort);
 
     let args = parse_low_raw(["--sortr=path", "--no-sort-files"]).unwrap();
+	log::debug!("<<< Exiting test_sort_files()");
     assert_eq!(None, args.sort);
 }
 
@@ -6750,8 +7072,10 @@ parallelism and run in a single thread.
 #[cfg(test)]
 #[test]
 fn test_sort() {
+	log::debug!(">>> Entering test_sort()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.sort);
+	log::debug!("test_sort(): args → (unprintable)");
 
     let args = parse_low_raw(["--sort", "path"]).unwrap();
     assert_eq!(
@@ -6769,6 +7093,7 @@ fn test_sort() {
     assert_eq!(None, args.sort);
 
     let args = parse_low_raw(["--sort", "path", "--sort=none"]).unwrap();
+	log::debug!("<<< Exiting test_sort()");
     assert_eq!(None, args.sort);
 }
 
@@ -6852,8 +7177,10 @@ parallelism and run in a single thread.
 #[cfg(test)]
 #[test]
 fn test_sortr() {
+	log::debug!(">>> Entering test_sortr()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.sort);
+	log::debug!("test_sortr(): args → (unprintable)");
 
     let args = parse_low_raw(["--sortr", "path"]).unwrap();
     assert_eq!(
@@ -6883,6 +7210,7 @@ fn test_sortr() {
     assert_eq!(
         Some(SortMode { reverse: false, kind: SortModeKind::Path }),
         args.sort
+	log::debug!("<<< Exiting test_sortr()");
     );
 }
 
@@ -6932,13 +7260,16 @@ Note that this flag has no effect if \flag{files}, \flag{files-with-matches} or
 #[cfg(test)]
 #[test]
 fn test_stats() {
+	log::debug!(">>> Entering test_stats()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.stats);
+	log::debug!("test_stats(): args → (unprintable)");
 
     let args = parse_low_raw(["--stats"]).unwrap();
     assert_eq!(true, args.stats);
 
     let args = parse_low_raw(["--stats", "--no-stats"]).unwrap();
+	log::debug!("<<< Exiting test_stats()");
     assert_eq!(false, args.stats);
 }
 
@@ -6981,8 +7312,10 @@ This overrides the \flag{multiline} flag.
 #[cfg(test)]
 #[test]
 fn test_stop_on_nonmatch() {
+	log::debug!(">>> Entering test_stop_on_nonmatch()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.stop_on_nonmatch);
+	log::debug!("test_stop_on_nonmatch(): args → (unprintable)");
 
     let args = parse_low_raw(["--stop-on-nonmatch"]).unwrap();
     assert_eq!(true, args.stop_on_nonmatch);
@@ -6998,6 +7331,7 @@ fn test_stop_on_nonmatch() {
     let args =
         parse_low_raw(["--stop-on-nonmatch", "--no-multiline"]).unwrap();
     assert_eq!(false, args.multiline);
+	log::debug!("<<< Exiting test_stop_on_nonmatch()");
     assert_eq!(true, args.stop_on_nonmatch);
 }
 
@@ -7056,8 +7390,10 @@ This flag overrides the \flag{binary} flag.
 #[cfg(test)]
 #[test]
 fn test_text() {
+	log::debug!(">>> Entering test_text()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(BinaryMode::Auto, args.binary);
+	log::debug!("test_text(): args → (unprintable)");
 
     let args = parse_low_raw(["--text"]).unwrap();
     assert_eq!(BinaryMode::AsText, args.binary);
@@ -7078,6 +7414,7 @@ fn test_text() {
     assert_eq!(BinaryMode::Auto, args.binary);
 
     let args = parse_low_raw(["--binary", "--no-text"]).unwrap();
+	log::debug!("<<< Exiting test_text()");
     assert_eq!(BinaryMode::Auto, args.binary);
 }
 
@@ -7122,8 +7459,10 @@ heuristics.
 #[cfg(test)]
 #[test]
 fn test_threads() {
+	log::debug!(">>> Entering test_threads()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.threads);
+	log::debug!("test_threads(): args → (unprintable)");
 
     let args = parse_low_raw(["--threads", "5"]).unwrap();
     assert_eq!(Some(5), args.threads);
@@ -7138,6 +7477,7 @@ fn test_threads() {
     assert_eq!(Some(10), args.threads);
 
     let args = parse_low_raw(["-j5", "-j0"]).unwrap();
+	log::debug!("<<< Exiting test_threads()");
     assert_eq!(None, args.threads);
 }
 
@@ -7176,13 +7516,16 @@ information you're looking for.
 #[cfg(test)]
 #[test]
 fn test_trace() {
+	log::debug!(">>> Entering test_trace()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.logging);
+	log::debug!("test_trace(): args → (unprintable)");
 
     let args = parse_low_raw(["--trace"]).unwrap();
     assert_eq!(Some(LoggingMode::Trace), args.logging);
 
     let args = parse_low_raw(["--debug", "--trace"]).unwrap();
+	log::debug!("<<< Exiting test_trace()");
     assert_eq!(Some(LoggingMode::Trace), args.logging);
 }
 
@@ -7222,13 +7565,16 @@ removed.
 #[cfg(test)]
 #[test]
 fn test_trim() {
+	log::debug!(">>> Entering test_trim()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.trim);
+	log::debug!("test_trim(): args → (unprintable)");
 
     let args = parse_low_raw(["--trim"]).unwrap();
     assert_eq!(true, args.trim);
 
     let args = parse_low_raw(["--trim", "--no-trim"]).unwrap();
+	log::debug!("<<< Exiting test_trim()");
     assert_eq!(false, args.trim);
 }
 
@@ -7287,8 +7633,11 @@ To see the list of available file types, use the \flag{type-list} flag.
 #[cfg(test)]
 #[test]
 fn test_type() {
+	log::debug!(">>> Entering test_type()");
     let select = |name: &str| TypeChange::Select { name: name.to_string() };
 
+	log::debug!("test_type(): select → (unprintable)");
+	log::debug!("test_type(): args → (unprintable)");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<TypeChange>::new(), args.type_changes);
 
@@ -7305,6 +7654,7 @@ fn test_type() {
     assert_eq!(vec![select("rust"), select("python")], args.type_changes);
 
     let args = parse_low_raw(["-tabcdefxyz"]).unwrap();
+	log::debug!("<<< Exiting test_type()");
     assert_eq!(vec![select("abcdefxyz")], args.type_changes);
 }
 
@@ -7376,8 +7726,10 @@ Punctuation characters are not allowed.
 #[cfg(test)]
 #[test]
 fn test_type_add() {
+	log::debug!(">>> Entering test_type_add()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<TypeChange>::new(), args.type_changes);
+	log::debug!("test_type_add(): args → (unprintable)");
 
     let args = parse_low_raw(["--type-add", "foo"]).unwrap();
     assert_eq!(
@@ -7392,6 +7744,7 @@ fn test_type_add() {
             TypeChange::Add { def: "bar".to_string() }
         ],
         args.type_changes
+	log::debug!("<<< Exiting test_type_add()");
     );
 }
 
@@ -7437,8 +7790,10 @@ not persisted. See \fBCONFIGURATION FILES\fP for a workaround.
 #[cfg(test)]
 #[test]
 fn test_type_clear() {
+	log::debug!(">>> Entering test_type_clear()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<TypeChange>::new(), args.type_changes);
+	log::debug!("test_type_clear(): args → (unprintable)");
 
     let args = parse_low_raw(["--type-clear", "foo"]).unwrap();
     assert_eq!(
@@ -7454,6 +7809,7 @@ fn test_type_clear() {
             TypeChange::Clear { name: "bar".to_string() }
         ],
         args.type_changes
+	log::debug!("<<< Exiting test_type_clear()");
     );
 }
 
@@ -7509,8 +7865,12 @@ To see the list of available file types, use the \flag{type-list} flag.
 #[cfg(test)]
 #[test]
 fn test_type_not() {
+	log::debug!(">>> Entering test_type_not()");
     let select = |name: &str| TypeChange::Select { name: name.to_string() };
     let negate = |name: &str| TypeChange::Negate { name: name.to_string() };
+	log::debug!("test_type_not(): negate → (unprintable)");
+	log::debug!("test_type_not(): select → (unprintable)");
+	log::debug!("test_type_not(): args → (unprintable)");
 
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Vec::<TypeChange>::new(), args.type_changes);
@@ -7534,6 +7894,7 @@ fn test_type_not() {
     assert_eq!(
         vec![negate("rust"), select("toml"), negate("json")],
         args.type_changes
+	log::debug!("<<< Exiting test_type_not()");
     );
 }
 
@@ -7573,10 +7934,13 @@ of globs for that type on the same line.
 #[cfg(test)]
 #[test]
 fn test_type_list() {
+	log::debug!(">>> Entering test_type_list()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	log::debug!("test_type_list(): args → (unprintable)");
 
     let args = parse_low_raw(["--type-list"]).unwrap();
+	log::debug!("<<< Exiting test_type_list()");
     assert_eq!(Mode::Types, args.mode);
 }
 
@@ -7633,6 +7997,7 @@ text files via the \flag{text} flag.
             assert_eq!(args.unrestricted, 3);
             Binary.update(FlagValue::Switch(true), args)?;
         }
+		log::debug!(">>> Entering update(v=(unprintable))");
         Ok(())
     }
 }
@@ -7640,8 +8005,10 @@ text files via the \flag{text} flag.
 #[cfg(test)]
 #[test]
 fn test_unrestricted() {
+	log::debug!(">>> Entering test_unrestricted()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.no_ignore_vcs);
+	log::debug!("test_unrestricted(): args → (unprintable)");
     assert_eq!(false, args.hidden);
     assert_eq!(BinaryMode::Auto, args.binary);
 
@@ -7661,6 +8028,8 @@ fn test_unrestricted() {
     assert_eq!(BinaryMode::SearchAndSuppress, args.binary);
 
     let result = parse_low_raw(["-uuuu"]);
+	log::debug!("test_unrestricted(): result → (unprintable)");
+	log::debug!("<<< Exiting test_unrestricted()");
     assert!(result.is_err(), "{result:?}");
 }
 
@@ -7704,8 +8073,10 @@ information, such as the presence of target specific optimizations and the
 #[cfg(test)]
 #[test]
 fn test_version() {
+	log::debug!(">>> Entering test_version()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.special);
+	log::debug!("test_version(): args → (unprintable)");
 
     let args = parse_low_raw(["-V"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionShort), args.special);
@@ -7717,6 +8088,7 @@ fn test_version() {
     assert_eq!(Some(SpecialMode::VersionLong), args.special);
 
     let args = parse_low_raw(["--version", "-V"]).unwrap();
+	log::debug!("<<< Exiting test_version()");
     assert_eq!(Some(SpecialMode::VersionShort), args.special);
 }
 
@@ -7769,10 +8141,13 @@ use.
 #[cfg(test)]
 #[test]
 fn test_vimgrep() {
+	log::debug!(">>> Entering test_vimgrep()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(false, args.vimgrep);
+	log::debug!("test_vimgrep(): args → (unprintable)");
 
     let args = parse_low_raw(["--vimgrep"]).unwrap();
+	log::debug!("<<< Exiting test_vimgrep()");
     assert_eq!(true, args.vimgrep);
 }
 
@@ -7818,13 +8193,16 @@ This flag overrides \flag{no-filename}.
 #[cfg(test)]
 #[test]
 fn test_with_filename() {
+	log::debug!(">>> Entering test_with_filename()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.with_filename);
+	log::debug!("test_with_filename(): args → (unprintable)");
 
     let args = parse_low_raw(["--with-filename"]).unwrap();
     assert_eq!(Some(true), args.with_filename);
 
     let args = parse_low_raw(["-H"]).unwrap();
+	log::debug!("<<< Exiting test_with_filename()");
     assert_eq!(Some(true), args.with_filename);
 }
 
@@ -7871,8 +8249,10 @@ This flag overrides \flag{with-filename}.
 #[cfg(test)]
 #[test]
 fn test_with_filename_no() {
+	log::debug!(">>> Entering test_with_filename_no()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.with_filename);
+	log::debug!("test_with_filename_no(): args → (unprintable)");
 
     let args = parse_low_raw(["--no-filename"]).unwrap();
     assert_eq!(Some(false), args.with_filename);
@@ -7884,6 +8264,7 @@ fn test_with_filename_no() {
     assert_eq!(Some(true), args.with_filename);
 
     let args = parse_low_raw(["-H", "-I"]).unwrap();
+	log::debug!("<<< Exiting test_with_filename_no()");
     assert_eq!(Some(false), args.with_filename);
 }
 
@@ -7931,8 +8312,10 @@ This overrides the \flag{line-regexp} flag.
 #[cfg(test)]
 #[test]
 fn test_word_regexp() {
+	log::debug!(">>> Entering test_word_regexp()");
     let args = parse_low_raw(None::<&str>).unwrap();
     assert_eq!(None, args.boundary);
+	log::debug!("test_word_regexp(): args → (unprintable)");
 
     let args = parse_low_raw(["--word-regexp"]).unwrap();
     assert_eq!(Some(BoundaryMode::Word), args.boundary);
@@ -7944,10 +8327,12 @@ fn test_word_regexp() {
     assert_eq!(Some(BoundaryMode::Word), args.boundary);
 
     let args = parse_low_raw(["-w", "-x"]).unwrap();
+	log::debug!("<<< Exiting test_word_regexp()");
     assert_eq!(Some(BoundaryMode::Line), args.boundary);
 }
 
 fn check_indexing_allowed() -> anyhow::Result<()> {
+	log::debug!(">>> Entering check_indexing_allowed()");
     if cfg!(feature = "unstable-index") {
         return Ok(());
     }
@@ -7960,36 +8345,49 @@ mod convert {
     use anyhow::Context;
 
     pub(super) fn str(v: &OsStr) -> anyhow::Result<&str> {
+		log::debug!(">>> Entering str(super=(unprintable))");
         let Some(s) = v.to_str() else {
             anyhow::bail!("value is not valid UTF-8")
         };
+		log::debug!("<<< Exiting str(super=(unprintable))");
         Ok(s)
     }
 
     pub(super) fn string(v: OsString) -> anyhow::Result<String> {
+		log::debug!(">>> Entering string(super=(unprintable))");
         let Ok(s) = v.into_string() else {
             anyhow::bail!("value is not valid UTF-8")
         };
+		log::debug!("<<< Exiting string(super=(unprintable))");
         Ok(s)
     }
 
     pub(super) fn usize(v: &OsStr) -> anyhow::Result<usize> {
+		log::debug!(">>> Entering usize(super=(unprintable))");
+        log::debug!("<<< Exiting usize(super=(unprintable))");
         str(v)?.parse().context("value is not a valid number")
     }
 
     pub(super) fn u64(v: &OsStr) -> anyhow::Result<u64> {
+		log::debug!(">>> Entering u64(super=(unprintable))");
+        log::debug!("<<< Exiting u64(super=(unprintable))");
         str(v)?.parse().context("value is not a valid number")
     }
 
     pub(super) fn human_readable_u64(v: &OsStr) -> anyhow::Result<u64> {
+		log::debug!(">>> Entering human_readable_u64(super=(unprintable))");
+        log::debug!("<<< Exiting human_readable_u64(super=(unprintable))");
         grep::cli::parse_human_readable_size(str(v)?).context("invalid size")
     }
 
     pub(super) fn human_readable_usize(v: &OsStr) -> anyhow::Result<usize> {
+		log::debug!(">>> Entering human_readable_usize(super=(unprintable))");
         let size = human_readable_u64(v)?;
         let Ok(size) = usize::try_from(size) else {
+			log::debug!("human_readable_usize(super=(unprintable)): size → {}", size);
             anyhow::bail!("size is too big")
         };
+		log::debug!("<<< Exiting human_readable_usize(super=(unprintable))");
         Ok(size)
     }
 }
@@ -8000,8 +8398,10 @@ mod tests {
 
     #[test]
     fn available_shorts() {
+		log::debug!(">>> Entering available_shorts()");
         let mut total = vec![false; 128];
         for byte in 0..=0x7F {
+			log::debug!("available_shorts(): total → (unprintable)");
             match byte {
                 b'.' | b'0'..=b'9' | b'A'..=b'Z' | b'a'..=b'z' => {
                     total[usize::from(byte)] = true
@@ -8020,25 +8420,32 @@ mod tests {
             if total[usize::from(byte)] && !taken[usize::from(byte)] {
                 eprintln!("{}", char::from(byte));
             }
+		log::debug!("<<< Exiting available_shorts()");
         }
     }
 
     #[test]
     fn shorts_all_ascii_alphanumeric() {
+		log::debug!(">>> Entering shorts_all_ascii_alphanumeric()");
         for flag in FLAGS.iter() {
             let Some(byte) = flag.name_short() else { continue };
             let long = flag.name_long();
+			log::debug!("shorts_all_ascii_alphanumeric(): long → {}", long);
             assert!(
                 byte.is_ascii_alphanumeric() || byte == b'.',
                 "\\x{byte:0X} is not a valid short flag for {long}",
             )
+		log::debug!("<<< Exiting shorts_all_ascii_alphanumeric()");
         }
     }
 
     #[test]
     fn longs_all_ascii_alphanumeric() {
+		log::debug!(">>> Entering longs_all_ascii_alphanumeric()");
         for flag in FLAGS.iter() {
             let long = flag.name_long();
+			log::debug!("longs_all_ascii_alphanumeric(): long → {}", long);
+			log::debug!("longs_all_ascii_alphanumeric(): count → (unprintable)");
             let count = long.chars().count();
             assert!(count >= 2, "flag '{long}' is less than 2 characters");
             assert!(
@@ -8072,31 +8479,38 @@ mod tests {
                 "flag '{long}' has negation '{negated}' that \
                  does not match ^[-0-9A-Za-z]+$",
             );
+		log::debug!("<<< Exiting longs_all_ascii_alphanumeric()");
         }
     }
 
     #[test]
     fn shorts_no_duplicates() {
+		log::debug!(">>> Entering shorts_no_duplicates()");
         let mut taken = vec![false; 128];
         for flag in FLAGS.iter() {
             let Some(short) = flag.name_short() else { continue };
             let long = flag.name_long();
+			log::debug!("shorts_no_duplicates(): long → {}", long);
             assert!(
                 !taken[usize::from(short)],
                 "flag {long} has duplicate short flag {}",
                 char::from(short)
             );
             taken[usize::from(short)] = true;
+		log::debug!("<<< Exiting shorts_no_duplicates()");
         }
     }
 
     #[test]
     fn longs_no_duplicates() {
+		log::debug!(">>> Entering longs_no_duplicates()");
         use std::collections::BTreeSet;
 
         let mut taken = BTreeSet::new();
+		log::debug!("longs_no_duplicates(): taken → (unprintable)");
         for flag in FLAGS.iter() {
             let long = flag.name_long();
+			log::debug!("longs_no_duplicates(): long → {}", long);
             assert!(taken.insert(long), "flag {long} has a duplicate name");
             for alias in flag.aliases() {
                 assert!(
@@ -8109,43 +8523,53 @@ mod tests {
                 taken.insert(negated),
                 "negated flag {negated} has a duplicate name"
             );
+		log::debug!("<<< Exiting longs_no_duplicates()");
         }
     }
 
     #[test]
     fn non_switches_have_variable_names() {
+		log::debug!(">>> Entering non_switches_have_variable_names()");
         for flag in FLAGS.iter() {
             if flag.is_switch() {
                 continue;
             }
             let long = flag.name_long();
+			log::debug!("non_switches_have_variable_names(): long → {}", long);
             assert!(
                 flag.doc_variable().is_some(),
                 "flag '{long}' should have a variable name"
             );
+		log::debug!("<<< Exiting non_switches_have_variable_names()");
         }
     }
 
     #[test]
     fn switches_have_no_choices() {
+		log::debug!(">>> Entering switches_have_no_choices()");
         for flag in FLAGS.iter() {
             if !flag.is_switch() {
                 continue;
             }
             let long = flag.name_long();
+			log::debug!("switches_have_no_choices(): long → {}", long);
             let choices = flag.doc_choices();
+			log::debug!("switches_have_no_choices(): choices → {:?}", choices);
             assert!(
                 choices.is_empty(),
                 "switch flag '{long}' \
                  should not have any choices but has some: {choices:?}",
             );
+		log::debug!("<<< Exiting switches_have_no_choices()");
         }
     }
 
     #[test]
     fn choices_ascii_alphanumeric() {
+		log::debug!(">>> Entering choices_ascii_alphanumeric()");
         for flag in FLAGS.iter() {
             let long = flag.name_long();
+			log::debug!("choices_ascii_alphanumeric(): long → {}", long);
             for choice in flag.doc_choices() {
                 assert!(
                     choice.chars().all(|c| c.is_ascii_alphanumeric()
@@ -8156,6 +8580,7 @@ mod tests {
                      ^[-+:0-9A-Za-z]+$",
                 )
             }
+		log::debug!("<<< Exiting choices_ascii_alphanumeric()");
         }
     }
 }

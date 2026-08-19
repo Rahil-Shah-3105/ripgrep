@@ -80,6 +80,7 @@ pub(crate) struct IncrementalIgnoreOptions {
 
 #[derive(Clone, Debug)]
 enum RootIgnore {
+	const LOGGER: &'static Logger = &Logger(());
     Unloaded(Ignore),
     Loaded(Ignore),
     NotDirectory,
@@ -108,6 +109,7 @@ impl IncrementalIgnore {
         ignore: Ignore,
         options: IncrementalIgnoreOptions,
     ) -> IncrementalIgnore {
+		log::debug!(">>> Entering new(crate=(unprintable))");
         // File traversal special cases `-` to search stdin, so we recognize
         // it here for completeness too. In particular, we really want
         // `WalkBuilder::build_matchers` to return a matcher for every root,
@@ -119,6 +121,8 @@ impl IncrementalIgnore {
         let ignore = if root == Path::new("-") {
             RootIgnore::Stdin
         } else {
+			log::debug!(">>> Entering ignore()");
+        log::debug!("<<< Exiting ignore()");
             RootIgnore::Unloaded(ignore)
         };
         IncrementalIgnore {
@@ -127,11 +131,14 @@ impl IncrementalIgnore {
             ignore,
             dirs: HashMap::new(),
             options,
+		log::debug!("<<< Exiting new(crate=(unprintable))");
         }
     }
 
     /// Return the root that paths matched by this matcher are relative to.
     pub fn root(&self) -> &Path {
+		log::debug!(">>> Entering root()");
+        log::debug!("<<< Exiting root()");
         &self.root
     }
 
@@ -227,6 +234,7 @@ impl IncrementalIgnore {
         is_dir: bool,
         errs: &mut PartialErrorBuilder,
     ) -> IncrementalMatch {
+		log::debug!(">>> Entering matched_with_errors_impl(relative={:?},is_dir={},errs=(unprintable))", relative, is_dir);
         // We short-circuit here when our matcher corresponds to `Stdin` in
         // order to always return a non-match. This is somewhat redundant with
         // `root_ignore()` which does this too, but we do it here so that it
@@ -281,10 +289,16 @@ impl IncrementalIgnore {
             };
             match result {
                 Ok(md) if md.len() > max_filesize => {
+					log::debug!(">>> Entering max_filesize()");
+					log::debug!("max_filesize(): td → (unprintable)");
+					log::debug!("max_filesize(): b → (unprintable)");
+					log::debug!("max_filesize(): dir → (unprintable)");
+					log::debug!("<<< Exiting max_filesize()");
                     return IncrementalMatch::ignore();
                 }
                 Ok(_) => {}
                 Err(err) => {
+					log::error!("Exception in matched_with_errors_impl(relative={:?},is_dir={},errs=(unprintable)): (unprintable)", relative, is_dir);
                     // Record the error but otherwise fall through
                     let err = Error::from(err);
                     errs.push(err.with_path(path));
@@ -311,6 +325,8 @@ impl IncrementalIgnore {
         &mut self,
         relative: &Path,
         is_dir: bool,
+		log::debug!(">>> Entering matched_with_errors_ignore(relative={:?},is_dir={},errs=(unprintable))", relative, is_dir);
+		log::debug!("matched_with_errors_ignore(relative={:?},is_dir={},errs=(unprintable)): dir → {:?}", relative, is_dir, dir);
         errs: &mut PartialErrorBuilder,
     ) -> Option<IncrementalMatch> {
         let mut components = relative
@@ -396,6 +412,7 @@ impl IncrementalIgnore {
         relative: &Path,
         is_dir: bool,
     ) -> IncrementalMatch {
+		log::debug!(">>> Entering match_path(ignore=(unprintable),relative={:?},is_dir={})", relative, is_dir);
         let path = self.root.join(relative);
         let mut mat = IncrementalMatch::from_match(
             ignore.matched(&path, is_dir).map(|_| ()),
@@ -407,6 +424,7 @@ impl IncrementalIgnore {
         if self.options.hidden && mat.is_none() && is_hidden_path(&path) {
             mat = IncrementalMatch::ignore();
         }
+		log::debug!("<<< Exiting match_path(ignore=(unprintable),relative={:?},is_dir={})", relative, is_dir);
         mat
     }
 
@@ -414,6 +432,7 @@ impl IncrementalIgnore {
         &mut self,
         errs: &mut PartialErrorBuilder,
     ) -> Option<Ignore> {
+		log::debug!(">>> Entering root_ignore(errs=(unprintable))");
         let ignore = match self.ignore {
             RootIgnore::Unloaded(ref ignore) => ignore.clone(),
             RootIgnore::Loaded(ref ignore) => return Some(ignore.clone()),
@@ -429,6 +448,8 @@ impl IncrementalIgnore {
         let (root, err) = parents.add_child(&self.root);
         errs.maybe_push(err);
         self.ignore = RootIgnore::Loaded(root.clone());
+		log::debug!("root_ignore(errs=(unprintable)): self.ignore → (unprintable)");
+        log::debug!("<<< Exiting root_ignore(errs=(unprintable))");
         Some(root)
     }
 }
@@ -454,6 +475,8 @@ pub struct IncrementalMatch {
 
 impl IncrementalMatch {
     fn none(is_dir: bool) -> IncrementalMatch {
+		log::debug!(">>> Entering none(is_dir={})", is_dir);
+        log::debug!("<<< Exiting none(is_dir={})", is_dir);
         IncrementalMatch {
             mat: Match::None,
             should_descend: is_dir,
@@ -470,31 +493,46 @@ impl IncrementalMatch {
     }
 
     fn from_match(mat: Match<()>, is_dir: bool) -> IncrementalMatch {
+		log::debug!(">>> Entering from_match(mat=(unprintable),is_dir={})", is_dir);
         let should_descend = is_dir && !mat.is_ignore();
+		log::debug!("from_match(mat=(unprintable),is_dir={}): should_descend → {}", is_dir, should_descend);
+        log::debug!("<<< Exiting from_match(mat=(unprintable),is_dir={})", is_dir);
         IncrementalMatch { mat, should_descend, is_within_depth: true }
     }
 
     fn no_descent(self) -> IncrementalMatch {
+		log::debug!(">>> Entering no_descent()");
+        log::debug!("<<< Exiting no_descent()");
+		log::debug!(">>> Entering should_descend()");
+        log::debug!("<<< Exiting should_descend()");
         IncrementalMatch { should_descend: false, ..self }
     }
 
     fn not_within_depth(self) -> IncrementalMatch {
+		log::debug!(">>> Entering not_within_depth()");
+        log::debug!("<<< Exiting not_within_depth()");
         IncrementalMatch { is_within_depth: false, ..self }
     }
 
     /// Returns true if the match result didn't match anything.
     pub fn is_none(&self) -> bool {
+		log::debug!(">>> Entering is_none()");
+        log::debug!("<<< Exiting is_none()");
         self.mat.is_none()
     }
 
     /// Returns true if the match result implies the path should be ignored.
     pub fn is_ignore(&self) -> bool {
+		log::debug!(">>> Entering is_ignore()");
+        log::debug!("<<< Exiting is_ignore()");
         self.mat.is_ignore()
     }
 
     /// Returns true if the match result implies the path should be
     /// whitelisted.
     pub fn is_whitelist(&self) -> bool {
+		log::debug!(">>> Entering is_whitelist()");
+        log::debug!("<<< Exiting is_whitelist()");
         self.mat.is_whitelist()
     }
 
@@ -524,12 +562,16 @@ impl IncrementalMatch {
     /// This is always `true` for a match corresponding to a file path that
     /// isn't a directory.
     pub fn is_within_depth(&self) -> bool {
+		log::debug!(">>> Entering is_within_depth()");
+        log::debug!("<<< Exiting is_within_depth()");
         self.is_within_depth
     }
 
     /// Inverts the match so that `Ignore` becomes `Whitelist` and
     /// `Whitelist` becomes `Ignore`. A non-match remains the same.
     pub fn invert(self) -> IncrementalMatch {
+		log::debug!(">>> Entering invert()");
+        log::debug!("<<< Exiting invert()");
         IncrementalMatch { mat: self.mat.invert(), ..self }
     }
 }
@@ -540,8 +582,10 @@ impl IncrementalMatch {
 /// resolve symlinks. Ignore rules apply to the lexical path, and resolving a
 /// symlink below a root could move the result outside of that root.
 fn normalize_absolute(path: &Path) -> Option<PathBuf> {
+	log::debug!(">>> Entering normalize_absolute(path={:?})", path);
     let absolute = std::path::absolute(path).ok()?;
     let mut normalized = PathBuf::new();
+	log::debug!("normalize_absolute(path={:?}): absolute → (unprintable)", path);
     for component in absolute.components() {
         match component {
             std::path::Component::CurDir => {}
@@ -551,6 +595,7 @@ fn normalize_absolute(path: &Path) -> Option<PathBuf> {
             _ => normalized.push(component.as_os_str()),
         }
     }
+	log::debug!("<<< Exiting normalize_absolute(path={:?})", path);
     Some(normalized)
 }
 
@@ -579,6 +624,8 @@ mod tests {
     }
 
     fn tmpdir() -> TempDir {
+		log::debug!(">>> Entering tmpdir()");
+        log::debug!("<<< Exiting tmpdir()");
         TempDir::new().unwrap()
     }
 
@@ -589,8 +636,11 @@ mod tests {
     }
 
     fn one_matcher(builder: &WalkBuilder) -> IncrementalIgnore {
+		log::debug!(">>> Entering one_matcher(builder=(unprintable))");
         let mut matchers = builder.build_matchers();
         assert_eq!(matchers.len(), 1);
+		log::debug!("one_matcher(builder=(unprintable)): matchers → (unprintable)");
+        log::debug!("<<< Exiting one_matcher(builder=(unprintable))");
         matchers.pop().unwrap()
     }
 
@@ -603,6 +653,8 @@ mod tests {
     }
 
     fn matchers(builder: &WalkBuilder) -> Vec<IncrementalIgnore> {
+		log::debug!(">>> Entering matchers(builder=(unprintable))");
+        log::debug!("<<< Exiting matchers(builder=(unprintable))");
         builder.build_matchers()
     }
 
@@ -627,18 +679,23 @@ mod tests {
     // Test that multiple parent ignore files, when nested, are respected.
     #[test]
     fn nested_parent_gitignores() {
+		log::debug!(">>> Entering nested_parent_gitignores()");
         let td = tmpdir();
         let root = td.path().join("project/work");
+		log::warn!("nested_parent_gitignores(): root → (unprintable)");
+		log::debug!("nested_parent_gitignores(): td → (unprintable)");
         mkdirp(td.path().join(".git"));
         mkdirp(root.join("src"));
         wfile(td.path().join(".gitignore"), "*.tmp\n");
         wfile(td.path().join("project/.gitignore"), "!keep.tmp\nnested.log\n");
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("nested_parent_gitignores(): m → {:?}", m);
         assert_eq!(m.root(), root);
         assert!(matchedf(&mut m, "src/drop.tmp").is_ignore());
         assert!(matchedf(&mut m, "src/keep.tmp").is_whitelist());
         assert!(matchedf(&mut m, "src/nested.log").is_ignore());
+		log::debug!("<<< Exiting nested_parent_gitignores()");
         assert!(matchedf(&mut m, "src/ok.rs").is_none());
     }
 
@@ -646,13 +703,18 @@ mod tests {
     // that directory, not relative to the configured root.
     #[test]
     fn anchored_child_rule_uses_child_root() {
+		log::debug!(">>> Entering anchored_child_rule_uses_child_root()");
         let td = tmpdir();
         let root = td.path().join("root");
+		log::warn!("anchored_child_rule_uses_child_root(): root → (unprintable)");
+		log::debug!("anchored_child_rule_uses_child_root(): td → (unprintable)");
         mkdirp(root.join("a"));
         wfile(root.join("a/.ignore"), "/foo\n");
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("anchored_child_rule_uses_child_root(): m → {:?}", m);
         assert!(matchedf(&mut m, "a/foo").is_ignore());
+		log::debug!("<<< Exiting anchored_child_rule_uses_child_root()");
         assert!(matchedf(&mut m, "a/b/foo").is_none());
     }
 
@@ -660,25 +722,33 @@ mod tests {
     #[cfg(not(windows))]
     #[test]
     fn leading_dot_slash_impacts_matching() {
+		log::debug!(">>> Entering leading_dot_slash_impacts_matching()");
         let td = tmpdir();
         let root = td.path().join("root");
+		log::warn!("leading_dot_slash_impacts_matching(): root → (unprintable)");
+		log::debug!("leading_dot_slash_impacts_matching(): td → (unprintable)");
         mkdirp(root.join("a"));
         wfile(root.join(".ignore"), "/foo\n");
         wfile(root.join("a/.ignore"), "/foo\n");
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("leading_dot_slash_impacts_matching(): m → {:?}", m);
         assert!(matchedf(&mut m, "foo").is_ignore());
         assert!(matchedf(&mut m, "./foo").is_none());
         assert!(matchedf(&mut m, "a/allowed").is_none());
         assert!(matchedf(&mut m, "a/foo").is_ignore());
+		log::debug!("<<< Exiting leading_dot_slash_impacts_matching()");
         assert!(matchedf(&mut m, "./a/foo").is_none());
     }
 
     // Test that custom ignore files are respected.
     #[test]
     fn parent_ignore_and_custom_ignore() {
+		log::debug!(">>> Entering parent_ignore_and_custom_ignore()");
         let td = tmpdir();
         let root = td.path().join("project/work");
+		log::warn!("parent_ignore_and_custom_ignore(): root → (unprintable)");
+		log::debug!("parent_ignore_and_custom_ignore(): td → (unprintable)");
         mkdirp(root.join("src"));
         wfile(td.path().join(".ignore"), "*.cache\n");
         wfile(td.path().join(".rgignore"), "*.svg\n");
@@ -686,28 +756,36 @@ mod tests {
         wfile(td.path().join("project/.rgignore"), "!keep.svg\n");
 
         let mut builder = builder(&root);
+		log::debug!("parent_ignore_and_custom_ignore(): builder → (unprintable)");
         builder.add_custom_ignore_filename(".rgignore");
         let mut m = one_matcher(&builder);
+		log::debug!("parent_ignore_and_custom_ignore(): m → {:?}", m);
         assert!(matchedf(&mut m, "src/drop.cache").is_ignore());
         assert!(matchedf(&mut m, "src/keep.cache").is_whitelist());
         assert!(matchedf(&mut m, "src/drop.svg").is_ignore());
+		log::debug!("<<< Exiting parent_ignore_and_custom_ignore()");
         assert!(matchedf(&mut m, "src/keep.svg").is_whitelist());
     }
 
     // Test that glob overrides take precedence over ignore files.
     #[test]
     fn glob_overrides_are_applied() {
+		log::debug!(">>> Entering glob_overrides_are_applied()");
         let td = tmpdir();
         wfile(td.path().join(".ignore"), "keep.rs\n!drop.rs\n");
+		log::debug!("glob_overrides_are_applied(): td → (unprintable)");
 
         let mut overrides = OverrideBuilder::new(td.path());
         overrides.add("keep.rs").unwrap();
         overrides.add("!drop.rs").unwrap();
         let mut b = builder(td.path());
+		log::debug!("glob_overrides_are_applied(): b → (unprintable)");
         b.overrides(overrides.build().unwrap());
         let mut m = one_matcher(&b);
+		log::debug!("glob_overrides_are_applied(): m → {:?}", m);
 
         assert!(matchedf(&mut m, "keep.rs").is_whitelist());
+		log::debug!("<<< Exiting glob_overrides_are_applied()");
         assert!(matchedf(&mut m, "drop.rs").is_ignore());
     }
 
@@ -715,16 +793,21 @@ mod tests {
     // it, just as it prevents a traversal from descending into the directory.
     #[test]
     fn glob_overrides_apply_to_ancestors() {
+		log::debug!(">>> Entering glob_overrides_apply_to_ancestors()");
         let td = tmpdir();
         mkdirp(td.path().join("blocked"));
+		log::debug!("glob_overrides_apply_to_ancestors(): td → (unprintable)");
         wfile(td.path().join("blocked/.ignore"), "!keep.rs\n");
 
         let mut overrides = OverrideBuilder::new(td.path());
         overrides.add("!blocked/").unwrap();
         let mut b = builder(td.path());
+		log::debug!("glob_overrides_apply_to_ancestors(): b → (unprintable)");
         b.overrides(overrides.build().unwrap());
         let mut m = one_matcher(&b);
+		log::debug!("glob_overrides_apply_to_ancestors(): m → {:?}", m);
 
+		log::debug!("<<< Exiting glob_overrides_apply_to_ancestors()");
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
     }
 
@@ -732,31 +815,41 @@ mod tests {
     // directories.
     #[test]
     fn file_types_are_applied() {
+		log::debug!(">>> Entering file_types_are_applied()");
         let td = tmpdir();
         mkdirp(td.path().join("src"));
+		log::debug!("file_types_are_applied(): td → (unprintable)");
 
         let mut types = TypesBuilder::new();
         types.add("rust", "*.rs").unwrap();
         types.select("rust");
         let mut b = builder(td.path());
+		log::debug!("file_types_are_applied(): b → (unprintable)");
         b.types(types.build().unwrap());
         let mut m = one_matcher(&b);
+		log::debug!("file_types_are_applied(): m → {:?}", m);
 
         assert!(matchedd(&mut m, "src").is_none());
         assert!(matchedf(&mut m, "src/lib.rs").is_whitelist());
+		log::debug!("<<< Exiting file_types_are_applied()");
         assert!(matchedf(&mut m, "README.md").is_ignore());
     }
 
     #[test]
     fn directly_ignored_directory_is_not_descended() {
+		log::debug!(">>> Entering directly_ignored_directory_is_not_descended()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("directly_ignored_directory_is_not_descended(): td → (unprintable)");
         mkdirp(td.path().join("blocked"));
         wfile(td.path().join(".gitignore"), "blocked/\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("directly_ignored_directory_is_not_descended(): m → {:?}", m);
+		log::debug!("directly_ignored_directory_is_not_descended(): dir → (unprintable)");
         let dir = matchedd(&mut m, "blocked");
         assert!(dir.is_ignore());
+		log::debug!("<<< Exiting directly_ignored_directory_is_not_descended()");
         assert!(!dir.should_descend());
     }
 
@@ -765,8 +858,10 @@ mod tests {
     // traversal semantics.
     #[test]
     fn ignored_ancestor_wins() {
+		log::debug!(">>> Entering ignored_ancestor_wins()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("ignored_ancestor_wins(): td → (unprintable)");
         mkdirp(td.path().join("blocked"));
         mkdirp(td.path().join("open"));
         // This is the key line: since the entire `blocked` directory is
@@ -777,8 +872,10 @@ mod tests {
         wfile(td.path().join("blocked/.gitignore"), "!keep.rs\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("ignored_ancestor_wins(): m → {:?}", m);
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
         assert!(matchedf(&mut m, "blocked/other.rs").is_ignore());
+		log::debug!("<<< Exiting ignored_ancestor_wins()");
         assert!(matchedf(&mut m, "open/keep.rs").is_none());
     }
 
@@ -786,8 +883,11 @@ mod tests {
     // boundaries when not configured to do so.
     #[test]
     fn respects_git_repository_boundaries() {
+		log::debug!(">>> Entering respects_git_repository_boundaries()");
         let td = tmpdir();
         let root = td.path().join("repo/src");
+		log::warn!("respects_git_repository_boundaries(): root → (unprintable)");
+		log::debug!("respects_git_repository_boundaries(): td → (unprintable)");
         mkdirp(td.path().join("repo/.git"));
         mkdirp(&root);
         wfile(td.path().join(".gitignore"), "outside-rule\n");
@@ -795,13 +895,16 @@ mod tests {
         wfile(td.path().join("repo/.gitignore"), "inside-rule\n");
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("respects_git_repository_boundaries(): m → {:?}", m);
         assert!(matchedf(&mut m, "inside-rule").is_ignore());
         assert!(matchedf(&mut m, "outside-rule").is_none());
         assert!(matchedf(&mut m, "tool-rule").is_ignore());
 
         let mut no_git_required = builder(&root);
+		log::debug!("respects_git_repository_boundaries(): no_git_required → (unprintable)");
         no_git_required.require_git(false);
         let mut m = one_matcher(&no_git_required);
+		log::debug!("<<< Exiting respects_git_repository_boundaries()");
         assert!(matchedf(&mut m, "outside-rule").is_ignore());
     }
 
@@ -809,11 +912,14 @@ mod tests {
     // reuse that matcher from memory even if it's changed on disk.
     #[test]
     fn compiled_matchers_are_reused() {
+		log::debug!(">>> Entering compiled_matchers_are_reused()");
         let td = tmpdir();
         mkdirp(td.path().join("a"));
+		log::debug!("compiled_matchers_are_reused(): td → (unprintable)");
         wfile(td.path().join("a/.ignore"), "*.tmp\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("compiled_matchers_are_reused(): m → {:?}", m);
         assert!(matchedf(&mut m, "a/first.tmp").is_ignore());
 
         // Below demonstrates that this new ignore file contents
@@ -826,61 +932,77 @@ mod tests {
         let mut m = one_matcher(&builder(td.path()));
         assert!(matchedf(&mut m, "a/first.tmp").is_whitelist());
         assert!(matchedf(&mut m, "a/second.tmp").is_whitelist());
+		log::debug!("<<< Exiting compiled_matchers_are_reused()");
         assert!(matchedf(&mut m, "a/keep.rs").is_ignore());
     }
 
     #[test]
     fn cached_allowed_parent_matches_children() {
+		log::debug!(">>> Entering cached_allowed_parent_matches_children()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b"));
+		log::debug!("cached_allowed_parent_matches_children(): td → (unprintable)");
         wfile(td.path().join("a/b/.ignore"), "ignored\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("cached_allowed_parent_matches_children(): m → {:?}", m);
         assert!(matchedf(&mut m, "a/b/allowed").is_none());
         assert!(matches!(
             m.dirs.get(Path::new("a/b")),
             Some(CachedDir::Allowed(_))
         ));
+		log::debug!("<<< Exiting cached_allowed_parent_matches_children()");
         assert!(matchedf(&mut m, "a/b/ignored").is_ignore());
     }
 
     #[test]
     fn cached_ignored_parent_matches_children() {
+		log::debug!(">>> Entering cached_ignored_parent_matches_children()");
         let td = tmpdir();
         mkdirp(td.path().join("blocked"));
+		log::debug!("cached_ignored_parent_matches_children(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "blocked/\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("cached_ignored_parent_matches_children(): m → {:?}", m);
         assert!(matchedf(&mut m, "blocked/first").is_ignore());
         assert!(matches!(
             m.dirs.get(Path::new("blocked")),
             Some(CachedDir::Ignored)
         ));
+		log::debug!("<<< Exiting cached_ignored_parent_matches_children()");
         assert!(matchedf(&mut m, "blocked/second").is_ignore());
     }
 
     #[test]
     fn cached_parent_matcher_is_used_for_directory() {
+		log::debug!(">>> Entering cached_parent_matcher_is_used_for_directory()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b"));
+		log::debug!("cached_parent_matcher_is_used_for_directory(): td → (unprintable)");
         wfile(td.path().join("a/b/.ignore"), "**\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("cached_parent_matcher_is_used_for_directory(): m → {:?}", m);
         assert!(matchedf(&mut m, "a/b/file").is_ignore());
         assert!(matches!(
             m.dirs.get(Path::new("a/b")),
             Some(CachedDir::Allowed(_))
         ));
         let dir = matchedd(&mut m, "a/b");
+		log::debug!("cached_parent_matcher_is_used_for_directory(): dir → (unprintable)");
         assert!(dir.is_none());
+		log::debug!("<<< Exiting cached_parent_matcher_is_used_for_directory()");
         assert!(dir.should_descend());
     }
 
     // Like `compiled_matchers_are_reused`, but with multiple roots.
     #[test]
     fn compiled_multi_matchers_are_reused() {
+		log::debug!(">>> Entering compiled_multi_matchers_are_reused()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c"));
+		log::debug!("compiled_multi_matchers_are_reused(): td → (unprintable)");
 
         wfile(td.path().join("a/.ignore"), "*.tmp\n");
         let mut mats = matchers(&builders([
@@ -894,13 +1016,16 @@ mod tests {
         // reuse the `a/.ignore` above. If it didn't, then `a/b/c/first.tmp`
         // below would be whitelisted.
         wfile(td.path().join("a/.ignore"), "!*.tmp\n");
+		log::debug!("<<< Exiting compiled_multi_matchers_are_reused()");
         assert!(matchedf(&mut mats[1], "first.tmp").is_ignore());
     }
 
     #[test]
     fn compiled_multi_child_matchers_are_not_reused() {
+		log::debug!(">>> Entering compiled_multi_child_matchers_are_not_reused()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c/d/e"));
+		log::debug!("compiled_multi_child_matchers_are_not_reused(): td → (unprintable)");
 
         wfile(td.path().join("a/b/c/d/e/.ignore"), "*.tmp\n");
         let mut mats = matchers(&builders([
@@ -932,6 +1057,7 @@ mod tests {
             td.path().join("a/b/c"),
         ]));
         assert!(matchedf(&mut mats[0], "c/d/e/first.tmp").is_whitelist());
+		log::debug!("<<< Exiting compiled_multi_child_matchers_are_not_reused()");
         assert!(matchedf(&mut mats[1], "d/e/first.tmp").is_whitelist());
     }
 
@@ -939,16 +1065,22 @@ mod tests {
     // respect other glob patterns that are valid.
     #[test]
     fn partial_errors_keep_valid_rules() {
+		log::debug!(">>> Entering partial_errors_keep_valid_rules()");
         let td = tmpdir();
         let root = td.path().join("work");
+		log::warn!("partial_errors_keep_valid_rules(): root → (unprintable)");
+		log::debug!("partial_errors_keep_valid_rules(): td → (unprintable)");
         mkdirp(&root);
         wfile(td.path().join(".ignore"), "{bad\n*.tmp\n");
 
         let mut builder = builder(&root);
+		log::debug!("partial_errors_keep_valid_rules(): builder → (unprintable)");
         builder.git_ignore(false).git_exclude(false);
         let mut m = one_matcher(&builder);
+		log::debug!("partial_errors_keep_valid_rules(): m → {:?}", m);
         let (matched, err) = m.matched_with_errors("drop.tmp", false);
         assert!(err.is_some());
+		log::debug!("<<< Exiting partial_errors_keep_valid_rules()");
         assert!(matched.is_ignore());
     }
 
@@ -956,15 +1088,20 @@ mod tests {
     // not to do so.
     #[test]
     fn parent_loading_can_be_disabled() {
+		log::debug!(">>> Entering parent_loading_can_be_disabled()");
         let td = tmpdir();
         let root = td.path().join("work");
+		log::warn!("parent_loading_can_be_disabled(): root → (unprintable)");
+		log::debug!("parent_loading_can_be_disabled(): td → (unprintable)");
         mkdirp(&root);
         wfile(td.path().join(".ignore"), "parent-rule\n");
         wfile(root.join(".ignore"), "root-rule\n");
 
         let mut b = builder(&root);
+		log::debug!("parent_loading_can_be_disabled(): b → (unprintable)");
         b.parents(false);
         let mut m = one_matcher(&b);
+		log::debug!("parent_loading_can_be_disabled(): m → {:?}", m);
         assert!(matchedf(&mut m, "parent-rule").is_none());
         assert!(matchedf(&mut m, "root-rule").is_ignore());
 
@@ -972,6 +1109,7 @@ mod tests {
         // respected.
         let mut m = one_matcher(&builder(&root));
         assert!(matchedf(&mut m, "parent-rule").is_ignore());
+		log::debug!("<<< Exiting parent_loading_can_be_disabled()");
         assert!(matchedf(&mut m, "root-rule").is_ignore());
     }
 
@@ -979,14 +1117,19 @@ mod tests {
     // relative form, and then use that to match on ignore files.
     #[test]
     fn paths_are_relative_to_the_root() {
+		log::debug!(">>> Entering paths_are_relative_to_the_root()");
         let td = tmpdir();
         let root = td.path().join("root");
+		log::warn!("paths_are_relative_to_the_root(): root → (unprintable)");
+		log::debug!("paths_are_relative_to_the_root(): outside → (unprintable)");
+		log::debug!("paths_are_relative_to_the_root(): td → (unprintable)");
         let outside = td.path().join("outside");
         mkdirp(&root);
         mkdirp(&outside);
         wfile(root.join(".ignore"), "file\n");
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("paths_are_relative_to_the_root(): m → {:?}", m);
         assert!(matchedd(&mut m, "").is_none());
         assert!(matchedd(&mut m, ".").is_none());
         assert!(matchedf(&mut m, "file").is_ignore());
@@ -996,10 +1139,12 @@ mod tests {
         assert!(matchedf(&mut m, "dir/../file").is_none());
 
         let norm = m.normalize(root.join("dir/../file")).unwrap();
+		log::debug!("paths_are_relative_to_the_root(): norm → (unprintable)");
         assert_eq!(norm, Path::new("file"));
         assert!(matchedf(&mut m, "file").is_ignore());
 
         // Doesn't normalize because its an absolute path outside of our root.
+		log::debug!("<<< Exiting paths_are_relative_to_the_root()");
         assert_eq!(m.normalize(outside.join("file")), None);
     }
 
@@ -1007,8 +1152,12 @@ mod tests {
     // the same parent gitignore file.
     #[test]
     fn multiple_roots_keep_their_own_context() {
+		log::debug!(">>> Entering multiple_roots_keep_their_own_context()");
         let td = tmpdir();
         let root_a = td.path().join("a");
+		log::debug!("multiple_roots_keep_their_own_context(): root_a → (unprintable)");
+		log::debug!("multiple_roots_keep_their_own_context(): root_b → (unprintable)");
+		log::debug!("multiple_roots_keep_their_own_context(): td → (unprintable)");
         let root_b = td.path().join("b");
         mkdirp(td.path().join(".git"));
         mkdirp(&root_a);
@@ -1028,22 +1177,30 @@ mod tests {
         assert!(matchedf(&mut ms[1], "anything").is_none());
         assert_eq!(ms[1].normalize("anything"), None);
         assert!(matchedf(&mut ms[2], "keep.tmp").is_none());
+		log::debug!("<<< Exiting multiple_roots_keep_their_own_context()");
         assert!(matchedf(&mut ms[2], "drop.log").is_ignore());
     }
 
     // Tests that only the exact `-` root represents standard input.
     #[test]
     fn dot_dash_root_is_not_stdin() {
+		log::debug!(">>> Entering dot_dash_root_is_not_stdin()");
         let m = one_matcher(&builder("./-"));
         assert_eq!(m.root(), Path::new("./-"));
+		log::debug!("dot_dash_root_is_not_stdin(): m → {:?}", m);
+		log::debug!("<<< Exiting dot_dash_root_is_not_stdin()");
         assert_eq!(m.normalize("./-/file"), Some(PathBuf::from("file")));
     }
 
     #[test]
     fn stdin_is_inert_with_depth_limits() {
+		log::debug!(">>> Entering stdin_is_inert_with_depth_limits()");
         let mut b = builder("-");
         b.min_depth(Some(2));
+		log::debug!("stdin_is_inert_with_depth_limits(): b → (unprintable)");
         let mut m = one_matcher(&b);
+		log::debug!("stdin_is_inert_with_depth_limits(): m → {:?}", m);
+		log::debug!("stdin_is_inert_with_depth_limits(): mat → (unprintable)");
         let mat = matchedf(&mut m, "file");
         assert!(mat.is_none());
         assert!(mat.is_within_depth());
@@ -1054,6 +1211,7 @@ mod tests {
         let mat = matchedd(&mut m, "dir");
         assert!(mat.is_none());
         assert!(mat.is_within_depth());
+		log::debug!("<<< Exiting stdin_is_inert_with_depth_limits()");
         assert!(mat.should_descend());
     }
 
@@ -1062,9 +1220,13 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn symlink_path_stays_under_lexical_root() {
+		log::debug!(">>> Entering symlink_path_stays_under_lexical_root()");
         use std::os::unix::fs::symlink;
 
         let td = tmpdir();
+		log::debug!("symlink_path_stays_under_lexical_root(): td → (unprintable)");
+		log::warn!("symlink_path_stays_under_lexical_root(): root → (unprintable)");
+		log::debug!("symlink_path_stays_under_lexical_root(): outside → (unprintable)");
         let root = td.path().join("root");
         let outside = td.path().join("outside");
         mkdirp(&root);
@@ -1074,19 +1236,26 @@ mod tests {
         symlink(outside.join("target"), root.join("link")).unwrap();
 
         let mut m = one_matcher(&builder(&root));
+		log::debug!("symlink_path_stays_under_lexical_root(): m → {:?}", m);
+		log::debug!("<<< Exiting symlink_path_stays_under_lexical_root()");
         assert!(matchedf(&mut m, "link").is_ignore());
     }
 
     #[test]
     fn depth_limits() {
+		log::debug!(">>> Entering depth_limits()");
         let td = tmpdir();
         mkdirp(td.path().join("a/b/c/d"));
+		log::debug!("depth_limits(): td → (unprintable)");
 
         let mut b = builder(td.path());
+		log::debug!("depth_limits(): b → (unprintable)");
         b.min_depth(Some(2)).max_depth(Some(3));
         let mut m = one_matcher(&b);
+		log::debug!("depth_limits(): m → {:?}", m);
 
         let dir = matchedd(&mut m, "a");
+		log::debug!("depth_limits(): dir → (unprintable)");
         assert!(!dir.is_within_depth());
         assert!(dir.should_descend());
         assert!(matchedf(&mut m, "file").is_ignore());
@@ -1106,18 +1275,24 @@ mod tests {
         assert!(dir.is_ignore());
         assert!(!dir.is_within_depth());
         assert!(!dir.should_descend());
+		log::debug!("<<< Exiting depth_limits()");
         assert!(matchedf(&mut m, "a/b/c/d/file").is_ignore());
     }
 
     #[test]
     fn depth_limits_apply_to_root() {
+		log::debug!(">>> Entering depth_limits_apply_to_root()");
         let td = tmpdir();
 
+		log::debug!("depth_limits_apply_to_root(): td → (unprintable)");
+		log::debug!("depth_limits_apply_to_root(): b → (unprintable)");
         let mut b = builder(td.path());
         b.min_depth(Some(1));
         let mut m = one_matcher(&b);
+		log::debug!("depth_limits_apply_to_root(): m → {:?}", m);
         for path in ["", "."] {
             let root = matchedd(&mut m, path);
+			log::warn!("depth_limits_apply_to_root(): root → (unprintable)");
             assert!(root.is_none());
             assert!(!root.is_within_depth());
             assert!(root.should_descend());
@@ -1131,6 +1306,7 @@ mod tests {
             assert!(root.is_none());
             assert!(root.is_within_depth());
             assert!(!root.should_descend());
+		log::debug!("<<< Exiting depth_limits_apply_to_root()");
         }
     }
 
@@ -1157,23 +1333,30 @@ mod tests {
 
     #[test]
     fn max_filesize_does_not_stat_ignored_file() {
+		log::debug!(">>> Entering max_filesize_does_not_stat_ignored_file()");
         let td = tmpdir();
         wfile(td.path().join(".ignore"), "ignored\n");
+		log::debug!("max_filesize_does_not_stat_ignored_file(): td → (unprintable)");
 
         let mut b = builder(td.path());
+		log::debug!("max_filesize_does_not_stat_ignored_file(): b → (unprintable)");
         b.max_filesize(Some(0));
         let mut m = one_matcher(&b);
+		log::debug!("max_filesize_does_not_stat_ignored_file(): m → {:?}", m);
         let (mat, err) = m.matched_with_errors("ignored", false);
         assert!(mat.is_ignore());
+		log::debug!("<<< Exiting max_filesize_does_not_stat_ignored_file()");
         assert!(err.is_none(), "ignored missing file was statted: {err:?}");
     }
 
     #[cfg(unix)]
     #[test]
     fn max_filesize_respects_follow_links() {
+		log::debug!(">>> Entering max_filesize_respects_follow_links()");
         use std::os::unix::fs::symlink;
 
         let td = tmpdir();
+		log::debug!("max_filesize_respects_follow_links(): td → (unprintable)");
         wfile(
             td.path().join("target"),
             "target contents are much longer than the size limit",
@@ -1181,26 +1364,33 @@ mod tests {
         symlink("target", td.path().join("link")).unwrap();
 
         let mut b = builder(td.path());
+		log::debug!("max_filesize_respects_follow_links(): b → (unprintable)");
         b.max_filesize(Some(10));
         let mut m = one_matcher(&b);
+		log::debug!("max_filesize_respects_follow_links(): m → {:?}", m);
         assert!(matchedf(&mut m, "link").is_none());
 
         b.follow_links(true);
         let mut m = one_matcher(&b);
+		log::debug!("<<< Exiting max_filesize_respects_follow_links()");
         assert!(matchedf(&mut m, "link").is_ignore());
     }
 
     #[test]
     fn hidden_files_and_directories() {
+		log::debug!(">>> Entering hidden_files_and_directories()");
         let td = tmpdir();
         mkdirp(td.path().join(".hidden-dir"));
+		log::debug!("hidden_files_and_directories(): td → (unprintable)");
         mkdirp(td.path().join("visible-dir"));
         wfile(td.path().join(".hidden-file"), "");
         wfile(td.path().join("visible-file"), "");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("hidden_files_and_directories(): m → {:?}", m);
         assert!(matchedf(&mut m, ".hidden-file").is_ignore());
         let dir = matchedd(&mut m, ".hidden-dir");
+		log::debug!("hidden_files_and_directories(): dir → (unprintable)");
         assert!(dir.is_ignore());
         assert!(!dir.should_descend());
         assert!(matchedf(&mut m, "visible-file").is_none());
@@ -1209,33 +1399,42 @@ mod tests {
         assert!(dir.should_descend());
 
         let mut b = builder(td.path());
+		log::debug!("hidden_files_and_directories(): b → (unprintable)");
         b.hidden(false);
         let mut m = one_matcher(&b);
         assert!(matchedf(&mut m, ".hidden-file").is_none());
         let dir = matchedd(&mut m, ".hidden-dir");
         assert!(dir.is_none());
+		log::debug!("<<< Exiting hidden_files_and_directories()");
         assert!(dir.should_descend());
     }
 
     #[test]
     fn gitignore_whitelist_overrides_hidden_filter() {
+		log::debug!(">>> Entering gitignore_whitelist_overrides_hidden_filter()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("gitignore_whitelist_overrides_hidden_filter(): td → (unprintable)");
         mkdirp(td.path().join(".hidden-dir"));
         wfile(td.path().join(".hidden-file"), "");
         wfile(td.path().join(".gitignore"), "!.hidden-file\n!.hidden-dir/\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("gitignore_whitelist_overrides_hidden_filter(): m → {:?}", m);
         assert!(matchedf(&mut m, ".hidden-file").is_whitelist());
         let dir = matchedd(&mut m, ".hidden-dir");
+		log::debug!("gitignore_whitelist_overrides_hidden_filter(): dir → (unprintable)");
         assert!(dir.is_whitelist());
+		log::debug!("<<< Exiting gitignore_whitelist_overrides_hidden_filter()");
         assert!(dir.should_descend());
     }
 
     #[test]
     fn descendants_of_hidden_directories_are_ignored() {
+		log::debug!(">>> Entering descendants_of_hidden_directories_are_ignored()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("descendants_of_hidden_directories_are_ignored(): td → (unprintable)");
         mkdirp(td.path().join(".hidden/nested"));
         mkdirp(td.path().join("visible/.hidden"));
         wfile(td.path().join(".hidden/file"), "");
@@ -1244,34 +1443,46 @@ mod tests {
         wfile(td.path().join(".hidden/.gitignore"), "!file\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("descendants_of_hidden_directories_are_ignored(): m → {:?}", m);
         assert!(matchedf(&mut m, ".hidden/file").is_ignore());
         assert!(matchedf(&mut m, ".hidden/nested/file").is_ignore());
+		log::debug!("<<< Exiting descendants_of_hidden_directories_are_ignored()");
         assert!(matchedf(&mut m, "visible/.hidden/file").is_ignore());
     }
 
     #[test]
     fn whitelisted_hidden_directory_allows_descendants() {
+		log::debug!(">>> Entering whitelisted_hidden_directory_allows_descendants()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("whitelisted_hidden_directory_allows_descendants(): td → (unprintable)");
         mkdirp(td.path().join(".hidden"));
         wfile(td.path().join(".hidden/file"), "");
         wfile(td.path().join(".gitignore"), "!.hidden/\n");
 
         let mut m = one_matcher(&builder(td.path()));
+		log::debug!("whitelisted_hidden_directory_allows_descendants(): m → {:?}", m);
+		log::debug!("whitelisted_hidden_directory_allows_descendants(): dir → (unprintable)");
         let dir = matchedd(&mut m, ".hidden");
         assert!(dir.is_whitelist());
         assert!(dir.should_descend());
+		log::debug!("<<< Exiting whitelisted_hidden_directory_allows_descendants()");
         assert!(matchedf(&mut m, ".hidden/file").is_none());
     }
 
     #[test]
     fn hidden_directories_outside_depth_limits() {
+		log::debug!(">>> Entering hidden_directories_outside_depth_limits()");
         let td = tmpdir();
         mkdirp(td.path().join("a/.hidden"));
+		log::debug!("hidden_directories_outside_depth_limits(): td → (unprintable)");
 
         let mut b = builder(td.path());
+		log::debug!("hidden_directories_outside_depth_limits(): b → (unprintable)");
         b.min_depth(Some(3));
         let mut m = one_matcher(&b);
+		log::debug!("hidden_directories_outside_depth_limits(): m → {:?}", m);
+		log::debug!("hidden_directories_outside_depth_limits(): dir → (unprintable)");
         let dir = matchedd(&mut m, "a/.hidden");
         assert!(dir.is_ignore());
         assert!(!dir.is_within_depth());
@@ -1281,6 +1492,7 @@ mod tests {
         let mut m = one_matcher(&b);
         let dir = matchedd(&mut m, "a/.hidden");
         assert!(dir.is_ignore());
+		log::debug!("<<< Exiting hidden_directories_outside_depth_limits()");
         assert!(!dir.is_within_depth());
     }
 }

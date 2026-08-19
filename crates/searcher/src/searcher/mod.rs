@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };
@@ -60,6 +61,8 @@ impl BinaryDetection {
     ///
     /// This is the default.
     pub fn none() -> BinaryDetection {
+		log::debug!(">>> Entering none()");
+        log::debug!("<<< Exiting none()");
         BinaryDetection(line_buffer::BinaryDetection::None)
     }
 
@@ -77,6 +80,8 @@ impl BinaryDetection {
     /// lines are also searched for binary data. If binary data is detected at
     /// any point, then the search stops as if it reached EOF.
     pub fn quit(binary_byte: u8) -> BinaryDetection {
+		log::debug!(">>> Entering quit(binary_byte={})", binary_byte);
+        log::debug!("<<< Exiting quit(binary_byte={})", binary_byte);
         BinaryDetection(line_buffer::BinaryDetection::Quit(binary_byte))
     }
 
@@ -93,6 +98,8 @@ impl BinaryDetection {
     /// When searching is performed with the entire contents mapped into
     /// memory, then this setting has no effect and is ignored.
     pub fn convert(binary_byte: u8) -> BinaryDetection {
+		log::debug!(">>> Entering convert(binary_byte={})", binary_byte);
+        log::debug!("<<< Exiting convert(binary_byte={})", binary_byte);
         BinaryDetection(line_buffer::BinaryDetection::Convert(binary_byte))
     }
 
@@ -100,6 +107,8 @@ impl BinaryDetection {
     /// the byte that will cause a search to quit. In any other case, this
     /// returns `None`.
     pub fn quit_byte(&self) -> Option<u8> {
+		log::debug!(">>> Entering quit_byte()");
+        log::debug!("<<< Exiting quit_byte()");
         match self.0 {
             line_buffer::BinaryDetection::Quit(b) => Some(b),
             _ => None,
@@ -110,6 +119,8 @@ impl BinaryDetection {
     /// the byte that will be replaced by the line terminator. In any other
     /// case, this returns `None`.
     pub fn convert_byte(&self) -> Option<u8> {
+		log::debug!(">>> Entering convert_byte()");
+        log::debug!("<<< Exiting convert_byte()");
         match self.0 {
             line_buffer::BinaryDetection::Convert(b) => Some(b),
             _ => None,
@@ -135,12 +146,17 @@ impl Encoding {
     /// If the given label does not correspond to a valid encoding, then this
     /// returns an error.
     pub fn new(label: &str) -> Result<Encoding, ConfigError> {
+		log::debug!(">>> Entering new(label={})", label);
         let label = label.as_bytes();
+		log::debug!("new(label={}): label → {}", label, label);
         match encoding_rs::Encoding::for_label_no_replacement(label) {
             Some(encoding) => Ok(Encoding(encoding)),
             None => {
+				log::debug!("<<< Exiting new(label={})", label);
                 Err(ConfigError::UnknownEncoding { label: label.to_vec() })
             }
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         }
     }
 }
@@ -186,6 +202,8 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             line_term: LineTerminator::default(),
             invert_match: false,
@@ -211,11 +229,15 @@ impl Config {
     ///
     /// If this returns `0`, then no context is ever needed.
     fn max_context(&self) -> usize {
+		log::debug!(">>> Entering max_context()");
+        log::debug!("<<< Exiting max_context()");
         cmp::max(self.before_context, self.after_context)
     }
 
     /// Build a line buffer from this configuration.
     fn line_buffer(&self) -> LineBuffer {
+		log::debug!(">>> Entering line_buffer()");
+		log::debug!("line_buffer(): builder → (unprintable)");
         let mut builder = LineBufferBuilder::new();
         builder
             .line_terminator(self.line_term.as_byte())
@@ -231,6 +253,7 @@ impl Config {
                 .capacity(capacity)
                 .buffer_alloc(BufferAllocation::Error(additional));
         }
+		log::debug!("<<< Exiting line_buffer()");
         builder.build()
     }
 }
@@ -266,10 +289,12 @@ impl std::error::Error for ConfigError {}
 impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
+			log::debug!(">>> Entering fmt(f=(unprintable))");
             ConfigError::SearchUnavailable => {
                 write!(f, "grep config error: no available searchers")
             }
             ConfigError::MismatchedLineTerminators { matcher, searcher } => {
+				log::debug!("<<< Exiting fmt(f=(unprintable))");
                 write!(
                     f,
                     "grep config error: mismatched line terminators, \
@@ -313,18 +338,24 @@ impl SearcherBuilder {
 
     /// Build a searcher with the given matcher.
     pub fn build(&self) -> Searcher {
+		log::debug!(">>> Entering build()");
         let mut config = self.config.clone();
         if config.passthru {
+			log::debug!("build(): config → (unprintable)");
+			log::debug!("build(): config.before_context → (unprintable)");
+			log::debug!("build(): config.after_context → (unprintable)");
             config.before_context = 0;
             config.after_context = 0;
         }
 
         let mut decode_builder = DecodeReaderBytesBuilder::new();
+		log::debug!("build(): decode_builder → (unprintable)");
         decode_builder
             .encoding(self.config.encoding.as_ref().map(|e| e.0))
             .utf8_passthru(true)
             .strip_bom(self.config.bom_sniffing)
             .bom_override(true)
+		log::debug!("<<< Exiting build()");
             .bom_sniffing(self.config.bom_sniffing);
 
         Searcher {
@@ -347,7 +378,11 @@ impl SearcherBuilder {
         &mut self,
         line_term: LineTerminator,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering line_terminator(line_term=(unprintable))");
         self.config.line_term = line_term;
+		log::debug!("<<< Exiting line_terminator(line_term=(unprintable))");
+		log::debug!(">>> Entering line_terminator()");
+        log::debug!("<<< Exiting line_terminator()");
         self
     }
 
@@ -356,7 +391,11 @@ impl SearcherBuilder {
     ///
     /// By default, this is disabled.
     pub fn invert_match(&mut self, yes: bool) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering invert_match(yes={})", yes);
         self.config.invert_match = yes;
+		log::debug!("<<< Exiting invert_match(yes={})", yes);
+		log::debug!(">>> Entering invert_match()");
+        log::debug!("<<< Exiting invert_match()");
         self
     }
 
@@ -366,7 +405,11 @@ impl SearcherBuilder {
     /// associated with computing line numbers, so this can be disabled when
     /// this isn't desirable.
     pub fn line_number(&mut self, yes: bool) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering line_number(yes={})", yes);
         self.config.line_number = yes;
+		log::debug!("<<< Exiting line_number(yes={})", yes);
+		log::debug!(">>> Entering line_number()");
+        log::debug!("<<< Exiting line_number()");
         self
     }
 
@@ -386,7 +429,11 @@ impl SearcherBuilder {
     ///
     /// This is disabled by default.
     pub fn multi_line(&mut self, yes: bool) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering multi_line(yes={})", yes);
         self.config.multi_line = yes;
+		log::debug!("<<< Exiting multi_line(yes={})", yes);
+		log::debug!(">>> Entering multi_line()");
+        log::debug!("<<< Exiting multi_line()");
         self
     }
 
@@ -400,7 +447,9 @@ impl SearcherBuilder {
         &mut self,
         line_count: usize,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering after_context(line_count={})", line_count);
         self.config.after_context = line_count;
+		log::debug!("<<< Exiting after_context(line_count={})", line_count);
         self
     }
 
@@ -414,7 +463,11 @@ impl SearcherBuilder {
         &mut self,
         line_count: usize,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering before_context(line_count={})", line_count);
         self.config.before_context = line_count;
+		log::debug!("<<< Exiting before_context(line_count={})", line_count);
+		log::debug!(">>> Entering before_context()");
+        log::debug!("<<< Exiting before_context()");
         self
     }
 
@@ -429,7 +482,11 @@ impl SearcherBuilder {
     ///
     /// This is disabled by default.
     pub fn passthru(&mut self, yes: bool) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering passthru(yes={})", yes);
         self.config.passthru = yes;
+		log::debug!("<<< Exiting passthru(yes={})", yes);
+		log::debug!(">>> Entering passthru()");
+        log::debug!("<<< Exiting passthru()");
         self
     }
 
@@ -458,7 +515,9 @@ impl SearcherBuilder {
         &mut self,
         bytes: Option<usize>,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering heap_limit(bytes={:?})", bytes);
         self.config.heap_limit = bytes;
+		log::debug!("<<< Exiting heap_limit(bytes={:?})", bytes);
         self
     }
 
@@ -496,7 +555,9 @@ impl SearcherBuilder {
         &mut self,
         strategy: MmapChoice,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering memory_map(strategy=(unprintable))");
         self.config.mmap = strategy;
+		log::debug!("<<< Exiting memory_map(strategy=(unprintable))");
         self
     }
 
@@ -511,7 +572,11 @@ impl SearcherBuilder {
         &mut self,
         detection: BinaryDetection,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering binary_detection(detection={:?})", detection);
         self.config.binary = detection;
+		log::debug!("<<< Exiting binary_detection(detection={:?})", detection);
+		log::debug!(">>> Entering binary_detection()");
+        log::debug!("<<< Exiting binary_detection()");
         self
     }
 
@@ -532,6 +597,8 @@ impl SearcherBuilder {
     /// useful results.
     pub fn encoding(
         &mut self,
+		log::debug!(">>> Entering encoding(encoding={:?})", encoding);
+		log::debug!("<<< Exiting encoding(encoding={:?})", encoding);
         encoding: Option<Encoding>,
     ) -> &mut SearcherBuilder {
         self.config.encoding = encoding;
@@ -551,7 +618,9 @@ impl SearcherBuilder {
     ///
     /// This is enabled by default.
     pub fn bom_sniffing(&mut self, yes: bool) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering bom_sniffing(yes={})", yes);
         self.config.bom_sniffing = yes;
+		log::debug!("<<< Exiting bom_sniffing(yes={})", yes);
         self
     }
 
@@ -564,7 +633,9 @@ impl SearcherBuilder {
         &mut self,
         stop_on_nonmatch: bool,
     ) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering stop_on_nonmatch(stop_on_nonmatch={})", stop_on_nonmatch);
         self.config.stop_on_nonmatch = stop_on_nonmatch;
+		log::debug!("<<< Exiting stop_on_nonmatch(stop_on_nonmatch={})", stop_on_nonmatch);
         self
     }
 
@@ -581,7 +652,11 @@ impl SearcherBuilder {
     /// By default, no limit is set.
     #[inline]
     pub fn max_matches(&mut self, limit: Option<u64>) -> &mut SearcherBuilder {
+		log::debug!(">>> Entering max_matches(limit={:?})", limit);
         self.config.max_matches = limit;
+		log::debug!("<<< Exiting max_matches(limit={:?})", limit);
+		log::debug!(">>> Entering max_matches()");
+        log::debug!("<<< Exiting max_matches()");
         self
     }
 }
@@ -644,6 +719,10 @@ impl Searcher {
         &mut self,
         matcher: M,
         path: P,
+		log::debug!(">>> Entering search_path(matcher=(unprintable),path=(unprintable),write_to=(unprintable))");
+		log::debug!("search_path(matcher=(unprintable),path=(unprintable),write_to=(unprintable)): path → (unprintable)");
+		log::debug!("search_path(matcher=(unprintable),path=(unprintable),write_to=(unprintable)): file → (unprintable)");
+        log::debug!("<<< Exiting search_path(matcher=(unprintable),path=(unprintable),write_to=(unprintable))");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -666,6 +745,8 @@ impl Searcher {
         &mut self,
         matcher: M,
         file: &File,
+		log::debug!(">>> Entering search_file(matcher=(unprintable),file={:?},write_to=(unprintable))", file);
+        log::debug!("<<< Exiting search_file(matcher=(unprintable),file={:?},write_to=(unprintable))", file);
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -680,6 +761,8 @@ impl Searcher {
         matcher: M,
         path: Option<&Path>,
         file: &File,
+		log::debug!(">>> Entering search_file_maybe_path(matcher=(unprintable),path={:?},file={:?},write_to=(unprintable))", path, file);
+		log::debug!("<<< Exiting search_file_maybe_path(matcher=(unprintable),path={:?},file={:?},write_to=(unprintable))", path, file);
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -728,6 +811,11 @@ impl Searcher {
         &mut self,
         matcher: M,
         read_from: R,
+		log::debug!(">>> Entering search_reader(matcher=(unprintable),read_from=(unprintable),write_to=(unprintable))");
+		log::debug!("search_reader(matcher=(unprintable),read_from=(unprintable),write_to=(unprintable)): decode_buffer → (unprintable)");
+		log::debug!("search_reader(matcher=(unprintable),read_from=(unprintable),write_to=(unprintable)): line_buffer → (unprintable)");
+		log::debug!("search_reader(matcher=(unprintable),read_from=(unprintable),write_to=(unprintable)): rdr → (unprintable)");
+		log::debug!("<<< Exiting search_reader(matcher=(unprintable),read_from=(unprintable),write_to=(unprintable))");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -770,6 +858,8 @@ impl Searcher {
         &mut self,
         matcher: M,
         slice: &[u8],
+		log::debug!(">>> Entering search_slice(matcher=(unprintable),slice={:?},write_to=(unprintable))", slice);
+		log::debug!("<<< Exiting search_slice(matcher=(unprintable),slice={:?},write_to=(unprintable))", slice);
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -796,13 +886,16 @@ impl Searcher {
 
     /// Set the binary detection method used on this searcher.
     pub fn set_binary_detection(&mut self, detection: BinaryDetection) {
+		log::debug!(">>> Entering set_binary_detection(detection={:?})", detection);
         self.config.binary = detection.clone();
+		log::debug!("<<< Exiting set_binary_detection(detection={:?})", detection);
         self.line_buffer.borrow_mut().set_binary_detection(detection.0);
     }
 
     /// Check that the searcher's configuration and the matcher are consistent
     /// with each other.
     fn check_config<M: Matcher>(&self, matcher: M) -> Result<(), ConfigError> {
+		log::debug!(">>> Entering check_config(matcher=(unprintable))");
         if self.config.heap_limit == Some(0) && !self.config.mmap.is_enabled()
         {
             return Err(ConfigError::SearchUnavailable);
@@ -822,6 +915,8 @@ impl Searcher {
 
     /// Returns true if and only if the given slice needs to be transcoded.
     fn slice_needs_transcoding(&self, slice: &[u8]) -> bool {
+		log::debug!(">>> Entering slice_needs_transcoding(slice={:?})", slice);
+        log::debug!("<<< Exiting slice_needs_transcoding(slice={:?})", slice);
         self.config.encoding.is_some()
             || (self.config.bom_sniffing && slice_has_bom(slice))
     }
@@ -894,6 +989,7 @@ impl Searcher {
     /// matches over multiple lines, but where the matcher guarantees that it
     /// will never produce a match over multiple lines.
     pub fn multi_line_with_matcher<M: Matcher>(&self, matcher: M) -> bool {
+		log::debug!(">>> Entering multi_line_with_matcher(matcher=(unprintable))");
         if !self.multi_line() {
             return false;
         }
@@ -974,6 +1070,10 @@ impl Searcher {
     /// returned.
     fn fill_multi_line_buffer_from_reader<R: io::Read, S: Sink>(
         &self,
+		log::debug!(">>> Entering fill_multi_line_buffer_from_reader(read_from=(unprintable))");
+		log::debug!("fill_multi_line_buffer_from_reader(read_from=(unprintable)): buf → (unprintable)");
+		log::error!("Exception in fill_multi_line_buffer_from_reader(read_from=(unprintable)): (unprintable)");
+		log::debug!("fill_multi_line_buffer_from_reader(read_from=(unprintable)): limit → (unprintable)");
         mut read_from: R,
     ) -> Result<(), S::Error> {
         assert!(self.config.multi_line);
@@ -1005,6 +1105,7 @@ impl Searcher {
             let nread = match read_from.read(&mut buf[pos..]) {
                 Ok(nread) => nread,
                 Err(ref err) if err.kind() == io::ErrorKind::Interrupted => {
+					log::error!("Exception in fill_multi_line_buffer_from_reader(read_from=(unprintable)): (unprintable)");
                     continue;
                 }
                 Err(err) => return Err(S::Error::error_io(err)),
@@ -1017,6 +1118,7 @@ impl Searcher {
             pos += nread;
             if buf[pos..].is_empty() {
                 let additional = heap_limit - buf.len();
+				log::debug!("fill_multi_line_buffer_from_reader(read_from=(unprintable)): additional → {}", additional);
                 if additional == 0 {
                     return Err(S::Error::error_io(alloc_error(heap_limit)));
                 }
@@ -1025,6 +1127,8 @@ impl Searcher {
                 buf.resize(cmp::min(doubled, limit), 0);
             }
         }
+	log::debug!(">>> Entering slice_has_bom(slice={:?})", slice);
+	log::debug!("<<< Exiting slice_has_bom(slice={:?})", slice);
     }
 }
 
@@ -1051,38 +1155,55 @@ mod tests {
 
     #[test]
     fn config_error_heap_limit() {
+		log::debug!(">>> Entering config_error_heap_limit()");
         let matcher = RegexMatcher::new("");
         let sink = KitchenSink::new();
+		log::debug!("config_error_heap_limit(): sink → (unprintable)");
         let mut searcher = SearcherBuilder::new().heap_limit(Some(0)).build();
+		log::debug!("config_error_heap_limit(): res → (unprintable)");
         let res = searcher.search_slice(matcher, &[], sink);
+		log::debug!("config_error_heap_limit(): matcher → (unprintable)");
+    log::debug!("<<< Exiting config_error_heap_limit()");
         assert!(res.is_err());
     }
 
     #[test]
     fn config_error_line_terminator() {
+		log::debug!(">>> Entering config_error_line_terminator()");
         let mut matcher = RegexMatcher::new("");
         matcher.set_line_term(Some(LineTerminator::byte(b'z')));
+		log::debug!("config_error_line_terminator(): matcher → (unprintable)");
 
         let sink = KitchenSink::new();
+		log::debug!("config_error_line_terminator(): sink → (unprintable)");
+		log::debug!("config_error_line_terminator(): searcher → (unprintable)");
+		log::debug!("config_error_line_terminator(): res → (unprintable)");
         let mut searcher = Searcher::new();
         let res = searcher.search_slice(matcher, &[], sink);
+		log::debug!("<<< Exiting config_error_line_terminator()");
         assert!(res.is_err());
     }
 
     #[test]
     fn uft8_bom_sniffing() {
+		log::debug!(">>> Entering uft8_bom_sniffing()");
         // See: https://github.com/BurntSushi/ripgrep/issues/1638
         // ripgrep must sniff utf-8 BOM, just like it does with utf-16
         let matcher = RegexMatcher::new("foo");
+		log::debug!("uft8_bom_sniffing(): matcher → (unprintable)");
         let haystack: &[u8] = &[0xef, 0xbb, 0xbf, 0x66, 0x6f, 0x6f];
 
         let mut sink = KitchenSink::new();
+		log::debug!("uft8_bom_sniffing(): sink → (unprintable)");
         let mut searcher = SearcherBuilder::new().build();
 
         let res = searcher.search_slice(matcher, haystack, &mut sink);
+		log::debug!("uft8_bom_sniffing(): res → (unprintable)");
         assert!(res.is_ok());
 
         let sink_output = String::from_utf8(sink.as_bytes().to_vec()).unwrap();
+		log::debug!("uft8_bom_sniffing(): sink_output → (unprintable)");
+		log::debug!("<<< Exiting uft8_bom_sniffing()");
         assert_eq!(sink_output, "1:0:foo\nbyte count:3\n");
     }
 }

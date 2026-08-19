@@ -21,9 +21,11 @@ pub struct StandardStream(StandardStreamKind);
 /// The color choice given is passed along to the underlying writer. To
 /// completely disable colors in all cases, use `ColorChoice::Never`.
 pub fn stdout(color_choice: termcolor::ColorChoice) -> StandardStream {
+	log::debug!(">>> Entering stdout(color_choice=(unprintable))");
     if std::io::stdout().is_terminal() {
         stdout_buffered_line(color_choice)
     } else {
+		log::debug!("<<< Exiting stdout(color_choice=(unprintable))");
         stdout_buffered_block(color_choice)
     }
 }
@@ -39,7 +41,10 @@ pub fn stdout(color_choice: termcolor::ColorChoice) -> StandardStream {
 pub fn stdout_buffered_line(
     color_choice: termcolor::ColorChoice,
 ) -> StandardStream {
+	log::debug!(">>> Entering stdout_buffered_line(color_choice=(unprintable))");
     let out = termcolor::StandardStream::stdout(color_choice);
+	log::debug!("stdout_buffered_line(color_choice=(unprintable)): out → {:?}", out);
+    log::debug!("<<< Exiting stdout_buffered_line(color_choice=(unprintable))");
     StandardStream(StandardStreamKind::LineBuffered(out))
 }
 
@@ -54,12 +59,16 @@ pub fn stdout_buffered_line(
 pub fn stdout_buffered_block(
     color_choice: termcolor::ColorChoice,
 ) -> StandardStream {
+	log::debug!(">>> Entering stdout_buffered_block(color_choice=(unprintable))");
     let out = termcolor::BufferedStandardStream::stdout(color_choice);
+	log::debug!("stdout_buffered_block(color_choice=(unprintable)): out → {:?}", out);
+    log::debug!("<<< Exiting stdout_buffered_block(color_choice=(unprintable))");
     StandardStream(StandardStreamKind::BlockBuffered(out))
 }
 
 #[derive(Debug)]
 enum StandardStreamKind {
+	const LOGGER: &'static Logger = &Logger(());
     LineBuffered(termcolor::StandardStream),
     BlockBuffered(termcolor::BufferedStandardStream),
 }
@@ -67,8 +76,10 @@ enum StandardStreamKind {
 impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+		log::debug!(">>> Entering write(buf={:?})", buf);
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting write(buf={:?})", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -77,8 +88,12 @@ impl io::Write for StandardStream {
 
     #[inline]
     fn flush(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering flush()");
         use self::StandardStreamKind::*;
 
+		let __log_start = std::time::Instant::now();
+        log::info!("flush(): database query executed in {} ms", __log_start.elapsed().as_millis());
+        log::debug!("<<< Exiting flush()");
         match self.0 {
             LineBuffered(ref mut w) => w.flush(),
             BlockBuffered(ref mut w) => w.flush(),
@@ -89,8 +104,10 @@ impl io::Write for StandardStream {
 impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn supports_color(&self) -> bool {
+		log::debug!(">>> Entering supports_color()");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting supports_color()");
         match self.0 {
             LineBuffered(ref w) => w.supports_color(),
             BlockBuffered(ref w) => w.supports_color(),
@@ -99,8 +116,10 @@ impl termcolor::WriteColor for StandardStream {
 
     #[inline]
     fn supports_hyperlinks(&self) -> bool {
+		log::debug!(">>> Entering supports_hyperlinks()");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting supports_hyperlinks()");
         match self.0 {
             LineBuffered(ref w) => w.supports_hyperlinks(),
             BlockBuffered(ref w) => w.supports_hyperlinks(),
@@ -109,8 +128,10 @@ impl termcolor::WriteColor for StandardStream {
 
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
+		log::debug!(">>> Entering set_color(spec=(unprintable))");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting set_color(spec=(unprintable))");
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
             BlockBuffered(ref mut w) => w.set_color(spec),
@@ -119,8 +140,10 @@ impl termcolor::WriteColor for StandardStream {
 
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
+		log::debug!(">>> Entering set_hyperlink(link=(unprintable))");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting set_hyperlink(link=(unprintable))");
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
             BlockBuffered(ref mut w) => w.set_hyperlink(link),
@@ -129,8 +152,10 @@ impl termcolor::WriteColor for StandardStream {
 
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering reset()");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting reset()");
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),
             BlockBuffered(ref mut w) => w.reset(),
@@ -139,8 +164,10 @@ impl termcolor::WriteColor for StandardStream {
 
     #[inline]
     fn is_synchronous(&self) -> bool {
+		log::debug!(">>> Entering is_synchronous()");
         use self::StandardStreamKind::*;
 
+		log::debug!("<<< Exiting is_synchronous()");
         match self.0 {
             LineBuffered(ref w) => w.is_synchronous(),
             BlockBuffered(ref w) => w.is_synchronous(),

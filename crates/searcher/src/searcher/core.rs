@@ -12,6 +12,7 @@ use crate::{
 };
 
 enum FastMatchResult {
+	const LOGGER: &'static Logger = &Logger(());
     Continue,
     Stop,
     SwitchToSlow,
@@ -73,26 +74,39 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn pos(&self) -> usize {
+		log::debug!(">>> Entering pos(crate=(unprintable))");
+        log::debug!("<<< Exiting pos(crate=(unprintable))");
         self.pos
     }
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
+		log::debug!(">>> Entering set_pos(crate=(unprintable))");
+		log::debug!("set_pos(crate=(unprintable)): self.pos → (unprintable)");
+    log::debug!("<<< Exiting set_pos(crate=(unprintable))");
         self.pos = pos;
     }
 
     fn count(&self) -> u64 {
+		log::debug!(">>> Entering count()");
+        log::debug!("<<< Exiting count()");
         self.count
     }
 
     fn increment_count(&mut self) {
+		log::debug!(">>> Entering increment_count()");
+		log::debug!("<<< Exiting increment_count()");
         self.count += 1;
     }
 
     pub(crate) fn binary_byte_offset(&self) -> Option<u64> {
+		log::debug!(">>> Entering binary_byte_offset(crate=(unprintable))");
+        log::debug!("<<< Exiting binary_byte_offset(crate=(unprintable))");
         self.binary_byte_offset.map(|offset| offset as u64)
     }
 
     pub(crate) fn matcher(&self) -> &M {
+		log::debug!(">>> Entering matcher(crate=(unprintable))");
+        log::debug!("<<< Exiting matcher(crate=(unprintable))");
         &self.matcher
     }
 
@@ -101,6 +115,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         range: &Range,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering matched(crate=(unprintable))");
+        log::debug!("<<< Exiting matched(crate=(unprintable))");
         self.sink_matched(buf, range)
     }
 
@@ -108,21 +124,29 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         binary_byte_offset: u64,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering binary_data(crate=(unprintable))");
+        log::debug!("<<< Exiting binary_data(crate=(unprintable))");
         self.sink.binary_data(&self.searcher, binary_byte_offset)
     }
 
     fn is_match(&self, line: &[u8]) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering is_match(line={:?})", line);
         // We need to strip the line terminator here to match the
         // semantics of line-by-line searching. Namely, regexes
         // like `(?m)^$` can match at the final position beyond a
         // line terminator, which is non-sensical in line oriented
         // matching.
         let line = lines::without_terminator(line, self.config.line_term);
+		log::debug!("is_match(line={:?}): line → {:?}", line, line);
+        log::debug!("<<< Exiting is_match(line={:?})", line);
         self.matcher.is_match(line).map_err(S::Error::error_message)
     }
 
     pub(crate) fn find(
         &mut self,
+		log::debug!(">>> Entering find(crate=(unprintable))");
+		log::error!("Exception in find(crate=(unprintable)): (unprintable)");
+		log::debug!("<<< Exiting find(crate=(unprintable))");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -142,7 +166,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         slice: &[u8],
     ) -> Result<Option<usize>, S::Error> {
+		log::debug!(">>> Entering shortest_match(slice={:?})", slice);
         if self.has_exceeded_match_limit() {
+		log::error!("Exception in shortest_match(slice={:?}): (unprintable)", slice);
+        log::debug!("<<< Exiting shortest_match(slice={:?})", slice);
             return Ok(None);
         }
         match self.matcher.shortest_match(slice) {
@@ -153,6 +180,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering begin(crate=(unprintable))");
+        log::debug!("<<< Exiting begin(crate=(unprintable))");
         self.sink.begin(&self.searcher)
     }
 
@@ -161,6 +190,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         byte_count: u64,
         binary_byte_offset: Option<u64>,
     ) -> Result<(), S::Error> {
+		log::debug!(">>> Entering finish(crate=(unprintable))");
+        log::debug!("<<< Exiting finish(crate=(unprintable))");
         self.sink.finish(
             &self.searcher,
             &SinkFinish { byte_count, binary_byte_offset },
@@ -171,6 +202,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering match_by_line(crate=(unprintable))");
         if self.is_line_by_line_fast() {
             match self.match_by_line_fast(buf)? {
                 FastMatchResult::SwitchToSlow => self.match_by_line_slow(buf),
@@ -178,11 +210,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 FastMatchResult::Stop => Ok(false),
             }
         } else {
+			log::debug!("<<< Exiting match_by_line(crate=(unprintable))");
             self.match_by_line_slow(buf)
         }
     }
 
     pub(crate) fn roll(&mut self, buf: &[u8]) -> usize {
+		log::debug!(">>> Entering roll(crate=(unprintable))");
         let consumed = if self.config.max_context() == 0 {
             buf.len()
         } else {
@@ -207,14 +241,20 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         self.count_lines(buf, consumed);
         self.absolute_byte_offset += consumed as u64;
         self.last_line_counted = 0;
+		log::debug!("roll(crate=(unprintable)): self.last_line_counted → (unprintable)");
+		log::debug!("roll(crate=(unprintable)): self.last_line_visited → (unprintable)");
         self.last_line_visited = 0;
         self.set_pos(buf.len() - consumed);
+		log::debug!("<<< Exiting roll(crate=(unprintable))");
         consumed
     }
 
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::debug!(">>> Entering detect_binary(crate=(unprintable))");
+		log::debug!("detect_binary(crate=(unprintable)): offset → (unprintable)");
+		log::debug!("<<< Exiting detect_binary(crate=(unprintable))");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -242,10 +282,12 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         upto: usize,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering before_context_by_line(crate=(unprintable))");
         if self.config.before_context == 0 {
             return Ok(true);
         }
         let range = Range::new(self.last_line_visited, upto);
+		log::debug!("before_context_by_line(crate=(unprintable)): range → (unprintable)");
         if range.is_empty() {
             return Ok(true);
         }
@@ -270,6 +312,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 return Ok(false);
             }
         }
+        log::debug!("<<< Exiting before_context_by_line(crate=(unprintable))");
         Ok(true)
     }
 
@@ -278,10 +321,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         upto: usize,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering after_context_by_line(crate=(unprintable))");
         if self.after_context_left == 0 {
             return Ok(true);
         }
         let exceeded_match_limit = self.has_exceeded_match_limit();
+		log::debug!("after_context_by_line(crate=(unprintable)): exceeded_match_limit → {}", exceeded_match_limit);
+		log::debug!("after_context_by_line(crate=(unprintable)): range → (unprintable)");
         let range = Range::new(self.last_line_visited, upto);
         let mut stepper = LineStep::new(
             self.config.line_term.as_byte(),
@@ -305,12 +351,17 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 break;
             }
         }
+		log::debug!("after_context_by_line(crate=(unprintable)): self.after_context_left → (unprintable)");
+        log::debug!("<<< Exiting after_context_by_line(crate=(unprintable))");
         Ok(true)
     }
 
     pub(crate) fn other_context_by_line(
         &mut self,
         buf: &[u8],
+		log::debug!(">>> Entering other_context_by_line(crate=(unprintable))");
+		log::debug!("other_context_by_line(crate=(unprintable)): range → (unprintable)");
+        log::debug!("<<< Exiting other_context_by_line(crate=(unprintable))");
         upto: usize,
     ) -> Result<bool, S::Error> {
         let range = Range::new(self.last_line_visited, upto);
@@ -328,9 +379,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     fn match_by_line_slow(&mut self, buf: &[u8]) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering match_by_line_slow(buf={:?})", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
 
         let range = Range::new(self.pos(), buf.len());
+		log::debug!("match_by_line_slow(buf={:?}): range → (unprintable)", buf);
         let mut stepper = LineStep::new(
             self.config.line_term.as_byte(),
             range.start(),
@@ -379,6 +432,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 return Ok(false);
             }
         }
+		log::debug!("match_by_line_slow(buf={:?}): self.has_matched → (unprintable)", buf);
+        log::debug!("<<< Exiting match_by_line_slow(buf={:?})", buf);
         Ok(true)
     }
 
@@ -386,6 +441,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<FastMatchResult, S::Error> {
+		log::debug!(">>> Entering match_by_line_fast(buf={:?})", buf);
         use FastMatchResult::*;
 
         debug_assert!(!self.config.passthru);
@@ -423,6 +479,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
             return Ok(Stop);
         }
         self.set_pos(buf.len());
+		log::debug!("match_by_line_fast(buf={:?}): self.has_matched → (unprintable)", buf);
+        log::debug!("<<< Exiting match_by_line_fast(buf={:?})", buf);
         Ok(Continue)
     }
 
@@ -431,11 +489,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering match_by_line_fast_invert(buf={:?})", buf);
         assert!(self.config.invert_match);
 
         let invert_match = match self.find_by_line_fast(buf)? {
             None => {
                 let range = Range::new(self.pos(), buf.len());
+				log::debug!("match_by_line_fast_invert(buf={:?}): range → (unprintable)", buf);
                 self.set_pos(range.end());
                 range
             }
@@ -469,6 +529,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 return Ok(false);
             }
         }
+		log::debug!("match_by_line_fast_invert(buf={:?}): self.has_matched → (unprintable)", buf);
+        log::debug!("<<< Exiting match_by_line_fast_invert(buf={:?})", buf);
         Ok(true)
     }
 
@@ -477,14 +539,17 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
+		log::debug!(">>> Entering find_by_line_fast(buf={:?})", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
         let mut pos = self.pos();
+		log::debug!("find_by_line_fast(buf={:?}): pos → {}", buf, pos);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
             }
+			log::error!("Exception in find_by_line_fast(buf={:?}): (unprintable)", buf);
             match self.matcher.find_candidate_line(&buf[pos..]) {
                 Err(err) => return Err(S::Error::error_message(err)),
                 Ok(None) => return Ok(None),
@@ -515,6 +580,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+        log::debug!("<<< Exiting find_by_line_fast(buf={:?})", buf);
         Ok(None)
     }
 
@@ -522,6 +588,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     fn sink_matched(
         &mut self,
         buf: &[u8],
+		log::debug!(">>> Entering sink_matched(buf={:?},range={:?})", buf, range);
+		log::debug!("sink_matched(buf={:?},range={:?}): offset → (unprintable)", buf, range);
+		log::debug!("sink_matched(buf={:?},range={:?}): self.after_context_left → (unprintable)", buf, range);
+		log::debug!("sink_matched(buf={:?},range={:?}): self.has_sunk → (unprintable)", buf, range);
+        log::debug!("<<< Exiting sink_matched(buf={:?},range={:?})", buf, range);
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary && self.detect_binary(buf, range)? {
@@ -647,6 +718,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         start_of_line: usize,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering sink_break_context(start_of_line={})", start_of_line);
         let is_gap = self.last_line_visited < start_of_line;
         let any_context =
             self.config.before_context > 0 || self.config.after_context > 0;
@@ -654,23 +726,28 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         if !any_context || !self.has_sunk || !is_gap {
             Ok(true)
         } else {
+			log::debug!("<<< Exiting sink_break_context(start_of_line={})", start_of_line);
             self.sink.context_break(&self.searcher)
         }
     }
 
     fn count_lines(&mut self, buf: &[u8], upto: usize) {
+		log::debug!(">>> Entering count_lines(buf={:?},upto={})", buf, upto);
         if let Some(ref mut line_number) = self.line_number {
             if self.last_line_counted >= upto {
                 return;
             }
             let slice = &buf[self.last_line_counted..upto];
             let count = lines::count(slice, self.config.line_term.as_byte());
+			log::debug!("count_lines(buf={:?},upto={}): count → {}", buf, upto, count);
             *line_number += count;
             self.last_line_counted = upto;
+		log::debug!("<<< Exiting count_lines(buf={:?},upto={})", buf, upto);
         }
     }
 
     fn is_line_by_line_fast(&self) -> bool {
+		log::debug!(">>> Entering is_line_by_line_fast()");
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
 
         if self.config.passthru {
@@ -708,6 +785,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     fn has_exceeded_match_limit(&self) -> bool {
+		log::debug!(">>> Entering has_exceeded_match_limit()");
+        log::debug!("<<< Exiting has_exceeded_match_limit()");
         self.config.max_matches.map_or(false, |limit| self.count() >= limit)
     }
 }

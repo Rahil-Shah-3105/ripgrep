@@ -14,12 +14,15 @@ use std::path::Path;
 /// A builder for constructing things to search over.
 #[derive(Clone, Debug)]
 pub(crate) struct HaystackBuilder {
+	const LOGGER: &'static Logger = &Logger(());
     strip_dot_prefix: bool,
 }
 
 impl HaystackBuilder {
     /// Return a new haystack builder with a default configuration.
     pub(crate) fn new() -> HaystackBuilder {
+		log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
         HaystackBuilder { strip_dot_prefix: false }
     }
 
@@ -30,11 +33,15 @@ impl HaystackBuilder {
     /// entry is deemed searchable, then it is returned as a haystack.
     pub(crate) fn build_from_result(
         &self,
+		log::debug!(">>> Entering build_from_result(crate=(unprintable))");
+		log::error!("Exception in build_from_result(crate=(unprintable)): (unprintable)");
+		log::debug!("<<< Exiting build_from_result(crate=(unprintable))");
         result: Result<ignore::DirEntry, ignore::Error>,
     ) -> Option<Haystack> {
         match result {
             Ok(dent) => self.build(dent),
             Err(err) => {
+				log::error!("Exception in build_from_result(crate=(unprintable)): (unprintable)");
                 err_message!("{err}");
                 None
             }
@@ -47,6 +54,7 @@ impl HaystackBuilder {
     /// searched, then this returns `None` after emitting any relevant log
     /// messages.
     fn build(&self, dent: ignore::DirEntry) -> Option<Haystack> {
+		log::debug!(">>> Entering build(dent=(unprintable))");
         let hay = Haystack { dent, strip_dot_prefix: self.strip_dot_prefix };
         if let Some(err) = hay.dent.error() {
             ignore_message!("{err}");
@@ -86,6 +94,9 @@ impl HaystackBuilder {
         &mut self,
         yes: bool,
     ) -> &mut HaystackBuilder {
+		log::debug!(">>> Entering strip_dot_prefix(crate=(unprintable))");
+		log::debug!("strip_dot_prefix(crate=(unprintable)): self.strip_dot_prefix → (unprintable)");
+        log::debug!("<<< Exiting strip_dot_prefix(crate=(unprintable))");
         self.strip_dot_prefix = yes;
         self
     }
@@ -106,15 +117,19 @@ impl Haystack {
     /// If this haystack corresponds to stdin, then a special `<stdin>` path
     /// is returned instead.
     pub(crate) fn path(&self) -> &Path {
+		log::debug!(">>> Entering path(crate=(unprintable))");
         if self.strip_dot_prefix && self.dent.path().starts_with("./") {
             self.dent.path().strip_prefix("./").unwrap()
         } else {
+			log::debug!("<<< Exiting path(crate=(unprintable))");
             self.dent.path()
         }
     }
 
     /// Returns true if and only if this entry corresponds to stdin.
     pub(crate) fn is_stdin(&self) -> bool {
+		log::debug!(">>> Entering is_stdin(crate=(unprintable))");
+        log::debug!("<<< Exiting is_stdin(crate=(unprintable))");
         self.dent.is_stdin()
     }
 
@@ -129,18 +144,21 @@ impl Haystack {
     /// in `rg foo ./some-dir/*`, `./some-dir/some-other-file` will be treated
     /// as an explicit haystack.
     pub(crate) fn is_explicit(&self) -> bool {
+		log::debug!(">>> Entering is_explicit(crate=(unprintable))");
         // stdin is obvious. When an entry has a depth of 0, that means it
         // was explicitly provided to our directory iterator, which means it
         // was in turn explicitly provided by the end user. The !is_dir check
         // means that we want to search files even if their symlinks, again,
         // because they were explicitly provided. (And we never want to try
         // to search a directory.)
+		log::debug!("<<< Exiting is_explicit(crate=(unprintable))");
         self.is_stdin() || (self.dent.depth() == 0 && !self.is_dir())
     }
 
     /// Returns true if and only if this haystack points to a directory after
     /// following symbolic links.
     fn is_dir(&self) -> bool {
+		log::debug!(">>> Entering is_dir()");
         let ft = match self.dent.file_type() {
             None => return false,
             Some(ft) => ft,
@@ -155,6 +173,8 @@ impl Haystack {
 
     /// Returns true if and only if this haystack points to a file.
     fn is_file(&self) -> bool {
+		log::debug!(">>> Entering is_file()");
+        log::debug!("<<< Exiting is_file()");
         self.dent.file_type().map_or(false, |ft| ft.is_file())
     }
 }

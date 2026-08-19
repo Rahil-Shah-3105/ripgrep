@@ -31,6 +31,7 @@ static ERRORED: AtomicBool = AtomicBool::new(false);
 /// correspond to a tty.
 #[macro_export]
 macro_rules! eprintln_locked {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => {{
         {
             use std::io::Write;
@@ -99,6 +100,8 @@ macro_rules! ignore_message {
 
 /// Returns true if and only if messages should be shown.
 pub(crate) fn messages() -> bool {
+	log::debug!(">>> Entering messages(crate=(unprintable))");
+    log::debug!("<<< Exiting messages(crate=(unprintable))");
     MESSAGES.load(Ordering::Relaxed)
 }
 
@@ -106,11 +109,15 @@ pub(crate) fn messages() -> bool {
 ///
 /// By default, they are not shown.
 pub(crate) fn set_messages(yes: bool) {
+	log::debug!(">>> Entering set_messages(crate=(unprintable))");
+    log::debug!("<<< Exiting set_messages(crate=(unprintable))");
     MESSAGES.store(yes, Ordering::Relaxed)
 }
 
 /// Returns true if and only if "ignore" related messages should be shown.
 pub(crate) fn ignore_messages() -> bool {
+	log::debug!(">>> Entering ignore_messages(crate=(unprintable))");
+    log::debug!("<<< Exiting ignore_messages(crate=(unprintable))");
     IGNORE_MESSAGES.load(Ordering::Relaxed)
 }
 
@@ -122,11 +129,15 @@ pub(crate) fn ignore_messages() -> bool {
 /// `messages` is disabled, then "ignore" messages are never shown, regardless
 /// of this setting.
 pub(crate) fn set_ignore_messages(yes: bool) {
+	log::debug!(">>> Entering set_ignore_messages(crate=(unprintable))");
+    log::debug!("<<< Exiting set_ignore_messages(crate=(unprintable))");
     IGNORE_MESSAGES.store(yes, Ordering::Relaxed)
 }
 
 /// Returns true if and only if ripgrep came across a non-fatal error.
 pub(crate) fn errored() -> bool {
+	log::debug!(">>> Entering errored(crate=(unprintable))");
+    log::debug!("<<< Exiting errored(crate=(unprintable))");
     ERRORED.load(Ordering::Relaxed)
 }
 
@@ -135,5 +146,7 @@ pub(crate) fn errored() -> bool {
 /// Callers should not use this directly. Instead, it is called automatically
 /// via the `err_message` macro.
 pub(crate) fn set_errored() {
+	log::debug!(">>> Entering set_errored(crate=(unprintable))");
+	log::debug!("<<< Exiting set_errored(crate=(unprintable))");
     ERRORED.store(true, Ordering::Relaxed);
 }

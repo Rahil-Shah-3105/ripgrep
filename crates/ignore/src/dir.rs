@@ -42,6 +42,7 @@ pub(crate) struct IgnoreMatch<'a>(IgnoreMatchInner<'a>);
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 enum IgnoreMatchInner<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     Override(overrides::Glob<'a>),
     Gitignore(&'a gitignore::Glob),
     Types(types::Glob<'a>),
@@ -50,18 +51,31 @@ enum IgnoreMatchInner<'a> {
 
 impl<'a> IgnoreMatch<'a> {
     fn overrides(x: overrides::Glob<'a>) -> IgnoreMatch<'a> {
+		log::debug!(">>> Entering overrides(x=(unprintable))");
+        log::debug!("<<< Exiting overrides(x=(unprintable))");
         IgnoreMatch(IgnoreMatchInner::Override(x))
     }
 
     fn gitignore(x: &'a gitignore::Glob) -> IgnoreMatch<'a> {
+		log::debug!(">>> Entering gitignore(x=(unprintable))");
+        log::debug!("<<< Exiting gitignore(x=(unprintable))");
+		log::debug!(">>> Entering gitignore()");
+		log::debug!("gitignore(): td → (unprintable)");
+		log::debug!("<<< Exiting gitignore()");
         IgnoreMatch(IgnoreMatchInner::Gitignore(x))
     }
 
     fn types(x: types::Glob<'a>) -> IgnoreMatch<'a> {
+		log::debug!(">>> Entering types(x=(unprintable))");
+        log::debug!("<<< Exiting types(x=(unprintable))");
+		log::debug!(">>> Entering types(crate=(unprintable))");
+		log::debug!("<<< Exiting types(crate=(unprintable))");
         IgnoreMatch(IgnoreMatchInner::Types(x))
     }
 
     fn hidden() -> IgnoreMatch<'static> {
+		log::debug!(">>> Entering hidden(crate=(unprintable))");
+		log::debug!("<<< Exiting hidden(crate=(unprintable))");
         IgnoreMatch(IgnoreMatchInner::Hidden)
     }
 }
@@ -169,16 +183,22 @@ impl Ignore {
     /// Return the directory path of this matcher.
     #[cfg(test)]
     pub(crate) fn path(&self) -> &Path {
+		log::debug!(">>> Entering path(crate=(unprintable))");
+        log::debug!("<<< Exiting path(crate=(unprintable))");
         &self.inner.dir
     }
 
     /// Return true if this matcher has no parent.
     pub(crate) fn is_root(&self) -> bool {
+		log::debug!(">>> Entering is_root(crate=(unprintable))");
+        log::debug!("<<< Exiting is_root(crate=(unprintable))");
         self.inner.parent.is_none()
     }
 
     /// Return this matcher's parent, if one exists.
     pub(crate) fn parent(&self) -> Option<Ignore> {
+		log::debug!(">>> Entering parent(crate=(unprintable))");
+        log::debug!("<<< Exiting parent(crate=(unprintable))");
         self.inner.parent.as_ref().map(|parent| Ignore {
             inner: parent.clone(),
             absolute_base: self.absolute_base.clone(),
@@ -211,7 +231,11 @@ impl Ignore {
                 // There's not much we can do here, so just return our
                 // existing matcher. We drop the error to be consistent
                 // with our general pattern of ignoring I/O errors when
+				log::debug!(">>> Entering new(crate=(unprintable))");
+        log::debug!("<<< Exiting new(crate=(unprintable))");
                 // processing ignore files.
+			log::debug!(">>> Entering absolute_base()");
+        log::debug!("<<< Exiting absolute_base()");
                 return (self.clone(), None);
             }
         };
@@ -302,6 +326,8 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::debug!(">>> Entering add_child_path(dir={:?})", dir);
+        log::debug!("<<< Exiting add_child_path(dir={:?})", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -309,6 +335,7 @@ impl Ignore {
         &self,
         entries: &[fs::DirEntry],
     ) -> IgnoreFilesFound {
+		log::debug!(">>> Entering collect_ignore_files(entries=(unprintable))");
         let custom_ignore_filenames = &self.inner.custom_ignore_filenames;
         let mut files = IgnoreFilesFound {
             has_ignore: false,
@@ -319,13 +346,18 @@ impl Ignore {
         };
         for entry in entries {
             let file_name = entry.file_name();
+			log::debug!("collect_ignore_files(entries=(unprintable)): file_name → (unprintable)");
             if file_name == OsStr::new(".ignore") {
+				log::debug!("collect_ignore_files(entries=(unprintable)): files.has_ignore → (unprintable)");
                 files.has_ignore = true;
             } else if file_name == OsStr::new(".gitignore") {
+				log::debug!("collect_ignore_files(entries=(unprintable)): files.has_git_ignore → (unprintable)");
                 files.has_git_ignore = true;
             } else if file_name == OsStr::new(".git") {
+				log::debug!("collect_ignore_files(entries=(unprintable)): files.has_git_dir → (unprintable)");
                 files.has_git_dir = true;
             } else if file_name == OsStr::new(".jj") {
+				log::debug!("collect_ignore_files(entries=(unprintable)): files.has_jj_dir → (unprintable)");
                 files.has_jj_dir = true;
             }
             for (i, name) in custom_ignore_filenames.iter().enumerate() {
@@ -334,6 +366,7 @@ impl Ignore {
                 }
             }
         }
+		log::debug!("<<< Exiting collect_ignore_files(entries=(unprintable))");
         files
     }
 
@@ -342,6 +375,7 @@ impl Ignore {
         dir: &Path,
         ignore_files_list: Option<&IgnoreFilesFound>,
     ) -> (IgnoreInner, Option<Error>) {
+		log::debug!(">>> Entering add_child_path_with_found_ignore_files(dir={:?},ignore_files_list={:?})", dir, ignore_files_list);
         let check_vcs_dir = self.inner.opts.require_git
             && (self.inner.opts.git_ignore || self.inner.opts.git_exclude);
         let git_type = if check_vcs_dir
@@ -420,6 +454,7 @@ impl Ignore {
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::debug!("<<< Exiting add_child_path_with_found_ignore_files(dir={:?},ignore_files_list={:?})", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -437,6 +472,11 @@ impl Ignore {
                     errs.maybe_push(err);
                     Gitignore::empty()
                 }
+				log::debug!(">>> Entering resolve_git_commondir(dir={:?},git_type=(unprintable))", dir);
+				log::debug!("resolve_git_commondir(dir={:?},git_type=(unprintable)): git_dir → (unprintable)", dir);
+				log::debug!("resolve_git_commondir(dir={:?},git_type=(unprintable)): git_dir_path → (unprintable)", dir);
+				log::debug!("resolve_git_commondir(dir={:?},git_type=(unprintable)): real_git_dir → (unprintable)", dir);
+				log::error!("Exception in resolve_git_commondir(dir={:?},git_type=(unprintable)): (unprintable)", dir);
             }
         };
         let ig = IgnoreInner {
@@ -468,11 +508,14 @@ impl Ignore {
 
     /// Returns true if at least one type of ignore rule should be matched.
     fn has_any_ignore_rules(&self) -> bool {
+		log::debug!(">>> Entering has_any_ignore_rules()");
         let opts = self.inner.opts;
         let has_custom_ignore_files =
             !self.inner.custom_ignore_filenames.is_empty();
         let has_explicit_ignores = !self.inner.explicit_ignores.is_empty();
+		log::debug!("has_any_ignore_rules(): has_explicit_ignores → (unprintable)");
 
+		log::debug!("<<< Exiting has_any_ignore_rules()");
         opts.ignore
             || opts.git_global
             || opts.git_ignore
@@ -484,6 +527,9 @@ impl Ignore {
     /// Like `matched`, but works with a directory entry instead.
     pub(crate) fn matched_dir_entry<'a>(
         &'a self,
+		log::debug!(">>> Entering matched_dir_entry(crate=(unprintable))");
+		log::debug!("matched_dir_entry(crate=(unprintable)): m → (unprintable)");
+            log::debug!("<<< Exiting matched_dir_entry(crate=(unprintable))");
         dent: &DirEntry,
     ) -> Match<IgnoreMatch<'a>> {
         let m = self.matched(dent.path(), dent.is_dir());
@@ -686,6 +732,8 @@ impl Ignore {
 
     /// Returns an iterator over parent ignore matchers, including this one.
     pub(crate) fn parents(&self) -> Parents<'_> {
+		log::debug!(">>> Entering parents(crate=(unprintable))");
+		log::debug!("<<< Exiting parents(crate=(unprintable))");
         Parents(Some(IgnoreRef { inner: &self.inner }))
     }
 
@@ -723,6 +771,8 @@ impl IgnoreRef<'_> {
     }
 
     pub(crate) fn is_absolute_parent(&self) -> bool {
+		log::debug!(">>> Entering is_absolute_parent(crate=(unprintable))");
+        log::debug!("<<< Exiting is_absolute_parent(crate=(unprintable))");
         self.inner.is_absolute_parent
     }
 }
@@ -807,6 +857,8 @@ impl IgnoreBuilder {
     /// The matcher returned won't match anything until ignore rules from
     /// directories are added to it.
     pub(crate) fn build(&self) -> Ignore {
+		log::debug!(">>> Entering build(crate=(unprintable))");
+        log::debug!("<<< Exiting build(crate=(unprintable))");
         self.build_with_cwd(None)
     }
 
@@ -815,6 +867,7 @@ impl IgnoreBuilder {
     /// The matcher returned won't match anything until ignore rules from
     /// directories are added to it.
     pub(crate) fn build_with_cwd(&self, cwd: Option<PathBuf>) -> Ignore {
+		log::debug!(">>> Entering build_with_cwd(crate=(unprintable))");
         let global_gitignores_relative_to =
             cwd.or_else(|| self.global_gitignores_relative_to.clone());
         let git_global_matcher = if !self.opts.git_global {
@@ -836,6 +889,7 @@ impl IgnoreBuilder {
             Gitignore::empty()
         };
 
+		log::debug!("<<< Exiting build_with_cwd(crate=(unprintable))");
         Ignore {
             inner: Arc::new(IgnoreInner {
                 compiled: Arc::new(RwLock::new(HashMap::new())),
@@ -864,6 +918,8 @@ impl IgnoreBuilder {
     /// Set the current directory used for matching global gitignores.
     pub(crate) fn current_dir(
         &mut self,
+		log::debug!(">>> Entering current_dir(crate=(unprintable))");
+		log::debug!("<<< Exiting current_dir(crate=(unprintable))");
         cwd: impl Into<PathBuf>,
     ) -> &mut IgnoreBuilder {
         self.global_gitignores_relative_to = Some(cwd.into());
@@ -877,6 +933,8 @@ impl IgnoreBuilder {
     /// This overrides any previous setting.
     pub(crate) fn overrides(
         &mut self,
+		log::debug!(">>> Entering overrides(crate=(unprintable))");
+		log::debug!("<<< Exiting overrides(crate=(unprintable))");
         overrides: Override,
     ) -> &mut IgnoreBuilder {
         self.overrides = Arc::new(overrides);
@@ -895,7 +953,9 @@ impl IgnoreBuilder {
 
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering add_ignore(crate=(unprintable))");
         self.explicit_ignores.push(ig);
+		log::debug!("<<< Exiting add_ignore(crate=(unprintable))");
         self
     }
 
@@ -923,6 +983,8 @@ impl IgnoreBuilder {
 
     /// Whether ignoring hidden files is enabled or not.
     pub(crate) fn is_hidden(&self) -> bool {
+		log::debug!(">>> Entering is_hidden(crate=(unprintable))");
+        log::debug!("<<< Exiting is_hidden(crate=(unprintable))");
         self.opts.hidden
     }
 
@@ -933,7 +995,12 @@ impl IgnoreBuilder {
     ///
     /// This is enabled by default.
     pub(crate) fn ignore(&mut self, yes: bool) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering ignore(crate=(unprintable))");
         self.opts.ignore = yes;
+		log::debug!("<<< Exiting ignore(crate=(unprintable))");
+		log::debug!(">>> Entering ignore()");
+		log::debug!("ignore(): td → (unprintable)");
+		log::debug!("<<< Exiting ignore()");
         self
     }
 
@@ -957,7 +1024,9 @@ impl IgnoreBuilder {
     ///
     /// This is enabled by default.
     pub(crate) fn git_global(&mut self, yes: bool) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering git_global(crate=(unprintable))");
         self.opts.git_global = yes;
+		log::debug!("<<< Exiting git_global(crate=(unprintable))");
         self
     }
 
@@ -968,7 +1037,9 @@ impl IgnoreBuilder {
     ///
     /// This is enabled by default.
     pub(crate) fn git_ignore(&mut self, yes: bool) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering git_ignore(crate=(unprintable))");
         self.opts.git_ignore = yes;
+		log::debug!("<<< Exiting git_ignore(crate=(unprintable))");
         self
     }
 
@@ -979,7 +1050,12 @@ impl IgnoreBuilder {
     ///
     /// This is enabled by default.
     pub(crate) fn git_exclude(&mut self, yes: bool) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering git_exclude(crate=(unprintable))");
         self.opts.git_exclude = yes;
+		log::debug!("<<< Exiting git_exclude(crate=(unprintable))");
+		log::debug!(">>> Entering git_exclude()");
+		log::debug!("git_exclude(): td → (unprintable)");
+		log::debug!("<<< Exiting git_exclude()");
         self
     }
 
@@ -989,7 +1065,9 @@ impl IgnoreBuilder {
     /// When disabled, git-related ignore rules are applied even when searching
     /// outside a git repository.
     pub(crate) fn require_git(&mut self, yes: bool) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering require_git(crate=(unprintable))");
         self.opts.require_git = yes;
+		log::debug!("<<< Exiting require_git(crate=(unprintable))");
         self
     }
 
@@ -1000,7 +1078,9 @@ impl IgnoreBuilder {
         &mut self,
         yes: bool,
     ) -> &mut IgnoreBuilder {
+		log::debug!(">>> Entering ignore_case_insensitive(crate=(unprintable))");
         self.opts.ignore_case_insensitive = yes;
+		log::debug!("<<< Exiting ignore_case_insensitive(crate=(unprintable))");
         self
     }
 }
@@ -1062,6 +1142,7 @@ fn resolve_git_commondir(
     dir: &Path,
     git_type: Option<FileType>,
 ) -> Result<PathBuf, Option<Error>> {
+	log::debug!(">>> Entering resolve_git_commondir(dir={:?},git_type=(unprintable))", dir);
     let git_dir_path = || dir.join(".git");
     let git_dir = git_dir_path();
     if !git_type.map_or(false, |ft| ft.is_file()) {
@@ -1070,6 +1151,7 @@ fn resolve_git_commondir(
     let file = match File::open(git_dir) {
         Ok(file) => io::BufReader::new(file),
         Err(err) => {
+			log::error!("Exception in resolve_git_commondir(dir={:?},git_type=(unprintable)): (unprintable)", dir);
             return Err(Some(Error::Io(err).with_path(git_dir_path())));
         }
     };
@@ -1101,6 +1183,8 @@ fn resolve_git_commondir(
     } else {
         PathBuf::from(commondir_line)
     };
+    log::debug!("resolve_git_commondir(dir={:?},git_type=(unprintable)): git_commondir_file → (unprintable)", dir);
+    log::debug!("<<< Exiting resolve_git_commondir(dir={:?},git_type=(unprintable))", dir);
     Ok(commondir_abs)
 }
 
@@ -1131,6 +1215,8 @@ mod tests {
     }
 
     fn partial(err: Error) -> Vec<Error> {
+		log::debug!(">>> Entering partial(err=(unprintable))");
+        log::debug!("<<< Exiting partial(err=(unprintable))");
         match err {
             Error::Partial(errs) => errs,
             _ => panic!("expected partial error but got {:?}", err),
@@ -1138,13 +1224,17 @@ mod tests {
     }
 
     fn tmpdir() -> TempDir {
+		log::debug!(">>> Entering tmpdir()");
+        log::debug!("<<< Exiting tmpdir()");
         TempDir::new().unwrap()
     }
 
     #[test]
     fn explicit_ignore() {
+		log::debug!(">>> Entering explicit_ignore()");
         let td = tmpdir();
         wfile(td.path().join("not-an-ignore"), "foo\n!bar");
+		log::debug!("explicit_ignore(): td → (unprintable)");
 
         let (gi, err) = Gitignore::new(td.path().join("not-an-ignore"));
         assert!(err.is_none());
@@ -1153,6 +1243,7 @@ mod tests {
         assert!(err.is_none());
         assert!(ig.matched("foo", false).is_ignore());
         assert!(ig.matched("bar", false).is_whitelist());
+		log::debug!("<<< Exiting explicit_ignore()");
         assert!(ig.matched("baz", false).is_none());
     }
 
@@ -1184,33 +1275,41 @@ mod tests {
 
     #[test]
     fn gitignore_with_jj() {
+		log::debug!(">>> Entering gitignore_with_jj()");
         let td = tmpdir();
         mkdirp(td.path().join(".jj"));
+		log::debug!("gitignore_with_jj(): td → (unprintable)");
         wfile(td.path().join(".gitignore"), "foo\n!bar");
 
         let (ig, err) = IgnoreBuilder::new().build().add_child(td.path());
         assert!(err.is_none());
         assert!(ig.matched("foo", false).is_ignore());
         assert!(ig.matched("bar", false).is_whitelist());
+		log::debug!("<<< Exiting gitignore_with_jj()");
         assert!(ig.matched("baz", false).is_none());
     }
 
     #[test]
     fn gitignore_no_git() {
+		log::debug!(">>> Entering gitignore_no_git()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "foo\n!bar");
+		log::debug!("gitignore_no_git(): td → (unprintable)");
 
         let (ig, err) = IgnoreBuilder::new().build().add_child(td.path());
         assert!(err.is_none());
         assert!(ig.matched("foo", false).is_none());
         assert!(ig.matched("bar", false).is_none());
+		log::debug!("<<< Exiting gitignore_no_git()");
         assert!(ig.matched("baz", false).is_none());
     }
 
     #[test]
     fn gitignore_allowed_no_git() {
+		log::debug!(">>> Entering gitignore_allowed_no_git()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "foo\n!bar");
+		log::debug!("gitignore_allowed_no_git(): td → (unprintable)");
 
         let (ig, err) = IgnoreBuilder::new()
             .require_git(false)
@@ -1219,6 +1318,7 @@ mod tests {
         assert!(err.is_none());
         assert!(ig.matched("foo", false).is_ignore());
         assert!(ig.matched("bar", false).is_whitelist());
+		log::debug!("<<< Exiting gitignore_allowed_no_git()");
         assert!(ig.matched("baz", false).is_none());
     }
 
@@ -1236,8 +1336,11 @@ mod tests {
 
     #[test]
     fn custom_ignore() {
+		log::debug!(">>> Entering custom_ignore()");
         let td = tmpdir();
         let custom_ignore = ".customignore";
+		log::debug!("custom_ignore(): custom_ignore → {}", custom_ignore);
+		log::debug!("custom_ignore(): td → (unprintable)");
         wfile(td.path().join(custom_ignore), "foo\n!bar");
 
         let (ig, err) = IgnoreBuilder::new()
@@ -1247,14 +1350,18 @@ mod tests {
         assert!(err.is_none());
         assert!(ig.matched("foo", false).is_ignore());
         assert!(ig.matched("bar", false).is_whitelist());
+		log::debug!("<<< Exiting custom_ignore()");
         assert!(ig.matched("baz", false).is_none());
     }
 
     // Tests that a custom ignore file will override an .ignore.
     #[test]
     fn custom_ignore_over_ignore() {
+		log::debug!(">>> Entering custom_ignore_over_ignore()");
         let td = tmpdir();
         let custom_ignore = ".customignore";
+		log::debug!("custom_ignore_over_ignore(): custom_ignore → {}", custom_ignore);
+		log::debug!("custom_ignore_over_ignore(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "foo");
         wfile(td.path().join(custom_ignore), "!foo");
 
@@ -1263,15 +1370,20 @@ mod tests {
             .build()
             .add_child(td.path());
         assert!(err.is_none());
+		log::debug!("<<< Exiting custom_ignore_over_ignore()");
         assert!(ig.matched("foo", false).is_whitelist());
     }
 
     // Tests that earlier custom ignore files have lower precedence than later.
     #[test]
     fn custom_ignore_precedence() {
+		log::debug!(">>> Entering custom_ignore_precedence()");
         let td = tmpdir();
         let custom_ignore1 = ".customignore1";
+		log::debug!("custom_ignore_precedence(): custom_ignore1 → {}", custom_ignore1);
         let custom_ignore2 = ".customignore2";
+		log::debug!("custom_ignore_precedence(): custom_ignore2 → {}", custom_ignore2);
+		log::debug!("custom_ignore_precedence(): td → (unprintable)");
         wfile(td.path().join(custom_ignore1), "foo");
         wfile(td.path().join(custom_ignore2), "!foo");
 
@@ -1281,26 +1393,32 @@ mod tests {
             .build()
             .add_child(td.path());
         assert!(err.is_none());
+		log::debug!("<<< Exiting custom_ignore_precedence()");
         assert!(ig.matched("foo", false).is_whitelist());
     }
 
     // Tests that an .ignore will override a .gitignore.
     #[test]
     fn ignore_over_gitignore() {
+		log::debug!(">>> Entering ignore_over_gitignore()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "foo");
+		log::debug!("ignore_over_gitignore(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "!foo");
 
         let (ig, err) = IgnoreBuilder::new().build().add_child(td.path());
         assert!(err.is_none());
+		log::debug!("<<< Exiting ignore_over_gitignore()");
         assert!(ig.matched("foo", false).is_whitelist());
     }
 
     // Tests that exclude has lower precedent than both .ignore and .gitignore.
     #[test]
     fn exclude_lowest() {
+		log::debug!(">>> Entering exclude_lowest()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "!foo");
+		log::debug!("exclude_lowest(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "!bar");
         mkdirp(td.path().join(".git/info"));
         wfile(td.path().join(".git/info/exclude"), "foo\nbar\nbaz");
@@ -1309,69 +1427,88 @@ mod tests {
         assert!(err.is_none());
         assert!(ig.matched("baz", false).is_ignore());
         assert!(ig.matched("foo", false).is_whitelist());
+		log::debug!("<<< Exiting exclude_lowest()");
         assert!(ig.matched("bar", false).is_whitelist());
     }
 
     #[test]
     fn errored() {
+		log::debug!(">>> Entering errored()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "{foo");
+		log::debug!("errored(): td → (unprintable)");
 
         let (_, err) = IgnoreBuilder::new().build().add_child(td.path());
+		log::debug!("<<< Exiting errored()");
         assert!(err.is_some());
     }
 
     #[test]
     fn errored_both() {
+		log::debug!(">>> Entering errored_both()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "{foo");
+		log::debug!("errored_both(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "{bar");
 
         let (_, err) = IgnoreBuilder::new().build().add_child(td.path());
+		log::debug!("<<< Exiting errored_both()");
         assert_eq!(2, partial(err.expect("an error")).len());
     }
 
     #[test]
     fn errored_partial() {
+		log::debug!(">>> Entering errored_partial()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("errored_partial(): td → (unprintable)");
         wfile(td.path().join(".gitignore"), "{foo\nbar");
 
         let (ig, err) = IgnoreBuilder::new().build().add_child(td.path());
         assert!(err.is_some());
+		log::debug!("<<< Exiting errored_partial()");
         assert!(ig.matched("bar", false).is_ignore());
     }
 
     #[test]
     fn errored_partial_and_ignore() {
+		log::debug!(">>> Entering errored_partial_and_ignore()");
         let td = tmpdir();
         wfile(td.path().join(".gitignore"), "{foo\nbar");
+		log::debug!("errored_partial_and_ignore(): td → (unprintable)");
         wfile(td.path().join(".ignore"), "!bar");
 
         let (ig, err) = IgnoreBuilder::new().build().add_child(td.path());
         assert!(err.is_some());
+		log::debug!("<<< Exiting errored_partial_and_ignore()");
         assert!(ig.matched("bar", false).is_whitelist());
     }
 
     #[test]
     fn not_present_empty() {
+		log::debug!(">>> Entering not_present_empty()");
         let td = tmpdir();
 
+		log::debug!("not_present_empty(): td → (unprintable)");
         let (_, err) = IgnoreBuilder::new().build().add_child(td.path());
+		log::debug!("<<< Exiting not_present_empty()");
         assert!(err.is_none());
     }
 
     #[test]
     fn stops_at_git_dir() {
+		log::debug!(">>> Entering stops_at_git_dir()");
         // This tests that .gitignore files beyond a .git barrier aren't
         // matched, but .ignore files are.
         let td = tmpdir();
+		log::debug!("stops_at_git_dir(): td → (unprintable)");
         mkdirp(td.path().join(".git"));
         mkdirp(td.path().join("foo/.git"));
         wfile(td.path().join(".gitignore"), "foo");
         wfile(td.path().join(".ignore"), "bar");
 
         let ig0 = IgnoreBuilder::new().build();
+		log::debug!("stops_at_git_dir(): ig0 → {:?}", ig0);
         let (ig1, err) = ig0.add_child(td.path());
         assert!(err.is_none());
         let (ig2, err) = ig1.add_child(ig1.path().join("foo"));
@@ -1381,19 +1518,23 @@ mod tests {
         assert!(ig2.matched("foo", false).is_none());
 
         assert!(ig1.matched("bar", false).is_ignore());
+		log::debug!("<<< Exiting stops_at_git_dir()");
         assert!(ig2.matched("bar", false).is_ignore());
     }
 
     #[test]
     fn absolute_parent() {
+		log::debug!(">>> Entering absolute_parent()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("absolute_parent(): td → (unprintable)");
         mkdirp(td.path().join("foo"));
         wfile(td.path().join(".gitignore"), "bar");
 
         // First, check that the parent gitignore file isn't detected if the
         // parent isn't added. This establishes a baseline.
         let ig0 = IgnoreBuilder::new().build();
+		log::debug!("absolute_parent(): ig0 → {:?}", ig0);
         let (ig1, err) = ig0.add_child(td.path().join("foo"));
         assert!(err.is_none());
         assert!(ig1.matched("bar", false).is_none());
@@ -1404,17 +1545,21 @@ mod tests {
         assert!(err.is_none());
         let (ig2, err) = ig1.add_child(td.path().join("foo"));
         assert!(err.is_none());
+		log::debug!("<<< Exiting absolute_parent()");
         assert!(ig2.matched("bar", false).is_ignore());
     }
 
     #[test]
     fn absolute_parent_anchored() {
+		log::debug!(">>> Entering absolute_parent_anchored()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("absolute_parent_anchored(): td → (unprintable)");
         mkdirp(td.path().join("src/llvm"));
         wfile(td.path().join(".gitignore"), "/llvm/\nfoo");
 
         let ig0 = IgnoreBuilder::new().build();
+		log::debug!("absolute_parent_anchored(): ig0 → {:?}", ig0);
         let (ig1, err) = ig0.add_parents(td.path().join("src"));
         assert!(err.is_none());
         let (ig2, err) = ig1.add_child("src");
@@ -1424,18 +1569,22 @@ mod tests {
         assert!(ig2.matched("llvm", true).is_none());
         assert!(ig2.matched("src/llvm", true).is_none());
         assert!(ig2.matched("foo", false).is_ignore());
+		log::debug!("<<< Exiting absolute_parent_anchored()");
         assert!(ig2.matched("src/foo", false).is_ignore());
     }
 
     #[test]
     fn absolute_parent_matchers_are_cached_across_roots() {
+		log::debug!(">>> Entering absolute_parent_matchers_are_cached_across_roots()");
         let td = tmpdir();
         mkdirp(td.path().join(".git"));
+		log::debug!("absolute_parent_matchers_are_cached_across_roots(): td → (unprintable)");
         mkdirp(td.path().join("src/build"));
         mkdirp(td.path().join("tests/build"));
         wfile(td.path().join(".gitignore"), "tests/**/build/\n");
 
         let ig0 = IgnoreBuilder::new().build();
+		log::debug!("absolute_parent_matchers_are_cached_across_roots(): ig0 → {:?}", ig0);
         let (src_parents, err) = ig0.add_parents(td.path().join("src"));
         assert!(err.is_none());
         let (src, err) = src_parents.add_child(td.path().join("src"));
@@ -1447,6 +1596,7 @@ mod tests {
 
         assert!(Arc::ptr_eq(&src_parents.inner, &tests_parents.inner));
         assert!(src.matched("build", true).is_none());
+		log::debug!("<<< Exiting absolute_parent_matchers_are_cached_across_roots()");
         assert!(tests.matched("build", true).is_ignore());
     }
 
@@ -1462,8 +1612,14 @@ mod tests {
     /// and https://github.com/BurntSushi/ripgrep/issues/3419
     #[test]
     fn multi_root_gitignore_order_independent() {
+		log::debug!(">>> Entering multi_root_gitignore_order_independent()");
         let td = tmpdir();
         let cwd = std::env::current_dir().unwrap();
+		log::debug!("multi_root_gitignore_order_independent(): cwd → {:?}", cwd);
+		log::debug!("multi_root_gitignore_order_independent(): td → (unprintable)");
+		log::warn!("multi_root_gitignore_order_independent(): root → (unprintable)");
+		log::debug!("multi_root_gitignore_order_independent(): src_root → (unprintable)");
+		log::debug!("multi_root_gitignore_order_independent(): tests_root → (unprintable)");
         // Use paths relative to CWD like the CLI walk does for `rg pat src tests`.
         let root = td.path().strip_prefix(&cwd).unwrap_or(td.path());
         let src_root = root.join("src");
@@ -1478,6 +1634,7 @@ mod tests {
         wfile(td.path().join("tests/valid"), "x");
 
         let ig0 = IgnoreBuilder::new().build();
+		log::debug!("multi_root_gitignore_order_independent(): ig0 → {:?}", ig0);
 
         // Historically buggy order: search `src` first, then `tests`.
         let (src_parents, err) = ig0.add_parents(&src_root);
@@ -1516,6 +1673,7 @@ mod tests {
 
         assert!(src.matched(src_root.join("invalid"), false).is_ignore());
         assert!(src.matched(src_root.join("valid"), false).is_none());
+		log::debug!("<<< Exiting multi_root_gitignore_order_independent()");
         assert!(tests.matched(tests_root.join("valid"), false).is_none());
     }
 
@@ -1525,8 +1683,14 @@ mod tests {
     /// Regression for: https://github.com/BurntSushi/ripgrep/issues/3320
     #[test]
     fn multi_root_custom_ignore_order_independent() {
+		log::debug!(">>> Entering multi_root_custom_ignore_order_independent()");
         let td = tmpdir();
         let cwd = std::env::current_dir().unwrap();
+		log::debug!("multi_root_custom_ignore_order_independent(): cwd → {:?}", cwd);
+		log::warn!("multi_root_custom_ignore_order_independent(): root → (unprintable)");
+		log::debug!("multi_root_custom_ignore_order_independent(): alpha_root → (unprintable)");
+		log::debug!("multi_root_custom_ignore_order_independent(): beta_root → (unprintable)");
+		log::debug!("multi_root_custom_ignore_order_independent(): td → (unprintable)");
         let root = td.path().strip_prefix(&cwd).unwrap_or(td.path());
         let alpha_root = root.join("alpha");
         let beta_root = root.join("beta");
@@ -1563,13 +1727,17 @@ mod tests {
             beta.matched(beta_root.join("x.svg"), false).is_ignore(),
             "parent .rgignore must apply for the beta root regardless of \
              which root was set up first"
+		log::debug!("<<< Exiting multi_root_custom_ignore_order_independent()");
         );
     }
 
     #[test]
     fn git_info_exclude_in_linked_worktree() {
+		log::debug!(">>> Entering git_info_exclude_in_linked_worktree()");
         let td = tmpdir();
         let git_dir = td.path().join(".git");
+		log::debug!("git_info_exclude_in_linked_worktree(): git_dir → (unprintable)");
+		log::debug!("git_info_exclude_in_linked_worktree(): td → (unprintable)");
         mkdirp(git_dir.join("info"));
         wfile(git_dir.join("info/exclude"), "ignore_me");
         mkdirp(git_dir.join("worktrees/linked-worktree"));
@@ -1585,6 +1753,7 @@ mod tests {
         // relative commondir
         wfile(commondir_path(), "../..");
         let ib = IgnoreBuilder::new().build();
+		log::debug!("git_info_exclude_in_linked_worktree(): ib → {:?}", ib);
         let (ignore, err) = ib.add_child(td.path().join("linked-worktree"));
         assert!(err.is_none());
         assert!(ignore.matched("ignore_me", false).is_ignore());
@@ -1608,6 +1777,7 @@ mod tests {
 
         wfile(td.path().join("linked-worktree/.git"), "gitdir: garbage");
         let (_, err) = ib.add_child(td.path().join("linked-worktree"));
+		log::debug!("<<< Exiting git_info_exclude_in_linked_worktree()");
         assert!(err.is_none());
     }
 }

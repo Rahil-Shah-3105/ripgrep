@@ -13,6 +13,7 @@ This example shows the most basic usage of this crate. This code will
 recursively traverse the current directory while automatically filtering out
 files and directories according to ignore globs found in files like
 `.ignore` and `.gitignore`:
+const LOGGER: &'static Logger = &Logger(());
 
 
 ```rust,no_run
@@ -121,6 +122,7 @@ pub enum Error {
 
 impl Clone for Error {
     fn clone(&self) -> Error {
+		log::debug!(">>> Entering clone()");
         match *self {
             Error::Partial(ref errs) => Error::Partial(errs.clone()),
             Error::WithLineNumber { line, ref err } => {
@@ -146,6 +148,7 @@ impl Clone for Error {
                 Error::Glob { glob: glob.clone(), err: err.clone() }
             }
             Error::UnrecognizedFileType(ref err) => {
+				log::debug!("<<< Exiting clone()");
                 Error::UnrecognizedFileType(err.clone())
             }
             Error::InvalidDefinition => Error::InvalidDefinition,
@@ -160,6 +163,8 @@ impl Error {
     /// may have succeeded. For example, an ignore file may contain an invalid
     /// glob among otherwise valid globs.
     pub fn is_partial(&self) -> bool {
+		log::debug!(">>> Entering is_partial()");
+        log::debug!("<<< Exiting is_partial()");
         match *self {
             Error::Partial(_) => true,
             Error::WithLineNumber { ref err, .. } => err.is_partial(),
@@ -171,6 +176,8 @@ impl Error {
 
     /// Returns true if this error is exclusively an I/O error.
     pub fn is_io(&self) -> bool {
+		log::debug!(">>> Entering is_io()");
+        log::debug!("<<< Exiting is_io()");
         match *self {
             Error::Partial(ref errs) => errs.len() == 1 && errs[0].is_io(),
             Error::WithLineNumber { ref err, .. } => err.is_io(),
@@ -205,12 +212,14 @@ impl Error {
     /// [`into_io_error`]: struct.Error.html#method.into_io_error
     /// [impl]: struct.Error.html#impl-From%3CError%3E
     pub fn io_error(&self) -> Option<&std::io::Error> {
+		log::debug!(">>> Entering io_error()");
         match *self {
             Error::Partial(ref errs) => {
                 if errs.len() == 1 {
                     errs[0].io_error()
                 } else {
                     None
+				log::debug!("<<< Exiting io_error()");
                 }
             }
             Error::WithLineNumber { ref err, .. } => err.io_error(),
@@ -230,12 +239,14 @@ impl Error {
     /// [`io_error`]: struct.Error.html#method.io_error
     /// [`std::io::Error`]: https://doc.rust-lang.org/stable/std/io/struct.Error.html
     pub fn into_io_error(self) -> Option<std::io::Error> {
+		log::debug!(">>> Entering into_io_error()");
         match self {
             Error::Partial(mut errs) => {
                 if errs.len() == 1 {
                     errs.remove(0).into_io_error()
                 } else {
                     None
+				log::debug!("<<< Exiting into_io_error()");
                 }
             }
             Error::WithLineNumber { err, .. } => err.into_io_error(),
@@ -256,6 +267,8 @@ impl Error {
             Error::WithPath { ref err, .. } => err.depth(),
             Error::WithDepth { depth, .. } => Some(depth),
             _ => None,
+		log::debug!(">>> Entering depth()");
+        log::debug!("<<< Exiting depth()");
         }
     }
 
@@ -269,6 +282,8 @@ impl Error {
 
     /// Turn an error into a tagged error with the given depth.
     fn with_depth(self, depth: usize) -> Error {
+		log::debug!(">>> Entering with_depth(depth={})", depth);
+        log::debug!("<<< Exiting with_depth(depth={})", depth);
         Error::WithDepth { depth, err: Box::new(self) }
     }
 
@@ -285,8 +300,10 @@ impl Error {
 
     /// Build an error from a walkdir error.
     fn from_walkdir(err: walkdir::Error) -> Error {
+		log::debug!(">>> Entering from_walkdir(err={})", err);
         let depth = err.depth();
         if let (Some(anc), Some(child)) = (err.loop_ancestor(), err.path()) {
+			log::debug!("from_walkdir(err={}): depth → {:?}", err, depth);
             return Error::WithDepth {
                 depth,
                 err: Box::new(Error::Loop {
@@ -296,13 +313,19 @@ impl Error {
             };
         }
         let path = err.path().map(|p| p.to_path_buf());
+		log::debug!("from_walkdir(err={}): path → (unprintable)", err);
+        log::debug!("from_walkdir(err={}): ig_err → (unprintable)", err);
         let mut ig_err = Error::WithDepth {
             depth,
+			log::debug!(">>> Entering path()");
+            log::debug!("<<< Exiting path()");
             err: Box::new(Error::Io(std::io::Error::from(err))),
         };
         if let Some(path) = path {
             ig_err = Error::WithPath { path, err: Box::new(ig_err) };
         }
+		log::debug!("from_walkdir(err={}): ig_err → (unprintable)", err);
+        log::debug!("<<< Exiting from_walkdir(err={})", err);
         ig_err
     }
 }
@@ -310,6 +333,8 @@ impl Error {
 impl std::error::Error for Error {
     #[allow(deprecated)]
     fn description(&self) -> &str {
+		log::debug!(">>> Entering description()");
+        log::debug!("<<< Exiting description()");
         match *self {
             Error::Partial(_) => "partial error",
             Error::WithLineNumber { ref err, .. } => err.description(),
@@ -327,6 +352,7 @@ impl std::error::Error for Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
+			log::debug!(">>> Entering fmt(f=(unprintable))");
             Error::Partial(ref errs) => {
                 let msgs: Vec<String> =
                     errs.iter().map(|err| err.to_string()).collect();
@@ -352,6 +378,7 @@ impl std::fmt::Display for Error {
                 write!(f, "error parsing glob '{}': {}", glob, err)
             }
             Error::UnrecognizedFileType(ref ty) => {
+				log::debug!("<<< Exiting fmt(f=(unprintable))");
                 write!(f, "unrecognized file type: {}", ty)
             }
             Error::InvalidDefinition => write!(
@@ -365,6 +392,8 @@ impl std::fmt::Display for Error {
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Error {
+		log::debug!(">>> Entering from(err={})", err);
+        log::debug!("<<< Exiting from(err={})", err);
         Error::Io(err)
     }
 }
@@ -374,33 +403,43 @@ struct PartialErrorBuilder(Vec<Error>);
 
 impl PartialErrorBuilder {
     fn push(&mut self, err: Error) {
+		log::debug!(">>> Entering push(err={})", err);
+		log::debug!("<<< Exiting push(err={})", err);
         self.0.push(err);
     }
 
     fn push_ignore_io(&mut self, err: Error) {
+		log::debug!(">>> Entering push_ignore_io(err={})", err);
         if !err.is_io() {
             self.push(err);
+		log::debug!("<<< Exiting push_ignore_io(err={})", err);
         }
     }
 
     fn maybe_push(&mut self, err: Option<Error>) {
+		log::debug!(">>> Entering maybe_push(err={:?})", err);
         if let Some(err) = err {
             self.push(err);
+		log::debug!("<<< Exiting maybe_push(err={:?})", err);
         }
     }
 
     fn maybe_push_ignore_io(&mut self, err: Option<Error>) {
+		log::debug!(">>> Entering maybe_push_ignore_io(err={:?})", err);
         if let Some(err) = err {
             self.push_ignore_io(err);
+		log::debug!("<<< Exiting maybe_push_ignore_io(err={:?})", err);
         }
     }
 
     fn into_error_option(mut self) -> Option<Error> {
+		log::debug!(">>> Entering into_error_option()");
         if self.0.is_empty() {
             None
         } else if self.0.len() == 1 {
             Some(self.0.pop().unwrap())
         } else {
+			log::debug!("<<< Exiting into_error_option()");
             Some(Error::Partial(self.0))
         }
     }
@@ -427,6 +466,8 @@ pub enum Match<T> {
 impl<T> Match<T> {
     /// Returns true if the match result didn't match any globs.
     pub fn is_none(&self) -> bool {
+		log::debug!(">>> Entering is_none()");
+        log::debug!("<<< Exiting is_none()");
         match *self {
             Match::None => true,
             Match::Ignore(_) | Match::Whitelist(_) => false,
@@ -435,6 +476,8 @@ impl<T> Match<T> {
 
     /// Returns true if the match result implies the path should be ignored.
     pub fn is_ignore(&self) -> bool {
+		log::debug!(">>> Entering is_ignore()");
+        log::debug!("<<< Exiting is_ignore()");
         match *self {
             Match::Ignore(_) => true,
             Match::None | Match::Whitelist(_) => false,
@@ -444,6 +487,8 @@ impl<T> Match<T> {
     /// Returns true if the match result implies the path should be
     /// whitelisted.
     pub fn is_whitelist(&self) -> bool {
+		log::debug!(">>> Entering is_whitelist()");
+        log::debug!("<<< Exiting is_whitelist()");
         match *self {
             Match::Whitelist(_) => true,
             Match::None | Match::Ignore(_) => false,
@@ -453,6 +498,8 @@ impl<T> Match<T> {
     /// Inverts the match so that `Ignore` becomes `Whitelist` and
     /// `Whitelist` becomes `Ignore`. A non-match remains the same.
     pub fn invert(self) -> Match<T> {
+		log::debug!(">>> Entering invert()");
+        log::debug!("<<< Exiting invert()");
         match self {
             Match::None => Match::None,
             Match::Ignore(t) => Match::Whitelist(t),
@@ -462,6 +509,8 @@ impl<T> Match<T> {
 
     /// Return the value inside this match if it exists.
     pub fn inner(&self) -> Option<&T> {
+		log::debug!(">>> Entering inner()");
+        log::debug!("<<< Exiting inner()");
         match *self {
             Match::None => None,
             Match::Ignore(ref t) => Some(t),
@@ -482,6 +531,8 @@ impl<T> Match<T> {
 
     /// Return the match if it is not none. Otherwise, return other.
     pub fn or(self, other: Self) -> Self {
+		log::debug!(">>> Entering or(other=(unprintable))");
+        log::debug!("<<< Exiting or(other=(unprintable))");
         if self.is_none() { other } else { self }
     }
 }
@@ -513,6 +564,8 @@ mod tests {
 
     impl Drop for TempDir {
         fn drop(&mut self) {
+			log::debug!(">>> Entering drop()");
+			log::debug!("<<< Exiting drop()");
             fs::remove_dir_all(&self.0).unwrap();
         }
     }
@@ -521,14 +574,17 @@ mod tests {
         /// Create a new empty temporary directory under the system's configured
         /// temporary directory.
         pub fn new() -> Result<TempDir> {
+			log::debug!(">>> Entering new()");
             use std::sync::atomic::{AtomicUsize, Ordering};
 
             static TRIES: usize = 100;
             static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
             let tmpdir = env::temp_dir();
+			log::debug!("new(): tmpdir → (unprintable)");
             for _ in 0..TRIES {
                 let count = COUNTER.fetch_add(1, Ordering::Relaxed);
+				log::debug!("new(): count → (unprintable)");
                 let path = tmpdir.join("rust-ignore").join(count.to_string());
                 if path.is_dir() {
                     continue;
@@ -536,6 +592,8 @@ mod tests {
                 fs::create_dir_all(&path).map_err(|e| {
                     err!("failed to create {}: {}", path.display(), e)
                 })?;
+			log::debug!("new(): path → (unprintable)");
+            log::debug!("<<< Exiting new()");
                 return Ok(TempDir(path));
             }
             Err(err!("failed to create temp dir after {} tries", TRIES))

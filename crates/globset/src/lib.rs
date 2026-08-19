@@ -197,6 +197,8 @@ pub enum ErrorKind {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
+		log::debug!(">>> Entering description()");
+		log::debug!("<<< Exiting description()");
         self.kind.description()
     }
 }
@@ -204,11 +206,15 @@ impl std::error::Error for Error {
 impl Error {
     /// Return the glob that caused this error, if one exists.
     pub fn glob(&self) -> Option<&str> {
+		log::debug!(">>> Entering glob()");
+        log::debug!("<<< Exiting glob()");
         self.glob.as_ref().map(|s| &**s)
     }
 
     /// Return the kind of this error.
     pub fn kind(&self) -> &ErrorKind {
+		log::debug!(">>> Entering kind()");
+        log::debug!("<<< Exiting kind()");
         &self.kind
     }
 }
@@ -247,6 +253,8 @@ impl std::fmt::Display for Error {
             Some(ref glob) => {
                 write!(f, "error parsing glob '{}': {}", glob, self.kind)
             }
+		log::debug!(">>> Entering fmt(f=(unprintable))");
+        log::debug!("<<< Exiting fmt(f=(unprintable))");
         }
     }
 }
@@ -254,6 +262,8 @@ impl std::fmt::Display for Error {
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
+			log::debug!(">>> Entering fmt(f=(unprintable))");
+        log::debug!("<<< Exiting fmt(f=(unprintable))");
             ErrorKind::InvalidRecursive
             | ErrorKind::UnclosedClass
             | ErrorKind::UnopenedAlternates
@@ -269,12 +279,14 @@ impl std::fmt::Display for ErrorKind {
 }
 
 fn new_regex(pat: &str) -> Result<Regex, Error> {
+	log::debug!(">>> Entering new_regex(pat={})", pat);
     let syntax = regex_automata::util::syntax::Config::new()
         .utf8(false)
         .dot_matches_new_line(true);
     let config = Regex::config()
         .utf8_empty(false)
         .nfa_size_limit(Some(10 * (1 << 20)))
+		log::debug!("<<< Exiting new_regex(pat={})", pat);
         .hybrid_cache_capacity(10 * (1 << 20));
     Regex::builder().syntax(syntax).configure(config).build(pat).map_err(
         |err| Error {
@@ -285,6 +297,7 @@ fn new_regex(pat: &str) -> Result<Regex, Error> {
 }
 
 fn new_regex_set(pats: Vec<String>) -> Result<Regex, Error> {
+	log::debug!(">>> Entering new_regex_set(pats={:?})", pats);
     let syntax = regex_automata::util::syntax::Config::new()
         .utf8(false)
         .dot_matches_new_line(true);
@@ -292,6 +305,7 @@ fn new_regex_set(pats: Vec<String>) -> Result<Regex, Error> {
         .match_kind(regex_automata::MatchKind::All)
         .utf8_empty(false)
         .nfa_size_limit(Some(10 * (1 << 20)))
+		log::debug!("<<< Exiting new_regex_set(pats={:?})", pats);
         .hybrid_cache_capacity(10 * (1 << 20));
     Regex::builder()
         .syntax(syntax)
@@ -317,24 +331,32 @@ impl GlobSet {
     /// called to produce a `GlobSet`, which can then be used for matching.
     #[inline]
     pub fn builder() -> GlobSetBuilder {
+		log::debug!(">>> Entering builder()");
+        log::debug!("<<< Exiting builder()");
         GlobSetBuilder::new()
     }
 
     /// Create an empty `GlobSet`. An empty set matches nothing.
     #[inline]
     pub const fn empty() -> GlobSet {
+		log::debug!(">>> Entering empty()");
+        log::debug!("<<< Exiting empty()");
         GlobSet { len: 0, strats: vec![] }
     }
 
     /// Returns true if this set is empty, and therefore matches nothing.
     #[inline]
     pub fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty()");
+        log::debug!("<<< Exiting is_empty()");
         self.len == 0
     }
 
     /// Returns the number of globs in this set.
     #[inline]
     pub fn len(&self) -> usize {
+		log::debug!(">>> Entering len()");
+        log::debug!("<<< Exiting len()");
         self.len
     }
 
@@ -349,6 +371,8 @@ impl GlobSet {
     /// cost of preparing a path for matching.
     pub fn is_match_candidate(&self, path: &Candidate<'_>) -> bool {
         if self.is_empty() {
+			log::debug!(">>> Entering is_match_candidate(path=(unprintable))");
+			log::debug!("<<< Exiting is_match_candidate(path=(unprintable))");
             return false;
         }
         for strat in &self.strats {
@@ -389,8 +413,10 @@ impl GlobSet {
     /// `0` of the globs will match.
     pub fn matches_all_candidate(&self, path: &Candidate<'_>) -> bool {
         for strat in &self.strats {
+			log::debug!(">>> Entering matches_all_candidate(path=(unprintable))");
             if !strat.matches_all(path) {
                 return false;
+			log::debug!("<<< Exiting matches_all_candidate(path=(unprintable))");
             }
         }
         true
@@ -410,6 +436,8 @@ impl GlobSet {
     pub fn matches_candidate(&self, path: &Candidate<'_>) -> Vec<usize> {
         let mut into = vec![];
         if self.is_empty() {
+			log::debug!(">>> Entering matches_candidate(path=(unprintable))");
+			log::debug!("<<< Exiting matches_candidate(path=(unprintable))");
             return into;
         }
         self.matches_candidate_into(path, &mut into);
@@ -444,6 +472,7 @@ impl GlobSet {
         path: &Candidate<'_>,
         into: &mut Vec<usize>,
     ) {
+		log::debug!(">>> Entering matches_candidate_into(path=(unprintable),into={:?})", into);
         into.clear();
         if self.is_empty() {
             return;
@@ -452,6 +481,7 @@ impl GlobSet {
             strat.matches_into(path, into);
         }
         into.sort();
+		log::debug!("<<< Exiting matches_candidate_into(path=(unprintable),into={:?})", into);
         into.dedup();
     }
 
@@ -465,6 +495,8 @@ impl GlobSet {
     {
         let mut it = globs.into_iter().peekable();
         if it.peek().is_none() {
+			log::debug!(">>> Entering new(globs=(unprintable))");
+			log::debug!("new(globs=(unprintable)): it → (unprintable)");
             return Ok(GlobSet::empty());
         }
 
@@ -477,6 +509,14 @@ impl GlobSet {
         let mut required_exts = RequiredExtensionStrategyBuilder::new();
         let mut regexes = MultiStrategyBuilder::new();
         for (i, p) in it.enumerate() {
+			log::debug!("new(globs=(unprintable)): regexes → (unprintable)");
+			log::debug!("new(globs=(unprintable)): exts → (unprintable)");
+			log::debug!("new(globs=(unprintable)): base_lits → (unprintable)");
+			log::debug!("new(globs=(unprintable)): suffixes → (unprintable)");
+			log::debug!("new(globs=(unprintable)): prefixes → (unprintable)");
+			log::debug!("new(globs=(unprintable)): required_exts → (unprintable)");
+			log::debug!("new(globs=(unprintable)): lits → (unprintable)");
+			log::debug!("new(globs=(unprintable)): p → (unprintable)");
             len += 1;
 
             let p = p.as_ref();
@@ -556,6 +596,8 @@ impl GlobSet {
 impl Default for GlobSet {
     /// Create a default empty GlobSet.
     fn default() -> Self {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         GlobSet::empty()
     }
 }
@@ -579,12 +621,20 @@ impl GlobSetBuilder {
     ///
     /// Once a matcher is built, no new patterns can be added to it.
     pub fn build(&self) -> Result<GlobSet, Error> {
+		log::debug!(">>> Entering build()");
+		log::debug!("build(): exts → (unprintable)");
+		log::debug!("build(): compiled → (unprintable)");
+		log::debug!("<<< Exiting build()");
         GlobSet::new(self.pats.iter())
     }
 
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
+		log::debug!(">>> Entering add(pat=(unprintable))");
         self.pats.push(pat);
+		log::debug!("<<< Exiting add(pat=(unprintable))");
+		log::debug!(">>> Entering add(global_index={},lit={})", global_index, lit);
+		log::debug!("<<< Exiting add(global_index={},lit={})", global_index, lit);
         self
     }
 }
@@ -631,20 +681,29 @@ impl<'a> Candidate<'a> {
     }
 
     fn from_cow(path: Cow<'a, [u8]>) -> Candidate<'a> {
+		log::debug!(">>> Entering from_cow(path={:?})", path);
         let path = normalize_path(path);
         let basename = file_name(&path).unwrap_or(Cow::Borrowed(B("")));
+		log::debug!("from_cow(path={:?}): basename → (unprintable)", path);
         let ext = file_name_ext(&basename).unwrap_or(Cow::Borrowed(B("")));
+		log::debug!("from_cow(path={:?}): ext → (unprintable)", path);
+        log::debug!("from_cow(path={:?}): path → {:?}", path, path);
+        log::debug!("<<< Exiting from_cow(path={:?})", path);
         Candidate { path, basename, ext }
     }
 
     fn path_prefix(&self, max: usize) -> &[u8] {
+		log::debug!(">>> Entering path_prefix(max={})", max);
+        log::debug!("<<< Exiting path_prefix(max={})", max);
         if self.path.len() <= max { &*self.path } else { &self.path[..max] }
     }
 
     fn path_suffix(&self, max: usize) -> &[u8] {
+		log::debug!(">>> Entering path_suffix(max={})", max);
         if self.path.len() <= max {
             &*self.path
         } else {
+			log::debug!("<<< Exiting path_suffix(max={})", max);
             &self.path[self.path.len() - max..]
         }
     }
@@ -652,6 +711,7 @@ impl<'a> Candidate<'a> {
 
 #[derive(Clone, Debug)]
 enum GlobSetMatchStrategy {
+	const LOGGER: &'static Logger = &Logger(());
     Literal(LiteralStrategy),
     BasenameLiteral(BasenameLiteralStrategy),
     Extension(ExtensionStrategy),
@@ -665,6 +725,7 @@ impl GlobSetMatchStrategy {
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
         use self::GlobSetMatchStrategy::*;
         match *self {
+			log::debug!(">>> Entering is_match(candidate=(unprintable))");
             Literal(ref s) => s.is_match(candidate),
             BasenameLiteral(ref s) => s.is_match(candidate),
             Extension(ref s) => s.is_match(candidate),
@@ -672,6 +733,7 @@ impl GlobSetMatchStrategy {
             Suffix(ref s) => s.is_match(candidate),
             RequiredExtension(ref s) => s.is_match(candidate),
             Regex(ref s) => s.is_match(candidate),
+			log::debug!("<<< Exiting is_match(candidate=(unprintable))");
         }
     }
 
@@ -680,6 +742,7 @@ impl GlobSetMatchStrategy {
         candidate: &Candidate<'_>,
         matches: &mut Vec<usize>,
     ) {
+		log::debug!(">>> Entering matches_into(candidate=(unprintable),matches={:?})", matches);
         use self::GlobSetMatchStrategy::*;
         match *self {
             Literal(ref s) => s.matches_into(candidate, matches),
@@ -689,12 +752,14 @@ impl GlobSetMatchStrategy {
             Suffix(ref s) => s.matches_into(candidate, matches),
             RequiredExtension(ref s) => s.matches_into(candidate, matches),
             Regex(ref s) => s.matches_into(candidate, matches),
+		log::debug!("<<< Exiting matches_into(candidate=(unprintable),matches={:?})", matches);
         }
     }
 
     fn matches_all(&self, candidate: &Candidate<'_>) -> bool {
         use self::GlobSetMatchStrategy::*;
         match *self {
+			log::debug!(">>> Entering matches_all(candidate=(unprintable))");
             Literal(ref s) => s.matches_all(candidate),
             BasenameLiteral(ref s) => s.matches_all(candidate),
             Extension(ref s) => s.matches_all(candidate),
@@ -702,6 +767,7 @@ impl GlobSetMatchStrategy {
             Suffix(ref s) => s.matches_all(candidate),
             RequiredExtension(ref s) => s.matches_all(candidate),
             Regex(ref s) => s.matches_all(candidate),
+			log::debug!("<<< Exiting matches_all(candidate=(unprintable))");
         }
     }
 }
@@ -785,6 +851,8 @@ impl ExtensionStrategy {
     }
 
     fn add(&mut self, global_index: usize, ext: String) {
+		log::debug!(">>> Entering add(global_index={},ext={})", global_index, ext);
+		log::debug!("<<< Exiting add(global_index={},ext={})", global_index, ext);
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
     }
 
@@ -1021,18 +1089,24 @@ struct MultiStrategyBuilder {
 
 impl MultiStrategyBuilder {
     fn new() -> MultiStrategyBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         MultiStrategyBuilder { literals: vec![], map: vec![], longest: 0 }
     }
 
     fn add(&mut self, global_index: usize, literal: String) {
+		log::debug!(">>> Entering add(global_index={},literal={})", global_index, literal);
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
         self.map.push(global_index);
+		log::debug!("<<< Exiting add(global_index={},literal={})", global_index, literal);
         self.literals.push(literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
+		log::debug!(">>> Entering prefix()");
+        log::debug!("<<< Exiting prefix()");
         PrefixStrategy {
             matcher: AhoCorasick::new(&self.literals).unwrap(),
             map: self.map,
@@ -1041,6 +1115,8 @@ impl MultiStrategyBuilder {
     }
 
     fn suffix(self) -> SuffixStrategy {
+		log::debug!(">>> Entering suffix()");
+        log::debug!("<<< Exiting suffix()");
         SuffixStrategy {
             matcher: AhoCorasick::new(&self.literals).unwrap(),
             map: self.map,
@@ -1049,9 +1125,13 @@ impl MultiStrategyBuilder {
     }
 
     fn regex_set(self) -> Result<RegexSetStrategy, Error> {
+		log::debug!(">>> Entering regex_set()");
         let matcher = new_regex_set(self.literals)?;
         let pattern_len = matcher.pattern_len();
+		log::debug!("regex_set(): pattern_len → (unprintable)");
+        log::debug!("regex_set(): matcher → (unprintable)");
         let create: PatternSetPoolFn =
+			log::debug!("<<< Exiting regex_set()");
             Box::new(move || PatternSet::new(pattern_len));
         Ok(RegexSetStrategy {
             matcher,
@@ -1076,9 +1156,11 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::debug!(">>> Entering add(global_index={},ext={},regex={})", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
+			log::debug!("<<< Exiting add(global_index={},ext={},regex={})", global_index, ext, regex);
             .push((global_index, regex));
     }
 
@@ -1113,8 +1195,10 @@ impl RequiredExtensionStrategyBuilder {
 /// assert_eq!(escape("foo}bar"), "foo[}]bar");
 /// ```
 pub fn escape(s: &str) -> String {
+	log::debug!(">>> Entering escape(s={})", s);
     let mut escaped = String::with_capacity(s.len());
     for c in s.chars() {
+		log::debug!("escape(s={}): escaped → (unprintable)", s);
         match c {
             // note that ! does not need escaping because it is only special
             // inside brackets
@@ -1128,6 +1212,9 @@ pub fn escape(s: &str) -> String {
             }
         }
     }
+	log::debug!("<<< Exiting escape(s={})", s);
+	log::debug!(">>> Entering escape()");
+	log::debug!("<<< Exiting escape()");
     escaped
 }
 
@@ -1138,17 +1225,21 @@ mod tests {
     use super::{GlobSet, GlobSetBuilder};
 
     fn build_glob_set(globs: &[&str]) -> GlobSet {
+		log::debug!(">>> Entering build_glob_set(globs={:?})", globs);
         let mut builder = GlobSetBuilder::new();
         for glob in globs {
             builder.add(Glob::new(glob).unwrap());
         }
+		log::debug!("<<< Exiting build_glob_set(globs={:?})", globs);
         builder.build().unwrap()
     }
 
     #[test]
     fn set_works() {
+		log::debug!(">>> Entering set_works()");
         let set = build_glob_set(&["src/**/*.rs", "*.c", "src/lib.rs"]);
 
+		log::debug!("set_works(): set → {:?}", set);
         assert!(set.is_match("foo.c"));
         assert!(set.is_match("src/foo.c"));
         assert!(!set.is_match("foo.rs"));
@@ -1160,87 +1251,111 @@ mod tests {
         assert!(!set.matches_all("src/a/b.c"));
 
         let matches = set.matches("src/lib.rs");
+		log::debug!("set_works(): matches → (unprintable)");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
+		log::debug!("<<< Exiting set_works()");
         assert_eq!(2, matches[1]);
     }
 
     #[test]
     fn empty_set_works() {
+		log::debug!(">>> Entering empty_set_works()");
         let set = GlobSetBuilder::new().build().unwrap();
         assert!(!set.is_match(""));
+		log::debug!("empty_set_works(): set → (unprintable)");
         assert!(!set.is_match("a"));
+		log::debug!("<<< Exiting empty_set_works()");
         assert!(set.matches_all("a"));
     }
 
     #[test]
     fn matches_all_literals() {
+		log::debug!(">>> Entering matches_all_literals()");
         let set = build_glob_set(&["abc", "def"]);
 
+		log::debug!("matches_all_literals(): set → {:?}", set);
         assert!(!set.matches_all("abc"));
         assert!(!set.matches_all("def"));
 
         let set = build_glob_set(&["abc"]);
 
+		log::debug!("<<< Exiting matches_all_literals()");
         assert!(set.matches_all("abc"));
     }
 
     #[test]
     fn matches_all_basename_literals() {
+		log::debug!(">>> Entering matches_all_basename_literals()");
         let set = build_glob_set(&["**/abc", "**/a.c"]);
 
+		log::debug!("matches_all_basename_literals(): set → {:?}", set);
         assert!(!set.matches_all("foo/abc"));
         assert!(!set.matches_all("foo/a.c"));
 
         let set = build_glob_set(&["**/a.c"]);
+		log::debug!("<<< Exiting matches_all_basename_literals()");
         assert!(set.matches_all("foo/a.c"));
     }
 
     #[test]
     fn matches_all_extensions() {
+		log::debug!(">>> Entering matches_all_extensions()");
         let set = build_glob_set(&["**/*.rs", "**/*.c"]);
 
+		log::debug!("matches_all_extensions(): set → {:?}", set);
         assert!(!set.matches_all("foo/a.rs"));
         assert!(!set.matches_all("foo/a.c"));
 
         let set = build_glob_set(&["**/*.rs", "*.rs"]);
+		log::debug!("<<< Exiting matches_all_extensions()");
         assert!(set.matches_all("foo/a.rs"));
     }
 
     #[test]
     fn matches_all_required_extensions() {
+		log::debug!(">>> Entering matches_all_required_extensions()");
         let set = build_glob_set(&["*.rs", "**/m*.rs", "a/*.rs"]);
 
+		log::debug!("matches_all_required_extensions(): set → {:?}", set);
         assert!(set.matches_all("a/main.rs"));
 
         assert!(!set.matches_all("main.rs"));
+		log::debug!("<<< Exiting matches_all_required_extensions()");
         assert!(!set.matches_all("a/lib.rs"));
     }
 
     #[test]
     fn matches_all_prefix() {
+		log::debug!(">>> Entering matches_all_prefix()");
         let set = build_glob_set(&["a*", "ab*", "ab/c*"]);
 
+		log::debug!("matches_all_prefix(): set → {:?}", set);
         assert!(set.matches_all("ab/c/def"));
         assert!(set.matches_all("ab/cd"));
 
         assert!(!set.matches_all("abc"));
         assert!(!set.matches_all("ab/x"));
+		log::debug!("<<< Exiting matches_all_prefix()");
         assert!(!set.matches_all("a"));
     }
 
     #[test]
     fn matches_all_suffix() {
+		log::debug!(">>> Entering matches_all_suffix()");
         let set = build_glob_set(&["*.rs", "*s", "*/main.rs"]);
 
+		log::debug!("matches_all_suffix(): set → {:?}", set);
         assert!(set.matches_all("a/b/c/main.rs"));
 
         assert!(!set.matches_all("foo.rs"));
+		log::debug!("<<< Exiting matches_all_suffix()");
         assert!(!set.matches_all("as"));
     }
 
     #[test]
     fn matches_all_regex() {
+		log::debug!(">>> Entering matches_all_regex()");
         let set = GlobSet::new(&[
             GlobBuilder::new("c*").case_insensitive(true).build().unwrap(),
             Glob::new("*{rs,c}").unwrap(),
@@ -1251,13 +1366,16 @@ mod tests {
         assert!(set.matches_all("C/main.c"));
 
         assert!(!set.matches_all("Ca"));
+		log::debug!("<<< Exiting matches_all_regex()");
         assert!(!set.matches_all("foo.c"));
     }
 
     #[test]
     fn default_set_is_empty_works() {
+		log::debug!(">>> Entering default_set_is_empty_works()");
         let set: GlobSet = Default::default();
         assert!(!set.is_match(""));
+		log::debug!("<<< Exiting default_set_is_empty_works()");
         assert!(!set.is_match("a"));
     }
 
@@ -1278,30 +1396,38 @@ mod tests {
     // search, then it should be cleared first.
     #[test]
     fn set_does_not_remember() {
+		log::debug!(">>> Entering set_does_not_remember()");
         let mut builder = GlobSetBuilder::new();
         builder.add(Glob::new("*foo*").unwrap());
+		log::debug!("set_does_not_remember(): builder → (unprintable)");
         builder.add(Glob::new("*bar*").unwrap());
         builder.add(Glob::new("*quux*").unwrap());
         let set = builder.build().unwrap();
+		log::debug!("set_does_not_remember(): set → (unprintable)");
 
         let matches = set.matches("ZfooZquuxZ");
+		log::debug!("set_does_not_remember(): matches → (unprintable)");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
 
         let matches = set.matches("nada");
+		log::debug!("<<< Exiting set_does_not_remember()");
         assert_eq!(0, matches.len());
     }
 
     #[test]
     fn debug() {
+		log::debug!(">>> Entering debug()");
         let mut builder = GlobSetBuilder::new();
         builder.add(Glob::new("*foo*").unwrap());
+		log::debug!("debug(): builder → (unprintable)");
         builder.add(Glob::new("*bar*").unwrap());
         builder.add(Glob::new("*quux*").unwrap());
         assert_eq!(
             format!("{builder:?}"),
             "GlobSetBuilder { pats: [Glob(\"*foo*\"), Glob(\"*bar*\"), Glob(\"*quux*\")] }",
+		log::debug!("<<< Exiting debug()");
         );
     }
 }

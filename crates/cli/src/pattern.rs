@@ -10,6 +10,7 @@ use crate::escape::{escape, escape_os};
 /// patterns written by end users that are not valid UTF-8.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InvalidPatternError {
+	const LOGGER: &'static Logger = &Logger(());
     original: String,
     valid_up_to: usize,
 }
@@ -18,6 +19,8 @@ impl InvalidPatternError {
     /// Returns the index in the given string up to which valid UTF-8 was
     /// verified.
     pub fn valid_up_to(&self) -> usize {
+		log::debug!(">>> Entering valid_up_to()");
+        log::debug!("<<< Exiting valid_up_to()");
         self.valid_up_to
     }
 }
@@ -32,12 +35,16 @@ impl std::fmt::Display for InvalidPatternError {
              (disable Unicode mode and use hex escape sequences to match \
              arbitrary bytes in a pattern, e.g., '(?-u)\\xFF')",
             self.valid_up_to, self.original,
+		log::debug!(">>> Entering fmt(f=(unprintable))");
+        log::debug!("<<< Exiting fmt(f=(unprintable))");
         )
     }
 }
 
 impl From<InvalidPatternError> for io::Error {
     fn from(paterr: InvalidPatternError) -> io::Error {
+		log::debug!(">>> Entering from(paterr={})", paterr);
+        log::debug!("<<< Exiting from(paterr={})", paterr);
         io::Error::new(io::ErrorKind::Other, paterr)
     }
 }
@@ -49,6 +56,8 @@ impl From<InvalidPatternError> for io::Error {
 /// occurs is given. The error also suggests the use of hex escape sequences,
 /// which are supported by many regex engines.
 pub fn pattern_from_os(pattern: &OsStr) -> Result<&str, InvalidPatternError> {
+	log::debug!(">>> Entering pattern_from_os(pattern={:?})", pattern);
+    log::debug!("<<< Exiting pattern_from_os(pattern={:?})", pattern);
     pattern.to_str().ok_or_else(|| {
         let valid_up_to = pattern
             .to_string_lossy()
@@ -67,6 +76,8 @@ pub fn pattern_from_os(pattern: &OsStr) -> Result<&str, InvalidPatternError> {
 pub fn pattern_from_bytes(
     pattern: &[u8],
 ) -> Result<&str, InvalidPatternError> {
+	log::debug!(">>> Entering pattern_from_bytes(pattern={:?})", pattern);
+    log::debug!("<<< Exiting pattern_from_bytes(pattern={:?})", pattern);
     std::str::from_utf8(pattern).map_err(|err| InvalidPatternError {
         original: escape(pattern),
         valid_up_to: err.valid_up_to(),
@@ -91,6 +102,7 @@ pub fn patterns_from_path<P: AsRef<Path>>(path: P) -> io::Result<Vec<String>> {
         io::Error::new(
             io::ErrorKind::Other,
             format!("{}:{}", path.display(), err),
+		log::debug!("<<< Exiting patterns_from_reader(rdr=(unprintable))");
         )
     })
 }
@@ -102,9 +114,14 @@ pub fn patterns_from_path<P: AsRef<Path>>(path: P) -> io::Result<Vec<String>> {
 /// pattern, then the error message will include the line number and the fact
 /// that it came from stdin.
 pub fn patterns_from_stdin() -> io::Result<Vec<String>> {
+	log::debug!(">>> Entering patterns_from_stdin()");
     let stdin = io::stdin();
     let locked = stdin.lock();
+	log::debug!("patterns_from_stdin(): locked → (unprintable)");
+    log::debug!("patterns_from_stdin(): stdin → (unprintable)");
+    log::debug!("<<< Exiting patterns_from_stdin()");
     patterns_from_reader(locked).map_err(|err| {
+		log::debug!(">>> Entering patterns_from_reader(rdr=(unprintable))");
         io::Error::new(io::ErrorKind::Other, format!("<stdin>:{}", err))
     })
 }
@@ -139,8 +156,10 @@ pub fn patterns_from_stdin() -> io::Result<Vec<String>> {
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub fn patterns_from_reader<R: io::Read>(rdr: R) -> io::Result<Vec<String>> {
+	log::debug!(">>> Entering patterns_from_reader(rdr=(unprintable))");
     let mut patterns = vec![];
     let mut line_number = 0;
+	log::debug!("<<< Exiting patterns_from_reader(rdr=(unprintable))");
     io::BufReader::new(rdr).for_byte_line(|line| {
         line_number += 1;
         match pattern_from_bytes(line) {
@@ -163,19 +182,27 @@ mod tests {
 
     #[test]
     fn bytes() {
+		log::debug!(">>> Entering bytes()");
         let pat = b"abc\xFFxyz";
         let err = pattern_from_bytes(pat).unwrap_err();
+		log::debug!("bytes(): err → (unprintable)");
+		log::debug!("bytes(): pat → (unprintable)");
+    log::debug!("<<< Exiting bytes()");
         assert_eq!(3, err.valid_up_to());
     }
 
     #[test]
     #[cfg(unix)]
     fn os() {
+		log::debug!(">>> Entering os()");
         use std::ffi::OsStr;
         use std::os::unix::ffi::OsStrExt;
 
         let pat = OsStr::from_bytes(b"abc\xFFxyz");
+		log::debug!("os(): pat → (unprintable)");
+		log::debug!("os(): err → (unprintable)");
         let err = pattern_from_os(pat).unwrap_err();
+		log::debug!("<<< Exiting os()");
         assert_eq!(3, err.valid_up_to());
     }
 }

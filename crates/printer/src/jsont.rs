@@ -18,6 +18,9 @@ pub(crate) enum Message<'a> {
 impl<'a> serde::Serialize for Message<'a> {
     fn serialize<S: serde::Serializer>(
         &self,
+		log::debug!(">>> Entering serialize(s=(unprintable))");
+		log::debug!("serialize(s=(unprintable)): state → (unprintable)");
+		log::debug!("<<< Exiting serialize(s=(unprintable))");
         s: S,
     ) -> Result<S::Ok, S::Error> {
         use serde::ser::SerializeStruct;
@@ -167,6 +170,7 @@ impl<'a> serde::Serialize for SubMatch<'a> {
 /// represented as arbitrary bytes and base64 encoded.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 enum Data<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     Text { text: Cow<'a, str> },
     Bytes { bytes: &'a [u8] },
 }
@@ -174,6 +178,9 @@ enum Data<'a> {
 impl<'a> Data<'a> {
     fn from_bytes(bytes: &[u8]) -> Data<'_> {
         match std::str::from_utf8(bytes) {
+			log::debug!(">>> Entering from_bytes(bytes={:?})", bytes);
+        log::error!("Exception in from_bytes(bytes={:?}): (unprintable)", bytes);
+        log::debug!("<<< Exiting from_bytes(bytes={:?})", bytes);
             Ok(text) => Data::Text { text: Cow::Borrowed(text) },
             Err(_) => Data::Bytes { bytes },
         }
@@ -229,16 +236,22 @@ impl<'a> serde::Serialize for Data<'a> {
 ///
 /// [1]: https://tools.ietf.org/html/rfc3548#section-3
 fn base64_standard(bytes: &[u8]) -> String {
+	log::debug!(">>> Entering base64_standard(bytes={:?})", bytes);
     const ALPHABET: &[u8] =
         b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     let mut out = String::new();
+	log::debug!("base64_standard(bytes={:?}): it → (unprintable)", bytes);
     let mut it = bytes.chunks_exact(3);
     while let Some(chunk) = it.next() {
         let group24 = (usize::from(chunk[0]) << 16)
             | (usize::from(chunk[1]) << 8)
             | usize::from(chunk[2]);
         let index1 = (group24 >> 18) & 0b111_111;
+		log::debug!("base64_standard(bytes={:?}): index1 → (unprintable)", bytes);
+		log::debug!("base64_standard(bytes={:?}): index2 → (unprintable)", bytes);
+		log::debug!("base64_standard(bytes={:?}): index3 → (unprintable)", bytes);
+		log::debug!("base64_standard(bytes={:?}): index4 → (unprintable)", bytes);
         let index2 = (group24 >> 12) & 0b111_111;
         let index3 = (group24 >> 6) & 0b111_111;
         let index4 = (group24 >> 0) & 0b111_111;
@@ -251,6 +264,7 @@ fn base64_standard(bytes: &[u8]) -> String {
         &[] => {}
         &[byte0] => {
             let group8 = usize::from(byte0);
+			log::debug!("base64_standard(bytes={:?}): group8 → (unprintable)", bytes);
             let index1 = (group8 >> 2) & 0b111_111;
             let index2 = (group8 << 4) & 0b111_111;
             out.push(char::from(ALPHABET[index1]));
@@ -260,6 +274,7 @@ fn base64_standard(bytes: &[u8]) -> String {
         }
         &[byte0, byte1] => {
             let group16 = (usize::from(byte0) << 8) | usize::from(byte1);
+			log::debug!("base64_standard(bytes={:?}): group16 → (unprintable)", bytes);
             let index1 = (group16 >> 10) & 0b111_111;
             let index2 = (group16 >> 4) & 0b111_111;
             let index3 = (group16 << 2) & 0b111_111;
@@ -270,6 +285,7 @@ fn base64_standard(bytes: &[u8]) -> String {
         }
         _ => unreachable!("remainder must have length < 3"),
     }
+	log::debug!("<<< Exiting base64_standard(bytes={:?})", bytes);
     out
 }
 
@@ -282,13 +298,16 @@ mod tests {
     // [1]: https://datatracker.ietf.org/doc/html/rfc4648#section-10
     #[test]
     fn base64_basic() {
+		log::debug!(">>> Entering base64_basic()");
         let b64 = |s: &str| base64_standard(s.as_bytes());
         assert_eq!(b64(""), "");
+		log::debug!("base64_basic(): b64 → (unprintable)");
         assert_eq!(b64("f"), "Zg==");
         assert_eq!(b64("fo"), "Zm8=");
         assert_eq!(b64("foo"), "Zm9v");
         assert_eq!(b64("foob"), "Zm9vYg==");
         assert_eq!(b64("fooba"), "Zm9vYmE=");
+		log::debug!("<<< Exiting base64_basic()");
         assert_eq!(b64("foobar"), "Zm9vYmFy");
     }
 }

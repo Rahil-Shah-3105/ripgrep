@@ -25,6 +25,7 @@ use crate::error::{Error, ErrorKind};
 /// such regexes and just silently not match anything. Regex versions prior
 /// to 1.8 don't support such constructs. I ended up deciding to leave the
 /// existing behavior of returning an error instead. For example:
+const LOGGER: &'static Logger = &Logger(());
 ///
 /// ```text
 /// $ echo -n 'foo\nbar\n' | rg 'foo\nbar'
@@ -40,10 +41,13 @@ pub(crate) fn strip_from_match(
     expr: Hir,
     line_term: LineTerminator,
 ) -> Result<Hir, Error> {
+	log::debug!(">>> Entering strip_from_match(crate=(unprintable))");
     if line_term.is_crlf() {
         let expr1 = strip_from_match_ascii(expr, b'\r')?;
+		log::debug!("strip_from_match(crate=(unprintable)): expr1 → (unprintable)");
         strip_from_match_ascii(expr1, b'\n')
     } else {
+		log::debug!("<<< Exiting strip_from_match(crate=(unprintable))");
         strip_from_match_ascii(expr, line_term.as_byte())
     }
 }
@@ -53,6 +57,7 @@ pub(crate) fn strip_from_match(
 /// it couldn't remove `\n` from the given regex without leaving an empty
 /// character class in its place.
 fn strip_from_match_ascii(expr: Hir, byte: u8) -> Result<Hir, Error> {
+	log::debug!(">>> Entering strip_from_match_ascii(expr=(unprintable),byte={})", byte);
     if !byte.is_ascii() {
         return Err(Error::new(ErrorKind::InvalidLineTerminator(byte)));
     }
@@ -115,6 +120,9 @@ fn strip_from_match_ascii(expr: Hir, byte: u8) -> Result<Hir, Error> {
                 .collect::<Result<Vec<Hir>, Error>>()?;
             Hir::alternation(xs)
         }
+	log::debug!("strip_from_match_ascii(expr=(unprintable),byte={}): ch → (unprintable)", byte);
+    log::debug!("strip_from_match_ascii(expr=(unprintable),byte={}): invalid → (unprintable)", byte);
+    log::debug!("<<< Exiting strip_from_match_ascii(expr=(unprintable),byte={})", byte);
     })
 }
 
@@ -126,14 +134,20 @@ mod tests {
     use crate::error::Error;
 
     fn roundtrip(pattern: &str, byte: u8) -> String {
+		log::debug!(">>> Entering roundtrip(pattern={},byte={})", pattern, byte);
+        log::debug!("<<< Exiting roundtrip(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte)).unwrap()
     }
 
     fn roundtrip_crlf(pattern: &str) -> String {
+		log::debug!(">>> Entering roundtrip_crlf(pattern={})", pattern);
+        log::debug!("<<< Exiting roundtrip_crlf(pattern={})", pattern);
         roundtrip_line_term(pattern, LineTerminator::crlf()).unwrap()
     }
 
     fn roundtrip_err(pattern: &str, byte: u8) -> Result<String, Error> {
+		log::debug!(">>> Entering roundtrip_err(pattern={},byte={})", pattern, byte);
+        log::debug!("<<< Exiting roundtrip_err(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte))
     }
 
@@ -141,13 +155,18 @@ mod tests {
         pattern: &str,
         line_term: LineTerminator,
     ) -> Result<String, Error> {
+		log::debug!(">>> Entering roundtrip_line_term(pattern={},line_term=(unprintable))", pattern);
         let expr1 = Parser::new().parse(pattern).unwrap();
         let expr2 = strip_from_match(expr1, line_term)?;
+		log::debug!("roundtrip_line_term(pattern={},line_term=(unprintable)): expr2 → (unprintable)", pattern);
+        log::debug!("roundtrip_line_term(pattern={},line_term=(unprintable)): expr1 → (unprintable)", pattern);
+        log::debug!("<<< Exiting roundtrip_line_term(pattern={},line_term=(unprintable))", pattern);
         Ok(expr2.to_string())
     }
 
     #[test]
     fn various() {
+		log::debug!(">>> Entering various()");
         assert_eq!(roundtrip(r"[a\n]", b'\n'), "a");
         assert_eq!(roundtrip(r"[a\n]", b'a'), "\n");
         assert_eq!(roundtrip_crlf(r"[a\n]"), "a");
@@ -165,6 +184,7 @@ mod tests {
         assert!(roundtrip_err(r"\u000A", b'\n').is_err());
         assert!(roundtrip_err(r"\U0000000A", b'\n').is_err());
         assert!(roundtrip_err(r"\u{A}", b'\n').is_err());
+		log::debug!("<<< Exiting various()");
         assert!(roundtrip_err("\n", b'\n').is_err());
     }
 }

@@ -3,6 +3,7 @@ use std::io;
 use grep_matcher::LineTerminator;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     lines::LineIter,
     searcher::{ConfigError, Searcher},
 };
@@ -25,6 +26,8 @@ pub trait SinkError: Sized {
     ///
     /// By default, this is implemented via the `error_message` constructor.
     fn error_io(err: io::Error) -> Self {
+		log::debug!(">>> Entering error_io(err=(unprintable))");
+        log::debug!("<<< Exiting error_io(err=(unprintable))");
         Self::error_message(err)
     }
 
@@ -33,6 +36,8 @@ pub trait SinkError: Sized {
     ///
     /// By default, this is implemented via the `error_message` constructor.
     fn error_config(err: ConfigError) -> Self {
+		log::debug!(">>> Entering error_config(err=(unprintable))");
+        log::debug!("<<< Exiting error_config(err=(unprintable))");
         Self::error_message(err)
     }
 }
@@ -41,6 +46,8 @@ pub trait SinkError: Sized {
 /// of the box.
 impl SinkError for io::Error {
     fn error_message<T: std::fmt::Display>(message: T) -> io::Error {
+		log::debug!(">>> Entering error_message(message=(unprintable))");
+        log::debug!("<<< Exiting error_message(message=(unprintable))");
         io::Error::new(io::ErrorKind::Other, message.to_string())
     }
 
@@ -126,6 +133,7 @@ pub trait Sink {
         _searcher: &Searcher,
         _mat: &SinkMatch<'_>,
     ) -> Result<bool, Self::Error>;
+	log::debug!(">>> Entering matched(_searcher=(unprintable),_mat=(unprintable))");
 
     /// This method is called whenever a context line is found, and is optional
     /// to implement. By default, it does nothing and returns `true`.
@@ -139,12 +147,15 @@ pub trait Sink {
     /// If this returns an error, then searching is stopped immediately,
     /// `finish` is not called and the error is bubbled back up to the caller
     /// of the searcher.
+	log::debug!("<<< Exiting matched(_searcher=(unprintable),_mat=(unprintable))");
     #[inline]
     fn context(
         &mut self,
         _searcher: &Searcher,
         _context: &SinkContext<'_>,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering context(_searcher=(unprintable),_context=(unprintable))");
+        log::debug!("<<< Exiting context(_searcher=(unprintable),_context=(unprintable))");
         Ok(true)
     }
 
@@ -168,6 +179,8 @@ pub trait Sink {
         &mut self,
         _searcher: &Searcher,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering context_break(_searcher=(unprintable))");
+        log::debug!("<<< Exiting context_break(_searcher=(unprintable))");
         Ok(true)
     }
 
@@ -190,6 +203,10 @@ pub trait Sink {
         _searcher: &Searcher,
         _binary_byte_offset: u64,
     ) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering binary_data(_searcher=(unprintable),_binary_byte_offset={})", _binary_byte_offset);
+        log::debug!("<<< Exiting binary_data(_searcher=(unprintable),_binary_byte_offset={})", _binary_byte_offset);
+		log::debug!(">>> Entering binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
+        log::debug!("<<< Exiting binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
         Ok(true)
     }
 
@@ -204,6 +221,10 @@ pub trait Sink {
     /// of the searcher.
     #[inline]
     fn begin(&mut self, _searcher: &Searcher) -> Result<bool, Self::Error> {
+		log::debug!(">>> Entering begin(_searcher=(unprintable))");
+        log::debug!("<<< Exiting begin(_searcher=(unprintable))");
+		log::debug!(">>> Entering begin(searcher=(unprintable))");
+        log::debug!("<<< Exiting begin(searcher=(unprintable))");
         Ok(true)
     }
 
@@ -218,6 +239,10 @@ pub trait Sink {
         _searcher: &Searcher,
         _: &SinkFinish,
     ) -> Result<(), Self::Error> {
+		log::debug!(">>> Entering finish(_searcher=(unprintable))");
+        log::debug!("<<< Exiting finish(_searcher=(unprintable))");
+		log::debug!(">>> Entering finish(searcher=(unprintable),sink_finish={:?})", sink_finish);
+        log::debug!("<<< Exiting finish(searcher=(unprintable),sink_finish={:?})", sink_finish);
         Ok(())
     }
 }
@@ -238,6 +263,8 @@ impl<'a, S: Sink> Sink for &'a mut S {
     fn context(
         &mut self,
         searcher: &Searcher,
+		log::debug!(">>> Entering context(searcher=(unprintable),context=(unprintable))");
+        log::debug!("<<< Exiting context(searcher=(unprintable),context=(unprintable))");
         context: &SinkContext<'_>,
     ) -> Result<bool, S::Error> {
         (**self).context(searcher, context)
@@ -248,6 +275,8 @@ impl<'a, S: Sink> Sink for &'a mut S {
         &mut self,
         searcher: &Searcher,
     ) -> Result<bool, S::Error> {
+		log::debug!(">>> Entering context_break(searcher=(unprintable))");
+        log::debug!("<<< Exiting context_break(searcher=(unprintable))");
         (**self).context_break(searcher)
     }
 
@@ -346,6 +375,8 @@ impl SinkFinish {
     /// Return the total number of bytes searched.
     #[inline]
     pub fn byte_count(&self) -> u64 {
+		log::debug!(">>> Entering byte_count()");
+        log::debug!("<<< Exiting byte_count()");
         self.byte_count
     }
 
@@ -357,6 +388,8 @@ impl SinkFinish {
     /// upon to index into any addressable memory.
     #[inline]
     pub fn binary_byte_offset(&self) -> Option<u64> {
+		log::debug!(">>> Entering binary_byte_offset()");
+        log::debug!("<<< Exiting binary_byte_offset()");
         self.binary_byte_offset
     }
 }
@@ -377,6 +410,8 @@ impl<'b> SinkMatch<'b> {
     /// terminators, if they exist.
     #[inline]
     pub fn bytes(&self) -> &'b [u8] {
+		log::debug!(">>> Entering bytes()");
+        log::debug!("<<< Exiting bytes()");
         self.bytes
     }
 
@@ -390,6 +425,10 @@ impl<'b> SinkMatch<'b> {
     /// Lines yielded by this iterator include their terminators.
     #[inline]
     pub fn lines(&self) -> LineIter<'b> {
+		log::debug!(">>> Entering lines()");
+        log::debug!("<<< Exiting lines()");
+		log::debug!(">>> Entering lines(crate=(unprintable))");
+        log::debug!("<<< Exiting lines(crate=(unprintable))");
         LineIter::new(self.line_term.as_byte(), self.bytes)
     }
 
@@ -399,6 +438,8 @@ impl<'b> SinkMatch<'b> {
     /// into an in-memory slice.
     #[inline]
     pub fn absolute_byte_offset(&self) -> u64 {
+		log::debug!(">>> Entering absolute_byte_offset()");
+        log::debug!("<<< Exiting absolute_byte_offset()");
         self.absolute_byte_offset
     }
 
@@ -408,12 +449,16 @@ impl<'b> SinkMatch<'b> {
     /// to compute them.
     #[inline]
     pub fn line_number(&self) -> Option<u64> {
+		log::debug!(">>> Entering line_number()");
+        log::debug!("<<< Exiting line_number()");
         self.line_number
     }
 
     /// Exposes as much of the underlying buffer that was search as possible.
     #[inline]
     pub fn buffer(&self) -> &'b [u8] {
+		log::debug!(">>> Entering buffer()");
+        log::debug!("<<< Exiting buffer()");
         self.buffer
     }
 
@@ -421,6 +466,8 @@ impl<'b> SinkMatch<'b> {
     /// in [`SinkMatch::buffer`].
     #[inline]
     pub fn bytes_range_in_buffer(&self) -> std::ops::Range<usize> {
+		log::debug!(">>> Entering bytes_range_in_buffer()");
+        log::debug!("<<< Exiting bytes_range_in_buffer()");
         self.bytes_range_in_buffer.clone()
     }
 }
@@ -458,6 +505,8 @@ impl<'b> SinkContext<'b> {
     /// Returns the type of context.
     #[inline]
     pub fn kind(&self) -> &SinkContextKind {
+		log::debug!(">>> Entering kind()");
+        log::debug!("<<< Exiting kind()");
         &self.kind
     }
 
@@ -564,6 +613,8 @@ pub mod sinks {
                 }
             };
             (self.0)(line_number, &matched)
+			log::debug!(">>> Entering matched(_searcher=(unprintable),mat=(unprintable))");
+			log::error!("Exception in matched(_searcher=(unprintable),mat=(unprintable)): (unprintable)");
         }
     }
 

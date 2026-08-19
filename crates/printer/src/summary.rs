@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},
@@ -40,6 +41,8 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         Config {
             kind: SummaryKind::Count,
             colors: ColorSpecs::default(),
@@ -101,8 +104,10 @@ impl SummaryKind {
     /// will report an error at the start of every search that lacks a file
     /// path.
     fn requires_path(&self) -> bool {
+		log::debug!(">>> Entering requires_path()");
         use self::SummaryKind::*;
 
+		log::debug!("<<< Exiting requires_path()");
         match *self {
             PathWithMatch | PathWithoutMatch => true,
             Count | CountMatches | QuietWithMatch | QuietWithoutMatch => false,
@@ -112,8 +117,10 @@ impl SummaryKind {
     /// Returns true if and only if this output mode requires computing
     /// statistics, regardless of whether they have been enabled or not.
     fn requires_stats(&self) -> bool {
+		log::debug!(">>> Entering requires_stats()");
         use self::SummaryKind::*;
 
+		log::debug!("<<< Exiting requires_stats()");
         match *self {
             CountMatches => true,
             Count | PathWithMatch | PathWithoutMatch | QuietWithMatch
@@ -124,11 +131,13 @@ impl SummaryKind {
     /// Returns true if and only if a printer using this output mode can
     /// quit after seeing the first match.
     fn quit_early(&self) -> bool {
+		log::debug!(">>> Entering quit_early()");
         use self::SummaryKind::*;
 
         match *self {
             PathWithMatch | QuietWithMatch => true,
             Count | CountMatches | PathWithoutMatch | QuietWithoutMatch => {
+				log::debug!("<<< Exiting quit_early()");
                 false
             }
         }
@@ -151,6 +160,10 @@ pub struct SummaryBuilder {
 impl SummaryBuilder {
     /// Return a new builder for configuring the summary printer.
     pub fn new() -> SummaryBuilder {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
+		log::debug!(">>> Entering new(wtr=(unprintable))");
+        log::debug!("<<< Exiting new(wtr=(unprintable))");
         SummaryBuilder { config: Config::default() }
     }
 
@@ -173,6 +186,8 @@ impl SummaryBuilder {
     /// select the `termcolor::NoColor` wrapper to avoid needing to import
     /// from `termcolor` explicitly.
     pub fn build<W: WriteColor>(&self, wtr: W) -> Summary<W> {
+		log::debug!(">>> Entering build(wtr=(unprintable))");
+        log::debug!("<<< Exiting build(wtr=(unprintable))");
         Summary {
             config: self.config.clone(),
             wtr: RefCell::new(CounterWriter::new(wtr)),
@@ -185,6 +200,8 @@ impl SummaryBuilder {
     /// This is a convenience routine for
     /// `SummaryBuilder::build(termcolor::NoColor::new(wtr))`.
     pub fn build_no_color<W: io::Write>(&self, wtr: W) -> Summary<NoColor<W>> {
+		log::debug!(">>> Entering build_no_color(wtr=(unprintable))");
+        log::debug!("<<< Exiting build_no_color(wtr=(unprintable))");
         self.build(NoColor::new(wtr))
     }
 
@@ -194,7 +211,9 @@ impl SummaryBuilder {
     ///
     /// By default, this printer uses the `Count` mode.
     pub fn kind(&mut self, kind: SummaryKind) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering kind(kind={:?})", kind);
         self.config.kind = kind;
+		log::debug!("<<< Exiting kind(kind={:?})", kind);
         self
     }
 
@@ -218,7 +237,9 @@ impl SummaryBuilder {
     ///
     /// The default color specifications provide no styling.
     pub fn color_specs(&mut self, specs: ColorSpecs) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering color_specs(specs=(unprintable))");
         self.config.colors = specs;
+		log::debug!("<<< Exiting color_specs(specs=(unprintable))");
         self
     }
 
@@ -237,7 +258,9 @@ impl SummaryBuilder {
         &mut self,
         config: HyperlinkConfig,
     ) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering hyperlink(config=(unprintable))");
         self.config.hyperlink = config;
+		log::debug!("<<< Exiting hyperlink(config=(unprintable))");
         self
     }
 
@@ -262,7 +285,9 @@ impl SummaryBuilder {
     /// Note that some output modes, such as `CountMatches`, automatically
     /// enable this option even if it has been explicitly disabled.
     pub fn stats(&mut self, yes: bool) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering stats(yes={})", yes);
         self.config.stats = yes;
+		log::debug!("<<< Exiting stats(yes={})", yes);
         self
     }
 
@@ -276,7 +301,9 @@ impl SummaryBuilder {
     ///
     /// This is enabled by default.
     pub fn path(&mut self, yes: bool) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering path(yes={})", yes);
         self.config.path = yes;
+		log::debug!("<<< Exiting path(yes={})", yes);
         self
     }
 
@@ -288,7 +315,9 @@ impl SummaryBuilder {
     ///
     /// This is enabled by default.
     pub fn exclude_zero(&mut self, yes: bool) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering exclude_zero(yes={})", yes);
         self.config.exclude_zero = yes;
+		log::debug!("<<< Exiting exclude_zero(yes={})", yes);
         self
     }
 
@@ -297,7 +326,9 @@ impl SummaryBuilder {
     ///
     /// By default, this is set to `:`.
     pub fn separator_field(&mut self, sep: Vec<u8>) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering separator_field(sep={:?})", sep);
         self.config.separator_field = Arc::new(sep);
+		log::debug!("<<< Exiting separator_field(sep={:?})", sep);
         self
     }
 
@@ -313,7 +344,9 @@ impl SummaryBuilder {
     ///
     /// This is disabled by default.
     pub fn separator_path(&mut self, sep: Option<u8>) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering separator_path(sep={:?})", sep);
         self.config.separator_path = sep;
+		log::debug!("<<< Exiting separator_path(sep={:?})", sep);
         self
     }
 
@@ -328,7 +361,9 @@ impl SummaryBuilder {
         &mut self,
         terminator: Option<u8>,
     ) -> &mut SummaryBuilder {
+		log::debug!(">>> Entering path_terminator(terminator={:?})", terminator);
         self.config.path_terminator = terminator;
+		log::debug!("<<< Exiting path_terminator(terminator={:?})", terminator);
         self
     }
 }
@@ -375,6 +410,8 @@ impl<W: io::Write> Summary<NoColor<W>> {
     ///
     /// The default configuration uses the `Count` summary mode.
     pub fn new_no_color(wtr: W) -> Summary<NoColor<W>> {
+		log::debug!(">>> Entering new_no_color(wtr=(unprintable))");
+        log::debug!("<<< Exiting new_no_color(wtr=(unprintable))");
         SummaryBuilder::new().build_no_color(wtr)
     }
 }
@@ -389,6 +426,8 @@ impl<W: WriteColor> Summary<W> {
     /// using this sink will immediately quit with an error.
     pub fn sink<'s, M: Matcher>(
         &'s mut self,
+		log::debug!(">>> Entering sink(matcher=(unprintable))");
+		log::debug!("<<< Exiting sink(matcher=(unprintable))");
         matcher: M,
     ) -> SummarySink<'static, 's, M, W> {
         let interpolator =
@@ -417,6 +456,7 @@ impl<W: WriteColor> Summary<W> {
     pub fn sink_with_path<'p, 's, M, P>(
         &'s mut self,
         matcher: M,
+		log::debug!(">>> Entering sink_with_path(matcher=(unprintable),path=(unprintable))");
         path: &'p P,
     ) -> SummarySink<'p, 's, M, W>
     where
@@ -431,6 +471,8 @@ impl<W: WriteColor> Summary<W> {
         let stats = if self.config.stats || self.config.kind.requires_stats() {
             Some(Stats::new())
         } else {
+			log::debug!(">>> Entering stats()");
+        log::debug!("<<< Exiting stats()");
             None
         };
         let ppath = PrinterPath::new(path.as_ref())
@@ -452,17 +494,23 @@ impl<W> Summary<W> {
     /// Returns true if and only if this printer has written at least one byte
     /// to the underlying writer during any of the previous searches.
     pub fn has_written(&self) -> bool {
+		log::debug!(">>> Entering has_written()");
+        log::debug!("<<< Exiting has_written()");
         self.wtr.borrow().total_count() > 0
     }
 
     /// Return a mutable reference to the underlying writer.
     pub fn get_mut(&mut self) -> &mut W {
+		log::debug!(">>> Entering get_mut()");
+        log::debug!("<<< Exiting get_mut()");
         self.wtr.get_mut().get_mut()
     }
 
     /// Consume this printer and return back ownership of the underlying
     /// writer.
     pub fn into_inner(self) -> W {
+		log::debug!(">>> Entering into_inner()");
+        log::debug!("<<< Exiting into_inner()");
         self.wtr.into_inner().into_inner()
     }
 }
@@ -499,8 +547,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// This is unaffected by the result of searches before the previous
     /// search.
     pub fn has_match(&self) -> bool {
+		log::debug!(">>> Entering has_match()");
         match self.summary.config.kind {
             SummaryKind::PathWithoutMatch | SummaryKind::QuietWithoutMatch => {
+				log::debug!("<<< Exiting has_match()");
                 self.match_count == 0
             }
             _ => self.match_count > 0,
@@ -518,6 +568,8 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// data but the previous search found no binary data, then this will
     /// return `None`.
     pub fn binary_byte_offset(&self) -> Option<u64> {
+		log::debug!(">>> Entering binary_byte_offset()");
+        log::debug!("<<< Exiting binary_byte_offset()");
         self.binary_byte_offset
     }
 
@@ -538,6 +590,8 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// If it can't, then we don't need multi line handling, even if the
     /// searcher has multi line mode enabled.
     fn multi_line(&self, searcher: &Searcher) -> bool {
+		log::debug!(">>> Entering multi_line(searcher=(unprintable))");
+        log::debug!("<<< Exiting multi_line(searcher=(unprintable))");
         searcher.multi_line_with_matcher(&self.matcher)
     }
 
@@ -546,6 +600,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// (If a path terminator is set, then that is used instead of the line
     /// terminator.)
     fn write_path_line(&mut self, searcher: &Searcher) -> io::Result<()> {
+		log::debug!(">>> Entering write_path_line(searcher=(unprintable))");
         if self.path.is_some() {
             self.write_path()?;
             if let Some(term) = self.summary.config.path_terminator {
@@ -554,6 +609,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write_line_term(searcher)?;
             }
         }
+		log::debug!("<<< Exiting write_path_line(searcher=(unprintable))");
         Ok(())
     }
 
@@ -562,6 +618,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// separator. (If a path terminator is set, then that is used instead of
     /// the field separator.)
     fn write_path_field(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering write_path_field()");
         if self.path.is_some() {
             self.write_path()?;
             if let Some(term) = self.summary.config.path_terminator {
@@ -570,6 +627,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write(&self.summary.config.separator_field)?;
             }
         }
+		log::debug!("<<< Exiting write_path_field()");
         Ok(())
     }
 
@@ -577,14 +635,17 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     /// write that path to the underlying writer in the appropriate style
     /// (color and hyperlink).
     fn write_path(&mut self) -> io::Result<()> {
+		log::debug!(">>> Entering write_path()");
         if self.path.is_some() {
             let status = self.start_hyperlink()?;
+			log::debug!("write_path(): status → (unprintable)");
             self.write_spec(
                 self.summary.config.colors.path(),
                 self.path.as_ref().unwrap().as_bytes(),
             )?;
             self.end_hyperlink(status)?;
         }
+		log::debug!("<<< Exiting write_path()");
         Ok(())
     }
 
@@ -592,12 +653,15 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
     fn start_hyperlink(
         &mut self,
     ) -> io::Result<hyperlink::InterpolatorStatus> {
+		log::debug!(">>> Entering start_hyperlink()");
         let Some(hyperpath) =
             self.path.as_ref().and_then(|p| p.as_hyperlink())
         else {
             return Ok(hyperlink::InterpolatorStatus::inactive());
         };
         let values = hyperlink::Values::new(hyperpath);
+		log::debug!("start_hyperlink(): values → (unprintable)");
+        log::debug!("<<< Exiting start_hyperlink()");
         self.interpolator.begin(&values, &mut *self.summary.wtr.borrow_mut())
     }
 
@@ -605,24 +669,32 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
         &self,
         status: hyperlink::InterpolatorStatus,
     ) -> io::Result<()> {
+		log::debug!(">>> Entering end_hyperlink(status=(unprintable))");
+        log::debug!("<<< Exiting end_hyperlink(status=(unprintable))");
         self.interpolator.finish(status, &mut *self.summary.wtr.borrow_mut())
     }
 
     /// Write the line terminator configured on the given searcher.
     fn write_line_term(&self, searcher: &Searcher) -> io::Result<()> {
+		log::debug!(">>> Entering write_line_term(searcher=(unprintable))");
+        log::debug!("<<< Exiting write_line_term(searcher=(unprintable))");
         self.write(searcher.line_terminator().as_bytes())
     }
 
     /// Write the given bytes using the give style.
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
+		log::debug!(">>> Entering write_spec(spec=(unprintable),buf={:?})", buf);
         self.summary.wtr.borrow_mut().set_color(spec)?;
         self.write(buf)?;
         self.summary.wtr.borrow_mut().reset()?;
+		log::debug!("<<< Exiting write_spec(spec=(unprintable),buf={:?})", buf);
         Ok(())
     }
 
     /// Write all of the given bytes.
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::debug!(">>> Entering write(buf={:?})", buf);
+        log::debug!("<<< Exiting write(buf={:?})", buf);
         self.summary.wtr.borrow_mut().write_all(buf)
     }
 }
@@ -635,8 +707,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
         searcher: &Searcher,
         mat: &SinkMatch<'_>,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering matched(searcher=(unprintable),mat=(unprintable))");
         let is_multi_line = self.multi_line(searcher);
         let sink_match_count = if self.stats.is_none() && !is_multi_line {
+			log::debug!("matched(searcher=(unprintable),mat=(unprintable)): is_multi_line → {}", is_multi_line);
             1
         } else {
             // This gives us as many bytes as the searcher can offer. This
@@ -644,6 +718,8 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
             // detection correct (because of look-around), but it does in
             // practice.
             let buf = mat.buffer();
+			log::debug!("matched(searcher=(unprintable),mat=(unprintable)): buf → (unprintable)");
+			log::debug!("matched(searcher=(unprintable),mat=(unprintable)): range → (unprintable)");
             let range = mat.bytes_range_in_buffer();
             let mut count = 0;
             find_iter_at_in_context(
@@ -681,6 +757,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
         searcher: &Searcher,
         binary_byte_offset: u64,
     ) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
         if searcher.binary_detection().quit_byte().is_some() {
             if let Some(ref path) = self.path {
                 log::debug!(
@@ -690,10 +767,12 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
                 );
             }
         }
+		log::debug!("<<< Exiting binary_data(searcher=(unprintable),binary_byte_offset={})", binary_byte_offset);
         Ok(true)
     }
 
     fn begin(&mut self, _searcher: &Searcher) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering begin(_searcher=(unprintable))");
         if self.path.is_none() && self.summary.config.kind.requires_path() {
             return Err(io::Error::error_message(format!(
                 "output kind {:?} requires a file path",
@@ -703,6 +782,9 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
         self.summary.wtr.borrow_mut().reset_count();
         self.start_time = Instant::now();
         self.match_count = 0;
+		log::debug!("begin(_searcher=(unprintable)): self.match_count → (unprintable)");
+		log::debug!("begin(_searcher=(unprintable)): self.binary_byte_offset → (unprintable)");
+        log::debug!("<<< Exiting begin(_searcher=(unprintable))");
         self.binary_byte_offset = None;
         Ok(true)
     }
@@ -710,6 +792,9 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
     fn finish(
         &mut self,
         searcher: &Searcher,
+		log::debug!(">>> Entering finish(searcher=(unprintable),finish=(unprintable))");
+		log::debug!("finish(searcher=(unprintable),finish=(unprintable)): self.match_count → (unprintable)");
+        log::debug!("<<< Exiting finish(searcher=(unprintable),finish=(unprintable))");
         finish: &SinkFinish,
     ) -> Result<(), io::Error> {
         self.binary_byte_offset = finish.binary_byte_offset();
@@ -806,11 +891,15 @@ and exhibited clearly, with a label attached.
 ";
 
     fn printer_contents(printer: &mut Summary<NoColor<Vec<u8>>>) -> String {
+		log::debug!(">>> Entering printer_contents(printer=(unprintable))");
+        log::debug!("<<< Exiting printer_contents(printer=(unprintable))");
         String::from_utf8(printer.get_mut().get_ref().to_owned()).unwrap()
     }
 
     #[test]
     fn path_with_match_error() {
+		log::debug!(">>> Entering path_with_match_error()");
+		log::debug!("path_with_match_error(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithMatch)
@@ -820,11 +909,14 @@ and exhibited clearly, with a label attached.
             SHERLOCK,
             printer.sink(&matcher),
         );
+		log::debug!("<<< Exiting path_with_match_error()");
         assert!(res.is_err());
     }
 
     #[test]
     fn path_without_match_error() {
+		log::debug!(">>> Entering path_without_match_error()");
+		log::debug!("path_without_match_error(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithoutMatch)
@@ -834,11 +926,14 @@ and exhibited clearly, with a label attached.
             SHERLOCK,
             printer.sink(&matcher),
         );
+		log::debug!("<<< Exiting path_without_match_error()");
         assert!(res.is_err());
     }
 
     #[test]
     fn count_no_path() {
+		log::debug!(">>> Entering count_no_path()");
+		log::debug!("count_no_path(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -849,11 +944,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_no_path(): got → {}", got);
+		log::debug!("<<< Exiting count_no_path()");
         assert_eq_printed!("2\n", got);
     }
 
     #[test]
     fn count_no_path_even_with_path() {
+		log::debug!(">>> Entering count_no_path_even_with_path()");
+		log::debug!("count_no_path_even_with_path(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -869,11 +968,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_no_path_even_with_path(): got → {}", got);
+		log::debug!("<<< Exiting count_no_path_even_with_path()");
         assert_eq_printed!("2\n", got);
     }
 
     #[test]
     fn count_path() {
+		log::debug!(">>> Entering count_path()");
+		log::debug!("count_path(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -888,11 +991,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path(): got → {}", got);
+		log::debug!("<<< Exiting count_path()");
         assert_eq_printed!("sherlock:2\n", got);
     }
 
     #[test]
     fn count_path_with_zero() {
+		log::debug!(">>> Entering count_path_with_zero()");
+		log::debug!("count_path_with_zero(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"NO MATCH").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -908,11 +1015,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path_with_zero(): got → {}", got);
+		log::debug!("<<< Exiting count_path_with_zero()");
         assert_eq_printed!("sherlock:0\n", got);
     }
 
     #[test]
     fn count_path_without_zero() {
+		log::debug!(">>> Entering count_path_without_zero()");
+		log::debug!("count_path_without_zero(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"NO MATCH").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -928,11 +1039,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path_without_zero(): got → {}", got);
+		log::debug!("<<< Exiting count_path_without_zero()");
         assert_eq_printed!("", got);
     }
 
     #[test]
     fn count_path_field_separator() {
+		log::debug!(">>> Entering count_path_field_separator()");
+		log::debug!("count_path_field_separator(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -948,11 +1063,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path_field_separator(): got → {}", got);
+		log::debug!("<<< Exiting count_path_field_separator()");
         assert_eq_printed!("sherlockZZ2\n", got);
     }
 
     #[test]
     fn count_path_terminator() {
+		log::debug!(">>> Entering count_path_terminator()");
+		log::debug!("count_path_terminator(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -968,11 +1087,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path_terminator(): got → {}", got);
+		log::debug!("<<< Exiting count_path_terminator()");
         assert_eq_printed!("sherlock\x002\n", got);
     }
 
     #[test]
     fn count_path_separator() {
+		log::debug!(">>> Entering count_path_separator()");
+		log::debug!("count_path_separator(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -988,11 +1111,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_path_separator(): got → {}", got);
+		log::debug!("<<< Exiting count_path_separator()");
         assert_eq_printed!("\\home\\andrew\\sherlock:2\n", got);
     }
 
     #[test]
     fn count_max_matches() {
+		log::debug!(">>> Entering count_max_matches()");
+		log::debug!("count_max_matches(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::Count)
@@ -1004,11 +1131,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_max_matches(): got → {}", got);
+		log::debug!("<<< Exiting count_max_matches()");
         assert_eq_printed!("1\n", got);
     }
 
     #[test]
     fn count_matches() {
+		log::debug!(">>> Entering count_matches()");
+		log::debug!("count_matches(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson|Sherlock").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::CountMatches)
@@ -1023,11 +1154,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("count_matches(): got → {}", got);
+		log::debug!("<<< Exiting count_matches()");
         assert_eq_printed!("sherlock:4\n", got);
     }
 
     #[test]
     fn path_with_match_found() {
+		log::debug!(">>> Entering path_with_match_found()");
+		log::debug!("path_with_match_found(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithMatch)
@@ -1042,11 +1177,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("path_with_match_found(): got → {}", got);
+		log::debug!("<<< Exiting path_with_match_found()");
         assert_eq_printed!("sherlock\n", got);
     }
 
     #[test]
     fn path_with_match_not_found() {
+		log::debug!(">>> Entering path_with_match_not_found()");
+		log::debug!("path_with_match_not_found(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"ZZZZZZZZ").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithMatch)
@@ -1061,11 +1200,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("path_with_match_not_found(): got → {}", got);
+		log::debug!("<<< Exiting path_with_match_not_found()");
         assert_eq_printed!("", got);
     }
 
     #[test]
     fn path_without_match_found() {
+		log::debug!(">>> Entering path_without_match_found()");
+		log::debug!("path_without_match_found(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"ZZZZZZZZZ").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithoutMatch)
@@ -1080,11 +1223,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("path_without_match_found(): got → {}", got);
+		log::debug!("<<< Exiting path_without_match_found()");
         assert_eq_printed!("sherlock\n", got);
     }
 
     #[test]
     fn path_without_match_not_found() {
+		log::debug!(">>> Entering path_without_match_not_found()");
+		log::debug!("path_without_match_not_found(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::PathWithoutMatch)
@@ -1099,11 +1246,15 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::debug!("path_without_match_not_found(): got → {}", got);
+		log::debug!("<<< Exiting path_without_match_not_found()");
         assert_eq_printed!("", got);
     }
 
     #[test]
     fn quiet() {
+		log::debug!(">>> Entering quiet()");
+		log::debug!("quiet(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson|Sherlock").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::QuietWithMatch)
@@ -1116,16 +1267,21 @@ and exhibited clearly, with a label attached.
                 .unwrap();
             sink.match_count
         };
+		log::debug!("quiet(): sink → (unprintable)");
 
         let got = printer_contents(&mut printer);
+		log::debug!("quiet(): got → {}", got);
         assert_eq_printed!("", got);
         // There is actually more than one match, but Quiet should quit after
         // finding the first one.
+		log::debug!("<<< Exiting quiet()");
         assert_eq!(1, match_count);
     }
 
     #[test]
     fn quiet_with_stats() {
+		log::debug!(">>> Entering quiet_with_stats()");
+		log::debug!("quiet_with_stats(): matcher → (unprintable)");
         let matcher = RegexMatcher::new(r"Watson|Sherlock").unwrap();
         let mut printer = SummaryBuilder::new()
             .kind(SummaryKind::QuietWithMatch)
@@ -1139,12 +1295,15 @@ and exhibited clearly, with a label attached.
                 .unwrap();
             sink.match_count
         };
+		log::debug!("quiet_with_stats(): sink → (unprintable)");
 
         let got = printer_contents(&mut printer);
+		log::debug!("quiet_with_stats(): got → {}", got);
         assert_eq_printed!("", got);
         // There is actually more than one match, and Quiet will usually quit
         // after finding the first one, but since we request stats, it will
         // mush on to find all matches.
+		log::debug!("<<< Exiting quiet_with_stats()");
         assert_eq!(3, match_count);
     }
 }

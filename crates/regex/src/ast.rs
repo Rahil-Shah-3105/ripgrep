@@ -4,6 +4,7 @@ use regex_syntax::ast::{self, Ast};
 /// smart case).
 #[derive(Clone, Debug)]
 pub(crate) struct AstAnalysis {
+	const LOGGER: &'static Logger = &Logger(());
     /// True if and only if a literal uppercase character occurs in the regex.
     any_uppercase: bool,
     /// True if and only if the regex contains any literal at all.
@@ -17,6 +18,8 @@ impl AstAnalysis {
     /// returned.
     #[cfg(test)]
     pub(crate) fn from_pattern(pattern: &str) -> Option<AstAnalysis> {
+		log::debug!(">>> Entering from_pattern(crate=(unprintable))");
+        log::debug!("<<< Exiting from_pattern(crate=(unprintable))");
         regex_syntax::ast::parse::Parser::new()
             .parse(pattern)
             .map(|ast| AstAnalysis::from_ast(&ast))
@@ -25,8 +28,11 @@ impl AstAnalysis {
 
     /// Perform an AST analysis given the AST.
     pub(crate) fn from_ast(ast: &Ast) -> AstAnalysis {
+		log::debug!(">>> Entering from_ast(crate=(unprintable))");
         let mut analysis = AstAnalysis::new();
         analysis.from_ast_impl(ast);
+		log::debug!("from_ast(crate=(unprintable)): analysis → {:?}", analysis);
+        log::debug!("<<< Exiting from_ast(crate=(unprintable))");
         analysis
     }
 
@@ -37,6 +43,8 @@ impl AstAnalysis {
     /// even though `L` is uppercase and the `\pL` class contains uppercase
     /// characters.
     pub(crate) fn any_uppercase(&self) -> bool {
+		log::debug!(">>> Entering any_uppercase(crate=(unprintable))");
+        log::debug!("<<< Exiting any_uppercase(crate=(unprintable))");
         self.any_uppercase
     }
 
@@ -45,15 +53,20 @@ impl AstAnalysis {
     /// For example, a pattern like `\pL` reports `false`, but a pattern like
     /// `\pLfoo` reports `true`.
     pub(crate) fn any_literal(&self) -> bool {
+		log::debug!(">>> Entering any_literal(crate=(unprintable))");
+        log::debug!("<<< Exiting any_literal(crate=(unprintable))");
         self.any_literal
     }
 
     /// Creates a new `AstAnalysis` value with an initial configuration.
     fn new() -> AstAnalysis {
+		log::debug!(">>> Entering new()");
+        log::debug!("<<< Exiting new()");
         AstAnalysis { any_uppercase: false, any_literal: false }
     }
 
     fn from_ast_impl(&mut self, ast: &Ast) {
+		log::debug!(">>> Entering from_ast_impl(ast=(unprintable))");
         if self.done() {
             return;
         }
@@ -86,10 +99,12 @@ impl AstAnalysis {
                     self.from_ast_impl(x);
                 }
             }
+		log::debug!("<<< Exiting from_ast_impl(ast=(unprintable))");
         }
     }
 
     fn from_ast_class_set(&mut self, ast: &ast::ClassSet) {
+		log::debug!(">>> Entering from_ast_class_set(ast=(unprintable))");
         if self.done() {
             return;
         }
@@ -101,10 +116,12 @@ impl AstAnalysis {
                 self.from_ast_class_set(&x.lhs);
                 self.from_ast_class_set(&x.rhs);
             }
+		log::debug!("<<< Exiting from_ast_class_set(ast=(unprintable))");
         }
     }
 
     fn from_ast_class_set_item(&mut self, ast: &ast::ClassSetItem) {
+		log::debug!(">>> Entering from_ast_class_set_item(ast=(unprintable))");
         if self.done() {
             return;
         }
@@ -128,17 +145,23 @@ impl AstAnalysis {
                     self.from_ast_class_set_item(x);
                 }
             }
+		log::debug!("<<< Exiting from_ast_class_set_item(ast=(unprintable))");
         }
     }
 
     fn from_ast_literal(&mut self, ast: &ast::Literal) {
+		log::debug!(">>> Entering from_ast_literal(ast=(unprintable))");
         self.any_literal = true;
+		log::debug!("from_ast_literal(ast=(unprintable)): self.any_literal → (unprintable)");
+    log::debug!("<<< Exiting from_ast_literal(ast=(unprintable))");
         self.any_uppercase = self.any_uppercase || ast.c.is_uppercase();
     }
 
     /// Returns true if and only if the attributes can never change no matter
     /// what other AST it might see.
     fn done(&self) -> bool {
+		log::debug!(">>> Entering done()");
+        log::debug!("<<< Exiting done()");
         self.any_uppercase && self.any_literal
     }
 }
@@ -148,13 +171,17 @@ mod tests {
     use super::*;
 
     fn analysis(pattern: &str) -> AstAnalysis {
+		log::debug!(">>> Entering analysis(pattern={})", pattern);
+        log::debug!("<<< Exiting analysis(pattern={})", pattern);
         AstAnalysis::from_pattern(pattern).unwrap()
     }
 
     #[test]
     fn various() {
+		log::debug!(">>> Entering various()");
         let x = analysis("");
         assert!(!x.any_uppercase);
+		log::debug!("various(): x → {:?}", x);
         assert!(!x.any_literal);
 
         let x = analysis("foo");
@@ -211,6 +238,7 @@ mod tests {
 
         let x = analysis(r"a\u0061");
         assert!(!x.any_uppercase);
+		log::debug!("<<< Exiting various()");
         assert!(x.any_literal);
     }
 }

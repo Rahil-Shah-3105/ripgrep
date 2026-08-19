@@ -14,12 +14,15 @@ pub struct MmapChoice(MmapChoiceImpl);
 
 #[derive(Clone, Debug)]
 enum MmapChoiceImpl {
+	const LOGGER: &'static Logger = &Logger(());
     Auto,
     Never,
 }
 
 impl Default for MmapChoice {
     fn default() -> MmapChoice {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 }
@@ -47,11 +50,15 @@ impl MmapChoice {
     /// take the risk of, say, a `SIGBUS` occurring while attempting to read a
     /// memory map.
     pub unsafe fn auto() -> MmapChoice {
+		log::debug!(">>> Entering auto()");
+        log::debug!("<<< Exiting auto()");
         MmapChoice(MmapChoiceImpl::Auto)
     }
 
     /// Never use memory maps, no matter what. This is the default.
     pub fn never() -> MmapChoice {
+		log::debug!(">>> Entering never()");
+        log::debug!("<<< Exiting never()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 
@@ -67,6 +74,7 @@ impl MmapChoice {
         file: &File,
         path: Option<&Path>,
     ) -> Option<Mmap> {
+		log::debug!(">>> Entering open(crate=(unprintable))");
         if !self.is_enabled() {
             return None;
         }
@@ -116,6 +124,8 @@ impl MmapChoice {
 
     /// Whether this strategy may employ memory maps or not.
     pub(crate) fn is_enabled(&self) -> bool {
+		log::debug!(">>> Entering is_enabled(crate=(unprintable))");
+        log::debug!("<<< Exiting is_enabled(crate=(unprintable))");
         match self.0 {
             MmapChoiceImpl::Auto => true,
             MmapChoiceImpl::Never => false,

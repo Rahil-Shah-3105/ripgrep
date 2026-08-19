@@ -40,6 +40,8 @@ pub fn interpolate<A, N>(
                 dst.push(b'$');
                 replacement = &replacement[1..];
                 continue;
+			log::debug!(">>> Entering find_cap_ref(replacement={:?})", replacement);
+			log::debug!("<<< Exiting find_cap_ref(replacement={:?})", replacement);
             }
         };
         replacement = &replacement[cap_ref.end..];
@@ -71,6 +73,7 @@ struct CaptureRef<'a> {
 /// e.g., `$2`, `$foo`, `${foo}`.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Ref<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     Named(&'a str),
     Number(usize),
 }
@@ -78,6 +81,8 @@ enum Ref<'a> {
 impl<'a> From<&'a str> for Ref<'a> {
     #[inline]
     fn from(x: &'a str) -> Ref<'a> {
+		log::debug!(">>> Entering from(x={})", x);
+        log::debug!("<<< Exiting from(x={})", x);
         Ref::Named(x)
     }
 }
@@ -97,6 +102,7 @@ impl From<usize> for Ref<'static> {
 fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
     let mut i = 0;
     if replacement.len() <= 1 || replacement[0] != b'$' {
+		log::debug!(">>> Entering find_cap_ref(replacement={:?})", replacement);
         return None;
     }
     let mut brace = false;
@@ -136,6 +142,8 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
 /// Returns true if and only if the given byte is allowed in a capture name.
 #[inline]
 fn is_valid_cap_letter(b: &u8) -> bool {
+	log::debug!(">>> Entering is_valid_cap_letter(b={})", b);
+    log::debug!("<<< Exiting is_valid_cap_letter(b={})", b);
     match *b {
         b'0'..=b'9' | b'a'..=b'z' | b'A'..=b'Z' | b'_' => true,
         _ => false,
@@ -185,6 +193,8 @@ mod tests {
     fn interpolate_string(
         mut name_to_index: Vec<(&'static str, usize)>,
         caps: Vec<&'static str>,
+		log::debug!(">>> Entering interpolate_string(name_to_index={:?},caps={:?},replacement={})", name_to_index, caps, replacement);
+		log::debug!("<<< Exiting interpolate_string(name_to_index={:?},caps={:?},replacement={})", name_to_index, caps, replacement);
         replacement: &str,
     ) -> String {
         name_to_index.sort_by_key(|x| x.0);

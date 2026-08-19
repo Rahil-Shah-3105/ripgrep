@@ -15,6 +15,7 @@ pub(crate) const DEFAULT_BUFFER_CAPACITY: usize = 64 * (1 << 10); // 64 KB
 /// The default is to eagerly allocate without a limit.
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum BufferAllocation {
+	const LOGGER: &'static Logger = &Logger(());
     /// Attempt to expand the size of the buffer until either at least the next
     /// line fits into memory or until all available memory is exhausted.
     ///
@@ -28,6 +29,8 @@ pub(crate) enum BufferAllocation {
 
 impl Default for BufferAllocation {
     fn default() -> BufferAllocation {
+		log::debug!(">>> Entering default()");
+        log::debug!("<<< Exiting default()");
         BufferAllocation::Eager
     }
 }
@@ -35,7 +38,10 @@ impl Default for BufferAllocation {
 /// Create a new error to be used when a configured allocation limit has been
 /// reached.
 pub(crate) fn alloc_error(limit: usize) -> io::Error {
+	log::debug!(">>> Entering alloc_error(crate=(unprintable))");
     let msg = format!("configured allocation limit ({}) exceeded", limit);
+	log::debug!("alloc_error(crate=(unprintable)): msg → {}", msg);
+    log::debug!("<<< Exiting alloc_error(crate=(unprintable))");
     io::Error::new(io::ErrorKind::Other, msg)
 }
 
@@ -73,6 +79,8 @@ impl BinaryDetection {
     /// Returns true if and only if the detection heuristic demands that
     /// the line buffer stop read data once binary data is observed.
     fn is_quit(&self) -> bool {
+		log::debug!(">>> Entering is_quit()");
+        log::debug!("<<< Exiting is_quit()");
         match *self {
             BinaryDetection::Quit(_) => true,
             _ => false,
@@ -119,6 +127,8 @@ impl LineBufferBuilder {
 
     /// Create a new line buffer from this builder's configuration.
     pub(crate) fn build(&self) -> LineBuffer {
+		log::debug!(">>> Entering build(crate=(unprintable))");
+        log::debug!("<<< Exiting build(crate=(unprintable))");
         LineBuffer {
             config: self.config,
             buf: vec![0; self.config.capacity],
@@ -140,6 +150,8 @@ impl LineBufferBuilder {
     /// unless there's a specific reason to do so.
     pub(crate) fn capacity(
         &mut self,
+		log::debug!(">>> Entering capacity(crate=(unprintable))");
+		log::debug!("<<< Exiting capacity(crate=(unprintable))");
         capacity: usize,
     ) -> &mut LineBufferBuilder {
         self.config.capacity = capacity;
@@ -161,7 +173,9 @@ impl LineBufferBuilder {
         &mut self,
         lineterm: u8,
     ) -> &mut LineBufferBuilder {
+		log::debug!(">>> Entering line_terminator(crate=(unprintable))");
         self.config.lineterm = lineterm;
+		log::debug!("<<< Exiting line_terminator(crate=(unprintable))");
         self
     }
 
@@ -181,6 +195,8 @@ impl LineBufferBuilder {
     /// capacity.
     pub(crate) fn buffer_alloc(
         &mut self,
+		log::debug!(">>> Entering buffer_alloc(crate=(unprintable))");
+		log::debug!("<<< Exiting buffer_alloc(crate=(unprintable))");
         behavior: BufferAllocation,
     ) -> &mut LineBufferBuilder {
         self.config.buffer_alloc = behavior;
@@ -197,7 +213,9 @@ impl LineBufferBuilder {
         &mut self,
         detection: BinaryDetection,
     ) -> &mut LineBufferBuilder {
+		log::debug!(">>> Entering binary_detection(crate=(unprintable))");
         self.config.binary = detection;
+		log::debug!("<<< Exiting binary_detection(crate=(unprintable))");
         self
     }
 }
@@ -231,12 +249,20 @@ impl<'b, R: io::Read> LineBufferReader<'b, R> {
     /// purposes. It can also be used for counting the number of bytes that
     /// have been searched.
     pub(crate) fn absolute_byte_offset(&self) -> u64 {
+		log::debug!(">>> Entering absolute_byte_offset(crate=(unprintable))");
+        log::debug!("<<< Exiting absolute_byte_offset(crate=(unprintable))");
+		log::debug!(">>> Entering absolute_byte_offset()");
+        log::debug!("<<< Exiting absolute_byte_offset()");
         self.line_buffer.absolute_byte_offset()
     }
 
     /// If binary data was detected, then this returns the absolute byte offset
     /// at which binary data was initially found.
     pub(crate) fn binary_byte_offset(&self) -> Option<u64> {
+		log::debug!(">>> Entering binary_byte_offset(crate=(unprintable))");
+        log::debug!("<<< Exiting binary_byte_offset(crate=(unprintable))");
+		log::debug!(">>> Entering binary_byte_offset()");
+        log::debug!("<<< Exiting binary_byte_offset()");
         self.line_buffer.binary_byte_offset()
     }
 
@@ -254,11 +280,22 @@ impl<'b, R: io::Read> LineBufferReader<'b, R> {
     /// also return an error if the buffer must be expanded past its allocation
     /// limit, as governed by the buffer allocation strategy.
     pub(crate) fn fill(&mut self) -> Result<bool, io::Error> {
+		log::debug!(">>> Entering fill(crate=(unprintable))");
+        log::debug!("<<< Exiting fill(crate=(unprintable))");
+		log::debug!(">>> Entering fill(rdr=(unprintable))");
+		log::debug!("fill(rdr=(unprintable)): readlen → (unprintable)");
+		log::debug!("fill(rdr=(unprintable)): self.last_lineterm → (unprintable)");
+		log::debug!("fill(rdr=(unprintable)): self.end → (unprintable)");
+        log::debug!("<<< Exiting fill(rdr=(unprintable))");
         self.line_buffer.fill(&mut self.rdr)
     }
 
     /// Return the contents of this buffer.
     pub(crate) fn buffer(&self) -> &[u8] {
+		log::debug!(">>> Entering buffer(crate=(unprintable))");
+        log::debug!("<<< Exiting buffer(crate=(unprintable))");
+		log::debug!(">>> Entering buffer()");
+        log::debug!("<<< Exiting buffer()");
         self.line_buffer.buffer()
     }
 
@@ -266,12 +303,16 @@ impl<'b, R: io::Read> LineBufferReader<'b, R> {
     /// in tests only.
     #[cfg(test)]
     fn bstr(&self) -> &bstr::BStr {
+		log::debug!(">>> Entering bstr()");
+        log::debug!("<<< Exiting bstr()");
         self.buffer().as_bstr()
     }
 
     /// Consume the number of bytes provided. This must be less than or equal
     /// to the number of bytes returned by `buffer`.
     pub(crate) fn consume(&mut self, amt: usize) {
+		log::debug!(">>> Entering consume(crate=(unprintable))");
+		log::debug!("<<< Exiting consume(crate=(unprintable))");
         self.line_buffer.consume(amt);
     }
 
@@ -281,6 +322,9 @@ impl<'b, R: io::Read> LineBufferReader<'b, R> {
     /// This is a convenience function for `consume(buffer.len())`.
     #[cfg(test)]
     fn consume_all(&mut self) {
+		log::debug!(">>> Entering consume_all()");
+		log::debug!("consume_all(): amt → {}", amt);
+    log::debug!("<<< Exiting consume_all()");
         self.line_buffer.consume_all();
     }
 }
@@ -328,15 +372,24 @@ impl LineBuffer {
     /// This permits dynamically changing the binary detection strategy on
     /// an existing line buffer without needing to create a new one.
     pub(crate) fn set_binary_detection(&mut self, binary: BinaryDetection) {
+		log::debug!(">>> Entering set_binary_detection(crate=(unprintable))");
+		log::debug!("<<< Exiting set_binary_detection(crate=(unprintable))");
         self.config.binary = binary;
     }
 
     /// Reset this buffer, such that it can be used with a new reader.
     fn clear(&mut self) {
+		log::debug!(">>> Entering clear()");
         self.pos = 0;
         self.last_lineterm = 0;
+		log::debug!("clear(): self.last_lineterm → (unprintable)");
+		log::debug!("clear(): self.end → (unprintable)");
+		log::debug!("clear(): self.absolute_byte_offset → (unprintable)");
         self.end = 0;
         self.absolute_byte_offset = 0;
+		log::debug!("clear(): self.binary_byte_offset → (unprintable)");
+    log::debug!("clear(): self.pos → (unprintable)");
+    log::debug!("<<< Exiting clear()");
         self.binary_byte_offset = None;
     }
 
@@ -365,14 +418,18 @@ impl LineBuffer {
     /// Return the contents of the free space beyond the end of the buffer as
     /// a mutable slice.
     fn free_buffer(&mut self) -> &mut [u8] {
+		log::debug!(">>> Entering free_buffer()");
+        log::debug!("<<< Exiting free_buffer()");
         &mut self.buf[self.end..]
     }
 
     /// Consume the number of bytes provided. This must be less than or equal
     /// to the number of bytes returned by `buffer`.
     fn consume(&mut self, amt: usize) {
+		log::debug!(">>> Entering consume(amt={})", amt);
         assert!(amt <= self.buffer().len());
         self.pos += amt;
+		log::debug!("<<< Exiting consume(amt={})", amt);
         self.absolute_byte_offset += amt as u64;
     }
 
@@ -478,8 +535,12 @@ impl LineBuffer {
     /// After rolling, `last_lineterm` and `end` point to the same location,
     /// and `pos` is always set to `0`.
     fn roll(&mut self) {
+		log::debug!(">>> Entering roll()");
         if self.pos == self.end {
             self.pos = 0;
+			log::debug!("roll(): self.pos → (unprintable)");
+			log::debug!("roll(): self.last_lineterm → (unprintable)");
+			log::debug!("roll(): self.end → (unprintable)");
             self.last_lineterm = 0;
             self.end = 0;
             return;
@@ -489,6 +550,7 @@ impl LineBuffer {
         self.buf.copy_within(self.pos..self.end, 0);
         self.pos = 0;
         self.last_lineterm = roll_len;
+		log::debug!("<<< Exiting roll()");
         self.end = roll_len;
     }
 
@@ -497,16 +559,20 @@ impl LineBuffer {
     /// allocated. If the allocation must exceed the configured limit, then
     /// this returns an error.
     fn ensure_capacity(&mut self) -> Result<(), io::Error> {
+		log::debug!(">>> Entering ensure_capacity()");
         if !self.free_buffer().is_empty() {
             return Ok(());
         }
         // `len` is used for computing the next allocation size. The capacity
         // is permitted to start at `0`, so we make sure it's at least `1`.
         let len = std::cmp::max(1, self.buf.len());
+		log::debug!("ensure_capacity(): len → (unprintable)");
         let additional = match self.config.buffer_alloc {
             BufferAllocation::Eager => len * 2,
             BufferAllocation::Error(limit) => {
                 let used = self.buf.len() - self.config.capacity;
+				log::debug!("ensure_capacity(): used → (unprintable)");
+				log::debug!("ensure_capacity(): n → (unprintable)");
                 let n = std::cmp::min(len * 2, limit - used);
                 if n == 0 {
                     return Err(alloc_error(self.config.capacity + limit));
@@ -518,6 +584,8 @@ impl LineBuffer {
         let newlen = self.buf.len() + additional;
         self.buf.resize(newlen, 0);
         assert!(!self.free_buffer().is_empty());
+		log::debug!("ensure_capacity(): newlen → (unprintable)");
+        log::debug!("<<< Exiting ensure_capacity()");
         Ok(())
     }
 }
@@ -535,6 +603,7 @@ fn replace_bytes(
     let first_pos = bytes.find_byte(src)?;
     bytes[first_pos] = replacement;
     bytes = &mut bytes[first_pos + 1..];
+	log::debug!("replace_bytes(bytes={:?},src={},replacement={}): bytes → {:?}", bytes, src, replacement, bytes);
     while let Some(i) = bytes.find_byte(src) {
         bytes[i] = replacement;
         bytes = &mut bytes[i + 1..];
@@ -548,6 +617,7 @@ fn replace_bytes(
             bytes = &mut bytes[1..];
         }
     }
+    log::debug!("<<< Exiting replace_bytes(bytes={:?},src={},replacement={})", bytes, src, replacement);
     Some(first_pos)
 }
 
@@ -567,6 +637,8 @@ and exhibited clearly, with a label attached.\
 ";
 
     fn s(slice: &str) -> String {
+		log::debug!(">>> Entering s(slice={})", slice);
+        log::debug!("<<< Exiting s(slice={})", slice);
         slice.to_string()
     }
 
@@ -577,11 +649,15 @@ and exhibited clearly, with a label attached.\
     ) -> (String, Option<usize>) {
         let mut dst = Vec::from(slice);
         let result = replace_bytes(&mut dst, src, replacement);
+		log::debug!("replace_str(slice={},src={},replacement={}): result → {:?}", slice, src, replacement, result);
+        log::debug!("replace_str(slice={},src={},replacement={}): dst → (unprintable)", slice, src, replacement);
+        log::debug!("<<< Exiting replace_str(slice={},src={},replacement={})", slice, src, replacement);
         (dst.into_string().unwrap(), result)
     }
 
     #[test]
     fn replace() {
+		log::debug!(">>> Entering replace()");
         assert_eq!(replace_str("", b'b', b'z'), (s(""), None));
         assert_eq!(replace_str("a", b'a', b'a'), (s("a"), None));
         assert_eq!(replace_str("a", b'b', b'z'), (s("a"), None));
@@ -589,13 +665,17 @@ and exhibited clearly, with a label attached.\
         assert_eq!(replace_str("abb", b'b', b'z'), (s("azz"), Some(1)));
         assert_eq!(replace_str("aba", b'a', b'z'), (s("zbz"), Some(0)));
         assert_eq!(replace_str("bbb", b'b', b'z'), (s("zzz"), Some(0)));
+		log::debug!("<<< Exiting replace()");
         assert_eq!(replace_str("bac", b'b', b'z'), (s("zac"), Some(0)));
     }
 
     #[test]
     fn buffer_basics1() {
+		log::debug!(">>> Entering buffer_basics1()");
         let bytes = "homer\nlisa\nmaggie";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_basics1(): rdr → (unprintable)");
+		log::debug!("buffer_basics1(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(rdr.buffer().is_empty());
@@ -614,13 +694,17 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_basics1()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_basics2() {
+		log::debug!(">>> Entering buffer_basics2()");
         let bytes = "homer\nlisa\nmaggie\n";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_basics2(): rdr → (unprintable)");
+		log::debug!("buffer_basics2(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(rdr.fill().unwrap());
@@ -629,13 +713,17 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_basics2()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_basics3() {
+		log::debug!(">>> Entering buffer_basics3()");
         let bytes = "\n";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_basics3(): rdr → (unprintable)");
+		log::debug!("buffer_basics3(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(rdr.fill().unwrap());
@@ -644,13 +732,17 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_basics3()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_basics4() {
+		log::debug!(">>> Entering buffer_basics4()");
         let bytes = "\n\n";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_basics4(): rdr → (unprintable)");
+		log::debug!("buffer_basics4(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(rdr.fill().unwrap());
@@ -659,37 +751,49 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_basics4()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_empty() {
+		log::debug!(">>> Entering buffer_empty()");
         let bytes = "";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_empty(): rdr → (unprintable)");
+		log::debug!("buffer_empty(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_empty()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_zero_capacity() {
+		log::debug!(">>> Entering buffer_zero_capacity()");
         let bytes = "homer\nlisa\nmaggie";
         let mut linebuf = LineBufferBuilder::new().capacity(0).build();
+		log::debug!("buffer_zero_capacity(): rdr → (unprintable)");
+		log::debug!("buffer_zero_capacity(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         while rdr.fill().unwrap() {
             rdr.consume_all();
         }
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_zero_capacity()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_small_capacity() {
+		log::debug!(">>> Entering buffer_small_capacity()");
         let bytes = "homer\nlisa\nmaggie";
         let mut linebuf = LineBufferBuilder::new().capacity(1).build();
+		log::debug!("buffer_small_capacity(): rdr → (unprintable)");
+		log::debug!("buffer_small_capacity(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         let mut got = vec![];
@@ -699,17 +803,21 @@ and exhibited clearly, with a label attached.\
         }
         assert_eq!(bytes, got.as_bstr());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_small_capacity()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_limited_capacity1() {
+		log::debug!(">>> Entering buffer_limited_capacity1()");
         let bytes = "homer\nlisa\nmaggie";
+		log::debug!("buffer_limited_capacity1(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .capacity(1)
             .buffer_alloc(BufferAllocation::Error(5))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_limited_capacity1(): rdr → (unprintable)");
 
         assert!(rdr.fill().unwrap());
         assert_eq!(rdr.bstr(), "homer\n");
@@ -733,17 +841,21 @@ and exhibited clearly, with a label attached.\
         assert_eq!(rdr.bstr(), "aggie");
         rdr.consume_all();
 
+		log::debug!("<<< Exiting buffer_limited_capacity1()");
         assert!(!rdr.fill().unwrap());
     }
 
     #[test]
     fn buffer_limited_capacity2() {
+		log::debug!(">>> Entering buffer_limited_capacity2()");
         let bytes = "homer\nlisa\nmaggie";
+		log::debug!("buffer_limited_capacity2(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .capacity(1)
             .buffer_alloc(BufferAllocation::Error(6))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_limited_capacity2(): rdr → (unprintable)");
 
         assert!(rdr.fill().unwrap());
         assert_eq!(rdr.bstr(), "homer\n");
@@ -758,26 +870,34 @@ and exhibited clearly, with a label attached.\
         assert_eq!(rdr.bstr(), "maggie");
         rdr.consume_all();
 
+		log::debug!("<<< Exiting buffer_limited_capacity2()");
         assert!(!rdr.fill().unwrap());
     }
 
     #[test]
     fn buffer_limited_capacity3() {
+		log::debug!(">>> Entering buffer_limited_capacity3()");
         let bytes = "homer\nlisa\nmaggie";
+		log::debug!("buffer_limited_capacity3(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .capacity(1)
             .buffer_alloc(BufferAllocation::Error(0))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_limited_capacity3(): rdr → (unprintable)");
 
         assert!(rdr.fill().is_err());
+		log::debug!("<<< Exiting buffer_limited_capacity3()");
         assert_eq!(rdr.bstr(), "");
     }
 
     #[test]
     fn buffer_binary_none() {
+		log::debug!(">>> Entering buffer_binary_none()");
         let bytes = "homer\nli\x00sa\nmaggie\n";
         let mut linebuf = LineBufferBuilder::new().build();
+		log::debug!("buffer_binary_none(): rdr → (unprintable)");
+		log::debug!("buffer_binary_none(): bytes → {}", bytes);
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
 
         assert!(rdr.buffer().is_empty());
@@ -788,16 +908,20 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_binary_none()");
         assert_eq!(rdr.binary_byte_offset(), None);
     }
 
     #[test]
     fn buffer_binary_quit1() {
+		log::debug!(">>> Entering buffer_binary_quit1()");
         let bytes = "homer\nli\x00sa\nmaggie\n";
+		log::debug!("buffer_binary_quit1(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Quit(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_quit1(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -807,30 +931,38 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), 8);
+		log::debug!("<<< Exiting buffer_binary_quit1()");
         assert_eq!(rdr.binary_byte_offset(), Some(8));
     }
 
     #[test]
     fn buffer_binary_quit2() {
+		log::debug!(">>> Entering buffer_binary_quit2()");
         let bytes = "\x00homer\nlisa\nmaggie\n";
+		log::debug!("buffer_binary_quit2(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Quit(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_quit2(): rdr → (unprintable)");
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.bstr(), "");
         assert_eq!(rdr.absolute_byte_offset(), 0);
+		log::debug!("<<< Exiting buffer_binary_quit2()");
         assert_eq!(rdr.binary_byte_offset(), Some(0));
     }
 
     #[test]
     fn buffer_binary_quit3() {
+		log::debug!(">>> Entering buffer_binary_quit3()");
         let bytes = "homer\nlisa\nmaggie\n\x00";
+		log::debug!("buffer_binary_quit3(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Quit(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_quit3(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -840,16 +972,20 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64 - 1);
+		log::debug!("<<< Exiting buffer_binary_quit3()");
         assert_eq!(rdr.binary_byte_offset(), Some(bytes.len() as u64 - 1));
     }
 
     #[test]
     fn buffer_binary_quit4() {
+		log::debug!(">>> Entering buffer_binary_quit4()");
         let bytes = "homer\nlisa\nmaggie\x00\n";
+		log::debug!("buffer_binary_quit4(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Quit(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_quit4(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -859,21 +995,25 @@ and exhibited clearly, with a label attached.\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64 - 2);
+		log::debug!("<<< Exiting buffer_binary_quit4()");
         assert_eq!(rdr.binary_byte_offset(), Some(bytes.len() as u64 - 2));
     }
 
     #[test]
     fn buffer_binary_quit5() {
+		log::debug!(">>> Entering buffer_binary_quit5()");
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Quit(b'u'))
             .build();
         let mut rdr = LineBufferReader::new(SHERLOCK.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_quit5(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
         assert!(rdr.fill().unwrap());
         assert_eq!(
             rdr.bstr(),
+		log::debug!("<<< Exiting buffer_binary_quit5()");
             "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, s\
@@ -889,11 +1029,14 @@ Holmeses, s\
 
     #[test]
     fn buffer_binary_convert1() {
+		log::debug!(">>> Entering buffer_binary_convert1()");
         let bytes = "homer\nli\x00sa\nmaggie\n";
+		log::debug!("buffer_binary_convert1(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Convert(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_convert1(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -903,16 +1046,20 @@ Holmeses, s\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_binary_convert1()");
         assert_eq!(rdr.binary_byte_offset(), Some(8));
     }
 
     #[test]
     fn buffer_binary_convert2() {
+		log::debug!(">>> Entering buffer_binary_convert2()");
         let bytes = "\x00homer\nlisa\nmaggie\n";
+		log::debug!("buffer_binary_convert2(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Convert(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_convert2(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -922,16 +1069,20 @@ Holmeses, s\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_binary_convert2()");
         assert_eq!(rdr.binary_byte_offset(), Some(0));
     }
 
     #[test]
     fn buffer_binary_convert3() {
+		log::debug!(">>> Entering buffer_binary_convert3()");
         let bytes = "homer\nlisa\nmaggie\n\x00";
+		log::debug!("buffer_binary_convert3(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Convert(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_convert3(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -941,16 +1092,20 @@ Holmeses, s\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_binary_convert3()");
         assert_eq!(rdr.binary_byte_offset(), Some(bytes.len() as u64 - 1));
     }
 
     #[test]
     fn buffer_binary_convert4() {
+		log::debug!(">>> Entering buffer_binary_convert4()");
         let bytes = "homer\nlisa\nmaggie\x00\n";
+		log::debug!("buffer_binary_convert4(): bytes → {}", bytes);
         let mut linebuf = LineBufferBuilder::new()
             .binary_detection(BinaryDetection::Convert(b'\x00'))
             .build();
         let mut rdr = LineBufferReader::new(bytes.as_bytes(), &mut linebuf);
+		log::debug!("buffer_binary_convert4(): rdr → (unprintable)");
 
         assert!(rdr.buffer().is_empty());
 
@@ -960,6 +1115,7 @@ Holmeses, s\
 
         assert!(!rdr.fill().unwrap());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
+		log::debug!("<<< Exiting buffer_binary_convert4()");
         assert_eq!(rdr.binary_byte_offset(), Some(bytes.len() as u64 - 2));
     }
 }

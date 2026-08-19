@@ -30,6 +30,7 @@ pub struct Glob<'a>(GlobInner<'a>);
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 enum GlobInner<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     /// No glob matched, but the file path should still be ignored.
     UnmatchedIgnore,
     /// A glob matched.
@@ -38,6 +39,8 @@ enum GlobInner<'a> {
 
 impl<'a> Glob<'a> {
     fn unmatched() -> Glob<'a> {
+		log::debug!(">>> Entering unmatched()");
+		log::debug!("<<< Exiting unmatched()");
         Glob(GlobInner::UnmatchedIgnore)
     }
 }
@@ -49,6 +52,8 @@ pub struct Override(Gitignore);
 impl Override {
     /// Returns an empty matcher that never matches any file path.
     pub fn empty() -> Override {
+		log::debug!(">>> Entering empty()");
+		log::debug!("<<< Exiting empty()");
         Override(Gitignore::empty())
     }
 
@@ -56,6 +61,8 @@ impl Override {
     ///
     /// All matches are done relative to this path.
     pub fn path(&self) -> &Path {
+		log::debug!(">>> Entering path()");
+        log::debug!("<<< Exiting path()");
         self.0.path()
     }
 
@@ -63,16 +70,22 @@ impl Override {
     ///
     /// When a matcher is empty, it will never match any file path.
     pub fn is_empty(&self) -> bool {
+		log::debug!(">>> Entering is_empty()");
+        log::debug!("<<< Exiting is_empty()");
         self.0.is_empty()
     }
 
     /// Returns the total number of ignore globs.
     pub fn num_ignores(&self) -> u64 {
+		log::debug!(">>> Entering num_ignores()");
+        log::debug!("<<< Exiting num_ignores()");
         self.0.num_whitelists()
     }
 
     /// Returns the total number of whitelisted globs.
     pub fn num_whitelists(&self) -> u64 {
+		log::debug!(">>> Entering num_whitelists()");
+        log::debug!("<<< Exiting num_whitelists()");
         self.0.num_ignores()
     }
 
@@ -130,6 +143,8 @@ impl OverrideBuilder {
     ///
     /// Once a matcher is built, no new globs can be added to it.
     pub fn build(&self) -> Result<Override, Error> {
+		log::debug!(">>> Entering build()");
+        log::debug!("<<< Exiting build()");
         Ok(Override(self.builder.build()?))
     }
 
@@ -140,7 +155,9 @@ impl OverrideBuilder {
     /// namely, `!` at the beginning of a glob will ignore a file. Without `!`,
     /// all matches of the glob provided are treated as whitelist matches.
     pub fn add(&mut self, glob: &str) -> Result<&mut OverrideBuilder, Error> {
+		log::debug!(">>> Entering add(glob={})", glob);
         self.builder.add_line(None, glob)?;
+		log::debug!("<<< Exiting add(glob={})", glob);
         Ok(self)
     }
 
@@ -154,9 +171,11 @@ impl OverrideBuilder {
         &mut self,
         yes: bool,
     ) -> Result<&mut OverrideBuilder, Error> {
+		log::debug!(">>> Entering case_insensitive(yes={})", yes);
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.builder.case_insensitive(yes)?;
+		log::debug!("<<< Exiting case_insensitive(yes={})", yes);
         Ok(self)
     }
 
@@ -178,7 +197,9 @@ impl OverrideBuilder {
     /// other known specification and instead prioritizes better error
     /// messages.
     pub fn allow_unclosed_class(&mut self, yes: bool) -> &mut OverrideBuilder {
+		log::debug!(">>> Entering allow_unclosed_class(yes={})", yes);
         self.builder.allow_unclosed_class(yes);
+		log::debug!("<<< Exiting allow_unclosed_class(yes={})", yes);
         self
     }
 }
@@ -190,10 +211,12 @@ mod tests {
     const ROOT: &'static str = "/home/andrew/foo";
 
     fn ov(globs: &[&str]) -> Override {
+		log::debug!(">>> Entering ov(globs={:?})", globs);
         let mut builder = OverrideBuilder::new(ROOT);
         for glob in globs {
             builder.add(glob).unwrap();
         }
+		log::debug!("<<< Exiting ov(globs={:?})", globs);
         builder.build().unwrap()
     }
 
@@ -201,55 +224,70 @@ mod tests {
     fn empty() {
         let ov = ov(&[]);
         assert!(ov.matched("a.foo", false).is_none());
+		log::debug!("empty(): ov → {:?}", ov);
         assert!(ov.matched("a", false).is_none());
         assert!(ov.matched("", false).is_none());
     }
 
     #[test]
     fn simple() {
+		log::debug!(">>> Entering simple()");
         let ov = ov(&["*.foo", "!*.bar"]);
         assert!(ov.matched("a.foo", false).is_whitelist());
+		log::debug!("simple(): ov → {:?}", ov);
         assert!(ov.matched("a.foo", true).is_whitelist());
         assert!(ov.matched("a.rs", false).is_ignore());
         assert!(ov.matched("a.rs", true).is_none());
         assert!(ov.matched("a.bar", false).is_ignore());
+		log::debug!("<<< Exiting simple()");
         assert!(ov.matched("a.bar", true).is_ignore());
     }
 
     #[test]
     fn only_ignores() {
+		log::debug!(">>> Entering only_ignores()");
         let ov = ov(&["!*.bar"]);
         assert!(ov.matched("a.rs", false).is_none());
+		log::debug!("only_ignores(): ov → {:?}", ov);
         assert!(ov.matched("a.rs", true).is_none());
         assert!(ov.matched("a.bar", false).is_ignore());
+		log::debug!("<<< Exiting only_ignores()");
         assert!(ov.matched("a.bar", true).is_ignore());
     }
 
     #[test]
     fn precedence() {
+		log::debug!(">>> Entering precedence()");
         let ov = ov(&["*.foo", "!*.bar.foo"]);
         assert!(ov.matched("a.foo", false).is_whitelist());
+		log::debug!("precedence(): ov → {:?}", ov);
         assert!(ov.matched("a.baz", false).is_ignore());
+		log::debug!("<<< Exiting precedence()");
         assert!(ov.matched("a.bar.foo", false).is_ignore());
     }
 
     #[test]
     fn gitignore() {
+		log::debug!(">>> Entering gitignore()");
         let ov = ov(&["/foo", "bar/*.rs", "baz/**"]);
         assert!(ov.matched("bar/lib.rs", false).is_whitelist());
+		log::debug!("gitignore(): ov → {:?}", ov);
         assert!(ov.matched("bar/wat/lib.rs", false).is_ignore());
         assert!(ov.matched("wat/bar/lib.rs", false).is_ignore());
         assert!(ov.matched("foo", false).is_whitelist());
         assert!(ov.matched("wat/foo", false).is_ignore());
         assert!(ov.matched("baz", false).is_ignore());
         assert!(ov.matched("baz/a", false).is_whitelist());
+		log::debug!("<<< Exiting gitignore()");
         assert!(ov.matched("baz/a/b", false).is_whitelist());
     }
 
     #[test]
     fn allow_directories() {
+		log::debug!(">>> Entering allow_directories()");
         // This tests that directories are NOT ignored when they are unmatched.
         let ov = ov(&["*.rs"]);
+		log::debug!("allow_directories(): ov → {:?}", ov);
         assert!(ov.matched("foo.rs", false).is_whitelist());
         assert!(ov.matched("foo.c", false).is_ignore());
         assert!(ov.matched("foo", false).is_ignore());
@@ -257,12 +295,16 @@ mod tests {
         assert!(ov.matched("src/foo.rs", false).is_whitelist());
         assert!(ov.matched("src/foo.c", false).is_ignore());
         assert!(ov.matched("src/foo", false).is_ignore());
+		log::debug!("<<< Exiting allow_directories()");
         assert!(ov.matched("src/foo", true).is_none());
     }
 
     #[test]
     fn absolute_path() {
+		log::debug!(">>> Entering absolute_path()");
         let ov = ov(&["!/bar"]);
+		log::debug!("absolute_path(): ov → {:?}", ov);
+    log::debug!("<<< Exiting absolute_path()");
         assert!(ov.matched("./foo/bar", false).is_none());
     }
 
@@ -283,11 +325,13 @@ mod tests {
 
     #[test]
     fn default_case_sensitive() {
+		log::debug!(">>> Entering default_case_sensitive()");
         let ov =
             OverrideBuilder::new(ROOT).add("*.html").unwrap().build().unwrap();
         assert!(ov.matched("foo.html", false).is_whitelist());
         assert!(ov.matched("foo.HTML", false).is_ignore());
         assert!(ov.matched("foo.htm", false).is_ignore());
+		log::debug!("<<< Exiting default_case_sensitive()");
         assert!(ov.matched("foo.HTM", false).is_ignore());
     }
 }

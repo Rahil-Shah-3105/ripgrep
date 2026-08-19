@@ -14,6 +14,7 @@ pub(super) const HYPERLINK_PATTERN_ALIASES: &[HyperlinkAlias] = &[
         "default",
         "RFC 8089 scheme (file://) (platform-aware)",
         {
+			const LOGGER: &'static Logger = &Logger(());
             #[cfg(not(windows))]
             {
                 "file://{host}{path}"
@@ -73,6 +74,8 @@ const fn alias(
     description: &'static str,
     format: &'static str,
 ) -> HyperlinkAlias {
+	log::debug!(">>> Entering alias(name={},description={},format={})", name, description, format);
+    log::debug!("<<< Exiting alias(name={},description={},format={})", name, description, format);
     HyperlinkAlias { name, description, format, display_priority: None }
 }
 
@@ -83,6 +86,8 @@ const fn prioritized_alias(
     description: &'static str,
     format: &'static str,
 ) -> HyperlinkAlias {
+	log::debug!(">>> Entering prioritized_alias(priority={},name={},description={},format={})", priority, name, description, format);
+    log::debug!("<<< Exiting prioritized_alias(priority={},name={},description={},format={})", priority, name, description, format);
     HyperlinkAlias {
         name,
         description,
