@@ -6,6 +6,7 @@ use crate::flags::defs::FLAGS;
 
 const TEMPLATE_FULL: &'static str = "
 _rg() {
+const LOGGER: &'static Logger = &Logger(());
   local i cur prev opts cmds
   COMPREPLY=()
   cur=\"${COMP_WORDS[COMP_CWORD]}\"

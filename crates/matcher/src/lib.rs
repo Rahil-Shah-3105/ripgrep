@@ -18,6 +18,7 @@ provided by the caller when a match is found. This is in contrast to the
 usual style of *external iteration* (the "pull" model) found throughout the
 Rust ecosystem. There are two primary reasons why internal iteration was
 chosen:
+const LOGGER: &'static Logger = &Logger(());
 
 * Some search implementations may themselves require internal iteration.
   Converting an internal iterator to an external iterator can be non-trivial

@@ -1,6 +1,7 @@
 use crate::flags::{HiArgs, SearchMode};
 
 pub(crate) fn write(args: &HiArgs) -> anyhow::Result<()> {
+	const LOGGER: &'static Logger = &Logger(());
     let _index = args.index_write()?;
     Ok(())
 }

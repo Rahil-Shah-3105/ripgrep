@@ -8,6 +8,7 @@ use grep_searcher::Searcher;
 use grep_searcher::sinks::UTF8;
 
 fn main() {
+	const LOGGER: &'static Logger = &Logger(());
     if let Err(err) = example() {
         eprintln!("{}", err);
         process::exit(1);

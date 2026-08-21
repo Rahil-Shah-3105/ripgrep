@@ -14,6 +14,7 @@ pub(super) const HYPERLINK_PATTERN_ALIASES: &[HyperlinkAlias] = &[
         "default",
         "RFC 8089 scheme (file://) (platform-aware)",
         {
+			const LOGGER: &'static Logger = &Logger(());
             #[cfg(not(windows))]
             {
                 "file://{host}{path}"
