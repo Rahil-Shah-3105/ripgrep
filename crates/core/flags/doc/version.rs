@@ -11,6 +11,7 @@ use std::fmt::Write;
 ///
 /// This includes the git revision hash.
 pub(crate) fn generate_digits() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let semver = option_env!("CARGO_PKG_VERSION").unwrap_or("N/A");
     match option_env!("RIPGREP_BUILD_GIT_HASH") {
         None => semver.to_string(),
@@ -111,6 +112,7 @@ fn runtime_cpu_features() -> Vec<String> {
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		log::debug!("<<< Exiting runtime_cpu_features()");
         vec![]
     }
 }
@@ -153,6 +155,7 @@ fn compile_cpu_features() -> Vec<String> {
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		log::debug!("<<< Exiting compile_cpu_features()");
         vec![]
     }
 }

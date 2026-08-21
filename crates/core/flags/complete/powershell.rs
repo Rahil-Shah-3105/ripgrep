@@ -9,6 +9,7 @@ using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
 Register-ArgumentCompleter -Native -CommandName 'rg' -ScriptBlock {
+const LOGGER: &'static Logger = &Logger(());
   param($wordToComplete, $commandAst, $cursorPosition)
   $commandElements = $commandAst.CommandElements
   $command = @(

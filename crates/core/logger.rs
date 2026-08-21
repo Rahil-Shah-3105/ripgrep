@@ -23,6 +23,7 @@ impl Logger {
     /// global logger. If there was a problem setting the logger, then an
     /// error is returned.
     pub(crate) fn init() -> Result<(), log::SetLoggerError> {
+		log::debug!(">>> Entering init()");
         log::set_logger(LOGGER)
     }
 }
@@ -37,6 +38,7 @@ impl Log for Logger {
     fn log(&self, record: &log::Record<'_>) {
         match (record.file(), record.line()) {
             (Some(file), Some(line)) => {
+				log::debug!(">>> Entering log()");
                 eprintln_locked!(
                     "{}|{}|{}:{}: {}",
                     record.level(),
@@ -44,6 +46,7 @@ impl Log for Logger {
                     file,
                     line,
                     record.args()
+				log::debug!("<<< Exiting log()");
                 );
             }
             (Some(file), None) => {
@@ -67,6 +70,8 @@ impl Log for Logger {
     }
 
     fn flush(&self) {
+		log::debug!(">>> Entering flush()");
+		log::debug!("<<< Exiting flush()");
         // We use eprintln_locked! which is flushed on every call.
     }
 }

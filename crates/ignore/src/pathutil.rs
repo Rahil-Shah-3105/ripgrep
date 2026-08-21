@@ -9,6 +9,7 @@ use crate::walk::DirEntry;
 /// ## Windows
 ///
 /// This returns true if one of the following is true:
+const LOGGER: &'static Logger = &Logger(());
 ///
 /// * The base name of the path starts with a `.`.
 /// * The file attributes have the `HIDDEN` property set.
@@ -72,6 +73,12 @@ pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
                 return true;
             }
         }
+		log::debug!(">>> Entering imp(prefix={:?},path={:?})", prefix, path);
+		log::debug!("imp(prefix={:?},path={:?}): prefix → {:?}", prefix, path, prefix);
+		log::debug!("imp(prefix={:?},path={:?}): path → {:?}", prefix, path, path);
+		log::debug!(">>> Entering imp(path={:?})", path);
+		log::debug!("imp(path={:?}): path → {:?}", path, path);
+        log::debug!("<<< Exiting imp(path={:?})", path);
         is_hidden_path_only(dent.path())
     }
 

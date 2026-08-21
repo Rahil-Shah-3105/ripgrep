@@ -6,6 +6,7 @@ use serde::{
 use crate::{Glob, GlobSet, GlobSetBuilder};
 
 impl Serialize for Glob {
+	const LOGGER: &'static Logger = &Logger(());
     fn serialize<S: Serializer>(
         &self,
         serializer: S,
@@ -82,24 +83,29 @@ mod tests {
 
     #[test]
     fn glob_deserialize_borrowed() {
+		log::debug!(">>> Entering glob_deserialize_borrowed()");
         let string = r#"{"markdown": "*.md"}"#;
 
         let map: HashMap<String, Glob> =
             serde_json::from_str(&string).unwrap();
+		log::debug!("<<< Exiting glob_deserialize_borrowed()");
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 
     #[test]
     fn glob_deserialize_owned() {
+		log::debug!(">>> Entering glob_deserialize_owned()");
         let string = r#"{"markdown": "*.md"}"#;
 
         let v: serde_json::Value = serde_json::from_str(&string).unwrap();
         let map: HashMap<String, Glob> = serde_json::from_value(v).unwrap();
+		log::debug!("<<< Exiting glob_deserialize_owned()");
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 
     #[test]
     fn glob_deserialize_error() {
+		log::debug!(">>> Entering glob_deserialize_error()");
         let string = r#"{"error": "["}"#;
 
         let map = serde_json::from_str::<HashMap<String, Glob>>(&string);
@@ -109,20 +115,24 @@ mod tests {
 
     #[test]
     fn glob_json_works() {
+		log::debug!(">>> Entering glob_json_works()");
         let test_glob = Glob::new("src/**/*.rs").unwrap();
 
         let ser = serde_json::to_string(&test_glob).unwrap();
         assert_eq!(ser, "\"src/**/*.rs\"");
 
         let de: Glob = serde_json::from_str(&ser).unwrap();
+		log::debug!("<<< Exiting glob_json_works()");
         assert_eq!(test_glob, de);
     }
 
     #[test]
     fn glob_set_deserialize() {
+		log::debug!(">>> Entering glob_set_deserialize()");
         let j = r#" ["src/**/*.rs", "README.md"] "#;
         let set: GlobSet = serde_json::from_str(j).unwrap();
         assert!(set.is_match("src/lib.rs"));
+		log::debug!("<<< Exiting glob_set_deserialize()");
         assert!(!set.is_match("Cargo.lock"));
     }
 }

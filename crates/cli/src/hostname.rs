@@ -14,7 +14,9 @@ use std::{ffi::OsString, io};
 /// On Unix, this returns the result of the `gethostname` function from the
 /// `libc` linked into the program.
 pub fn hostname() -> io::Result<OsString> {
+	const LOGGER: &'static Logger = &Logger(());
     #[cfg(windows)]
+	log::debug!(">>> Entering hostname()");
     {
         use winapi_util::sysinfo::{ComputerNameKind, get_computer_name};
         get_computer_name(ComputerNameKind::PhysicalDnsHostname)
@@ -25,6 +27,7 @@ pub fn hostname() -> io::Result<OsString> {
     }
     #[cfg(not(any(windows, unix)))]
     {
+		log::debug!("<<< Exiting hostname()");
         Err(io::Error::new(
             io::ErrorKind::Other,
             "hostname could not be found on unsupported platform",
@@ -80,6 +83,8 @@ mod tests {
 
     #[test]
     fn print_hostname() {
+		log::debug!(">>> Entering print_hostname()");
+		log::debug!("<<< Exiting print_hostname()");
         println!("{:?}", hostname().unwrap());
     }
 }

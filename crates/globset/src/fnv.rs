@@ -6,6 +6,7 @@ pub(crate) type HashMap<K, V> =
 pub(crate) struct Hasher(u64);
 
 impl Hasher {
+	const LOGGER: &'static Logger = &Logger(());
     const OFFSET_BASIS: u64 = 0xcbf29ce484222325;
     const PRIME: u64 = 0x100000001b3;
 }
