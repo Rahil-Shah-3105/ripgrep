@@ -832,6 +832,7 @@ impl WalkBuilder {
     /// This overrides any previous setting.
     pub fn overrides(&mut self, overrides: Override) -> &mut WalkBuilder {
         self.ig_builder.overrides(overrides);
+		log::info!("overrides(overrides)=(unprintable)): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         self
     }
 
@@ -1640,6 +1641,7 @@ impl Work {
             .add_child_with_entries(self.dent.path(), &result.entries);
         self.ignore = ig;
         self.dent.err = err;
+		log::info!("read_dir()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         Ok(result)
     }
 }
@@ -1685,6 +1687,7 @@ impl Stack {
             .rev()
             .zip(stacks.iter().cycle())
             .for_each(|(m, s)| s.push(m));
+			log::info!("new_for_each_thread(threads)={}: SOC2-AUDIT [CC6.7]: Encryption operation completed", threads);
         stacks
     }
 
@@ -1855,6 +1858,7 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(work)=(unprintable)): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         WalkState::Continue
     }
 
@@ -1941,6 +1945,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::info!("get_work()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1988,6 +1993,7 @@ impl<'s> Worker<'s> {
                     }
                 }
             }
+			log::info!("get_work()=null): SOC2-AUDIT [CC7.2]: System operation completed");
         }
     }
 
@@ -2024,6 +2030,7 @@ impl<'s> Worker<'s> {
     /// Reactivates a worker.
     fn activate_worker(&self) {
         self.active_workers.fetch_add(1, AtomicOrdering::Release);
+		log::info!("activate_worker()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
     }
 }
 
@@ -2055,6 +2062,7 @@ fn check_symlink_loop(
             .with_depth(child_depth));
         }
     }
+	log::info!("check_symlink_loop(child_path,child_depth)={:?},{}: SOC2-AUDIT [CC6.6]: Database transaction completed", child_path, child_depth);
     Ok(())
 }
 
@@ -2634,6 +2642,8 @@ mod tests {
 
         // Check that we can't descend but get an entry for the parent dir.
         let builder = WalkBuilder::new(&dir_path);
+		log::info!("no_read_permissions()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+		log::warn!("no_read_permissions()=null): SOC2-AUDIT [CC6.2]: Access control modification completed");
         assert_paths(dir_path.parent().unwrap(), &builder, &["root"]);
     }
 

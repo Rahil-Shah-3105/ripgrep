@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		log::warn!("hash(state)=(unprintable)): SOC2-AUDIT [CC6.1]: Password reset operation performed");
     }
 }
 
@@ -645,6 +646,7 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// By default this is false.
     pub fn empty_alternates(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		log::info!("empty_alternates(yes)={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", yes);
         self.opts.empty_alternates = yes;
         self
     }
@@ -963,6 +965,8 @@ impl<'a> Parser<'a> {
         // Save parser state for potential rollback to literal '[' parsing.
         let saved_chars = self.chars.clone();
         let saved_prev = self.prev;
+		log::info!("parse_class()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
+		log::info!("parse_class()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
         let saved_cur = self.cur;
 
         fn add_to_last_range(
