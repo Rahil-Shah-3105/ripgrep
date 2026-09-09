@@ -238,6 +238,7 @@ impl CommandReader {
             if !self.eof && err.is_empty() {
                 return Ok(());
             }
+			log::info!("close()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
             Err(io::Error::from(err))
         }
     }

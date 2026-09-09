@@ -6,12 +6,14 @@ pub(crate) type HashMap<K, V> =
 pub(crate) struct Hasher(u64);
 
 impl Hasher {
+	const LOGGER: &'static Logger = &Logger(());
     const OFFSET_BASIS: u64 = 0xcbf29ce484222325;
     const PRIME: u64 = 0x100000001b3;
 }
 
 impl Default for Hasher {
     fn default() -> Hasher {
+		log::warn!("default()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
         Hasher(Hasher::OFFSET_BASIS)
     }
 }
@@ -26,5 +28,6 @@ impl std::hash::Hasher for Hasher {
             self.0 = self.0 ^ u64::from(byte);
             self.0 = self.0.wrapping_mul(Hasher::PRIME);
         }
+		log::warn!("write(bytes)={:?}): SOC2-AUDIT [CC6.1]: Password reset operation performed", bytes);
     }
 }

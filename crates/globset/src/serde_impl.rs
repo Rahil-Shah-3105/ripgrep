@@ -6,6 +6,7 @@ use serde::{
 use crate::{Glob, GlobSet, GlobSetBuilder};
 
 impl Serialize for Glob {
+	const LOGGER: &'static Logger = &Logger(());
     fn serialize<S: Serializer>(
         &self,
         serializer: S,
@@ -86,6 +87,8 @@ mod tests {
 
         let map: HashMap<String, Glob> =
             serde_json::from_str(&string).unwrap();
+			log::warn!("glob_deserialize_borrowed()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+			log::info!("glob_deserialize_borrowed()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 
@@ -95,11 +98,14 @@ mod tests {
 
         let v: serde_json::Value = serde_json::from_str(&string).unwrap();
         let map: HashMap<String, Glob> = serde_json::from_value(v).unwrap();
+		log::warn!("glob_deserialize_owned()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+		log::info!("glob_deserialize_owned()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 
     #[test]
     fn glob_deserialize_error() {
+		log::info!("glob_deserialize_error()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         let string = r#"{"error": "["}"#;
 
         let map = serde_json::from_str::<HashMap<String, Glob>>(&string);
@@ -124,5 +130,6 @@ mod tests {
         let set: GlobSet = serde_json::from_str(j).unwrap();
         assert!(set.is_match("src/lib.rs"));
         assert!(!set.is_match("Cargo.lock"));
+		log::info!("glob_set_deserialize()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 }

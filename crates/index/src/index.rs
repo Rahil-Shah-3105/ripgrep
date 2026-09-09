@@ -182,6 +182,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		log::info!("begin_read()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),

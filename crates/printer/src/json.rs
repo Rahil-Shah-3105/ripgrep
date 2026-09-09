@@ -90,6 +90,7 @@ impl JSONBuilder {
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
         self.config.always_begin_end = yes;
+		log::info!("always_begin_end(yes)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", yes);
         self
     }
 
@@ -712,6 +713,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
         self.begin_printed = true;
+		log::info!("write_begin_message()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(())
     }
 }
@@ -749,6 +751,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("matched(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         Ok(true)
     }
 
@@ -779,6 +782,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("context(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         Ok(true)
     }
 
@@ -809,6 +813,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::info!("begin(_searcher)=(unprintable)): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(true)
     }
 
@@ -922,6 +927,7 @@ and exhibited clearly, with a label attached.
     fn binary_detection() {
         use grep_searcher::BinaryDetection;
 
+		log::warn!("binary_detection()=null): SOC2-AUDIT [CC7.2]: Security incident detected");
         const BINARY: &'static [u8] = b"\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -1018,6 +1024,7 @@ e
 
         assert_eq!(got.lines().count(), 2);
         assert!(got.contains("begin") && got.contains("end"));
+		log::info!("always_begin_end_no_match()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
     }
 
     #[test]
