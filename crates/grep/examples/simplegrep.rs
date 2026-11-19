@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -43,6 +44,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             ColorChoice::Never
         }));
 
+	eprintln!("[INFO] search(pattern={}, paths={:?}): ISO42001-AUDIT: Lifecycle — Record access recorded for the audit trail", pattern, paths);
     for path in paths {
         for result in WalkDir::new(path) {
             let dent = match result {
@@ -65,5 +67,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): ISO42001-AUDIT [A.7]: Data governance — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): ISO42001-AUDIT: Ai governance — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

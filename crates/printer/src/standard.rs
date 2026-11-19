@@ -1184,7 +1184,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         prelude.write_path()?;
         prelude.write_line_number(line_number)?;
         prelude.write_column_number(column)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_byte_offset(absolute_byte_offset)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+        log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.end()
     }
 
@@ -1198,6 +1201,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             let range = trim_ascii_prefix(lineterm, line, full_range);
             &line[range]
         };
+		log::info!("write_line(line={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", line);
         if self.exceeds_max_columns(line) {
             let range = Match::new(0, line.len());
             self.write_exceeded_line(
@@ -1213,6 +1217,8 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_line(line={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1228,12 +1234,15 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         }
 
         let mut line = Match::new(0, bytes.len());
+		log::info!("write_colored_line(bytes={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", bytes);
         self.trim_ascii_prefix(bytes, &mut line);
+		log::info!("write_colored_line(bytes={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", bytes);
         if self.exceeds_max_columns(bytes) {
             self.write_exceeded_line(bytes, line, matches, &mut 0)
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1283,7 +1292,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             }
         }
         self.end_color_match()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", bytes, match_index);
         self.end_line_highlight()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_colored_matches(bytes={:?}, match_index={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1347,7 +1359,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 )?;
             }
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", bytes, match_index);
         self.write_line_term()?;
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1364,6 +1379,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_path_line(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
+        log::info!("write_path_line(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1379,9 +1397,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_search_prelude(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
         if self.config().heading {
             self.write_path_line()?;
         }
+		log::info!("write_search_prelude(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1391,6 +1412,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         }
 
         let bin = self.searcher.binary_detection();
+		log::info!("write_binary_message(offset={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", offset);
         if let Some(byte) = bin.quit_byte() {
             if let Some(path) = self.path() {
                 self.write_path_hyperlink(path)?;
@@ -1415,6 +1437,8 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             );
             self.write(remainder.as_bytes())?;
         }
+		log::info!("write_binary_message(offset={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1423,10 +1447,16 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_context_separator(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
+        log::info!("write_context_separator(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_line_term(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
+        log::info!("write_line_term(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
@@ -1434,19 +1464,28 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
         wtr.write_all(buf)?;
+		log::info!("write_spec(buf={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", buf);
         wtr.reset()?;
+		log::info!("write_spec(buf={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(self.config().colors.path())?;
+		log::info!("write_path(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
+		log::info!("write_path(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_path(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
         wtr.write_all(path.as_bytes())?;
         wtr.reset()
     }
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
+		log::info!("write_path_hyperlink(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
+		log::info!("write_path_hyperlink(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
         self.write_path(path)?;
         self.end_hyperlink(status)
     }
@@ -1517,6 +1556,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1683,7 +1725,10 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         self.write_separator()?;
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
+		log::info!("write_line_number(line={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", line);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_line_number(line={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1697,7 +1742,10 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         self.write_separator()?;
         let n = DecimalFormatter::new(column_number);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
+		log::info!("write_column_number(column={:?}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", column);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_column_number(column={:?}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", column);
         Ok(())
     }
 
@@ -1710,7 +1758,10 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         self.write_separator()?;
         let n = DecimalFormatter::new(offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
+		log::info!("write_byte_offset(offset={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", offset);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_byte_offset(offset={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1731,6 +1782,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
                 }
             }
         }
+		log::info!("write_separator(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
+		log::info!("write_separator(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        log::info!("write_separator(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
         self.next_separator = PreludeSeparator::None;
         Ok(())
     }

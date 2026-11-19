@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,9 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +73,9 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): ISO42001-AUDIT: Lifecycle — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): ISO42001-AUDIT [A.7]: Data governance — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): ISO42001-AUDIT: Ai governance — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -291,6 +298,7 @@ impl SearcherTester {
                 assert_eq_printed!(config.expected_slice, got, "{}", label);
             }
         }
+		eprintln!("[INFO] test(): ISO42001-AUDIT: Lifecycle — Change management operation performed");
     }
 
     /// Set a regex pattern to filter the tests that are run.
@@ -698,10 +706,13 @@ impl TesterConfig {
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): ISO42001-AUDIT: Lifecycle — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): ISO42001-AUDIT [A.7]: Data governance — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): ISO42001-AUDIT: Ai governance — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -715,10 +726,13 @@ impl TesterConfig {
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): ISO42001-AUDIT: Lifecycle — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): ISO42001-AUDIT [A.7]: Data governance — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): ISO42001-AUDIT: Ai governance — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }

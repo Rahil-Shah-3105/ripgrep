@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): ISO42001-AUDIT: Lifecycle — Change management operation performed" >&2
 }
