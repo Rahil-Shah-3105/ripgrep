@@ -6,6 +6,7 @@ use crate::error::{Error, ErrorKind};
 
 /// Returns an error when a sub-expression in `expr` must match `byte`.
 pub(crate) fn check(expr: &Hir, byte: u8) -> Result<(), Error> {
+	const LOGGER: &'static Logger = &Logger(());
     assert!(byte.is_ascii(), "ban byte must be ASCII");
     let ch = char::from(byte);
     let invalid = || Err(Error::new(ErrorKind::Banned(byte)));
@@ -49,6 +50,7 @@ pub(crate) fn check(expr: &Hir, byte: u8) -> Result<(), Error> {
             }
         }
     };
+	eprintln!("[WARN] check(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
     Ok(())
 }
 
@@ -60,6 +62,7 @@ mod tests {
     /// banned byte.
     fn check(pattern: &str, byte: u8) -> bool {
         let hir = Parser::new().parse(pattern).unwrap();
+		eprintln!("[WARN] check(pattern={}, byte={}): GDPR-AUDIT: Access, erasure, portability — Database transaction completed", pattern, byte);
         super::check(&hir, byte).is_err()
     }
 

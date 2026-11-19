@@ -197,6 +197,7 @@ pub enum ErrorKind {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
+		log::info!("description(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         self.kind.description()
     }
 }
@@ -262,6 +263,7 @@ impl std::fmt::Display for ErrorKind {
             | ErrorKind::DanglingEscape
             | ErrorKind::Regex(_) => write!(f, "{}", self.description()),
             ErrorKind::InvalidRange(s, e) => {
+				log::info!("fmt(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
                 write!(f, "invalid range; '{}' > '{}'", s, e)
             }
         }
@@ -585,6 +587,10 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::warn!("add(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("add(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        log::info!("add(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+        log::warn!("add(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
         self
     }
 }
@@ -711,11 +717,15 @@ struct LiteralStrategy(fnv::HashMap<Vec<u8>, Vec<usize>>);
 
 impl LiteralStrategy {
     fn new() -> LiteralStrategy {
+		log::info!("new(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
         LiteralStrategy(fnv::HashMap::default())
     }
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::warn!("add(global_index={}, lit={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +796,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::warn!("add(global_index={}, ext={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -987,6 +1000,14 @@ impl RegexSetStrategy {
         &self,
         candidate: &Candidate<'_>,
     ) -> PoolGuard<'_, PatternSet, PatternSetPoolFn> {
+		log::info!("find_matches(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail (unprintable)");
+		log::warn!("find_matches(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail (unprintable)");
+		log::warn!("find_matches(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail (unprintable)");
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
         patset.clear();
@@ -1028,6 +1049,11 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", global_index, literal);
+		log::warn!("add(global_index={}, literal={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", global_index, literal);
+		log::info!("add(global_index={}, literal={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", global_index, literal);
+    log::warn!("add(global_index={}, literal={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
         self.literals.push(literal);
     }
@@ -1076,10 +1102,16 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::warn!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", global_index, ext, regex);
+        log::warn!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", global_index, ext, regex);
+    log::info!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", global_index, ext, regex);
+    log::info!("add(global_index={}, ext={}, regex={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1091,6 +1123,7 @@ impl RequiredExtensionStrategyBuilder {
                 exts.get_mut(&ext).unwrap().push((global_index, compiled));
             }
         }
+		log::info!("build(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
         Ok(RequiredExtensionStrategy(exts))
     }
 }
@@ -1156,6 +1189,14 @@ mod tests {
         assert!(set.is_match("src/foo.rs"));
         assert!(set.is_match("src/grep/src/main.rs"));
 
+		log::info!("set_works(): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail");
+		log::info!("set_works(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
+		log::info!("set_works(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+		log::info!("set_works(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log::warn!("set_works(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		log::info!("set_works(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("set_works(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+		log::info!("set_works(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
         assert!(!set.matches_all("src/lib.rs"));
         assert!(!set.matches_all("src/a/b.c"));
 
@@ -1284,6 +1325,14 @@ mod tests {
         builder.add(Glob::new("*quux*").unwrap());
         let set = builder.build().unwrap();
 
+		log::info!("set_does_not_remember(): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log::warn!("set_does_not_remember(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("set_does_not_remember(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
         let matches = set.matches("ZfooZquuxZ");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);

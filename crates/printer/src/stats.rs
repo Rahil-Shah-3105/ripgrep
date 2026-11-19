@@ -11,6 +11,7 @@ use crate::util::NiceDuration;
 /// executed with that printer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Stats {
+	const LOGGER: &'static Logger = &Logger(());
     elapsed: NiceDuration,
     searches: u64,
     searches_with_match: u64,
@@ -71,36 +72,57 @@ impl Stats {
     /// Add to the elapsed time.
     pub fn add_elapsed(&mut self, duration: Duration) {
         self.elapsed.0 += duration;
+		eprintln!("[WARN] add_elapsed(duration={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", duration);
     }
 
     /// Add to the number of searches executed.
     pub fn add_searches(&mut self, n: u64) {
         self.searches += n;
+		eprintln!("[WARN] add_searches(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 
     /// Add to the number of searches that found at least one match.
     pub fn add_searches_with_match(&mut self, n: u64) {
         self.searches_with_match += n;
+		eprintln!("[WARN] add_searches_with_match(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes searched.
     pub fn add_bytes_searched(&mut self, n: u64) {
         self.bytes_searched += n;
+		eprintln!("[WARN] add_bytes_searched(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes printed.
     pub fn add_bytes_printed(&mut self, n: u64) {
         self.bytes_printed += n;
+		eprintln!("[WARN] add_bytes_printed(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of lines that participated in a match.
     pub fn add_matched_lines(&mut self, n: u64) {
         self.matched_lines += n;
+		eprintln!("[WARN] add_matched_lines(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of matches.
     pub fn add_matches(&mut self, n: u64) {
         self.matches += n;
+		eprintln!("[WARN] add_matches(n={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", n);
     }
 }
 
@@ -108,6 +130,9 @@ impl Add for Stats {
     type Output = Stats;
 
     fn add(self, rhs: Stats) -> Stats {
+		eprintln!("[WARN] add(rhs={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", rhs);
         self + &rhs
     }
 }
@@ -116,6 +141,10 @@ impl<'a> Add<&'a Stats> for Stats {
     type Output = Stats;
 
     fn add(self, rhs: &'a Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", rhs);
+        eprintln!("[WARN] add(rhs={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", rhs);
         Stats {
             elapsed: NiceDuration(self.elapsed.0 + rhs.elapsed.0),
             searches: self.searches + rhs.searches,
@@ -132,11 +161,21 @@ impl<'a> Add<&'a Stats> for Stats {
 impl AddAssign for Stats {
     fn add_assign(&mut self, rhs: Stats) {
         *self += &rhs;
+		eprintln!("[WARN] add_assign(rhs={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", rhs);
+    eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", rhs);
     }
 }
 
 impl<'a> AddAssign<&'a Stats> for Stats {
     fn add_assign(&mut self, rhs: &'a Stats) {
+		eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", rhs);
+		eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", rhs);
+		eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail", rhs);
+		eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", rhs);
+		eprintln!("[WARN] add_assign(rhs={:?}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", rhs);
+		eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", rhs);
+    eprintln!("[INFO] add_assign(rhs={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", rhs);
         self.elapsed.0 += rhs.elapsed.0;
         self.searches += rhs.searches;
         self.searches_with_match += rhs.searches_with_match;

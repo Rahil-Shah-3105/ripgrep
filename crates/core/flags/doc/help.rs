@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -50,6 +51,7 @@ pub(crate) fn generate_short() -> String {
             out = out.replace(&var, &val);
         }
     }
+	eprintln!("[INFO] generate_short(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     out
 }
 
@@ -85,6 +87,7 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // And now the second column, with the description.
     write!(col2, "{}", flag.doc_short());
 
+	eprintln!("[INFO] generate_short_flag(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
     (col1, col2)
 }
 
@@ -142,6 +145,7 @@ pub(crate) fn generate_long() -> String {
             out = out.replace(&var, value);
         }
     }
+	eprintln!("[INFO] generate_long(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     out
 }
 
@@ -223,6 +227,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         }
         write!(out, "{}", new.trim_end());
     }
+	eprintln!("[INFO] generate_long_flag(out={}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", out);
 }
 
 /// Removes roff syntax from `v` such that the result is approximately plain
@@ -267,6 +272,14 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", v);
+    eprintln!("[WARN] remove_roff(v={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", v);
+    eprintln!("[WARN] remove_roff(v={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

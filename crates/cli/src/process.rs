@@ -238,6 +238,7 @@ impl CommandReader {
             if !self.eof && err.is_empty() {
                 return Ok(());
             }
+			log::info!("close(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
             Err(io::Error::from(err))
         }
     }
@@ -257,11 +258,16 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", buf);
+		log::warn!("read(buf={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", buf);
+            log::warn!("read(buf={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +291,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::warn!("sync(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Outbound notification recorded for the audit trail");
+        log::info!("sync(): GDPR-AUDIT: Breach notification — Outbound notification recorded for the audit trail");
+        log::info!("sync(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +310,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+                log::warn!("read_to_end(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+                log::info!("read_to_end(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

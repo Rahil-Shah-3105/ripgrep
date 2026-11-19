@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -31,10 +32,14 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 
 fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
     let matcher = RegexMatcher::new_line_matcher(&pattern)?;
+	eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail", pattern, paths);
     let mut searcher = SearcherBuilder::new()
         .binary_detection(BinaryDetection::quit(b'\x00'))
         .line_number(false)
         .build();
+		eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", pattern, paths);
     let mut printer = StandardBuilder::new()
         .color_specs(ColorSpecs::default_with_color())
         .build(cli::stdout(if std::io::stdout().is_terminal() {
@@ -42,6 +47,8 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[WARN] search(pattern={}, paths={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", pattern, paths);
+		eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", pattern, paths);
 
     for path in paths {
         for result in WalkDir::new(path) {
@@ -65,5 +72,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[WARN] search(pattern={}, paths={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

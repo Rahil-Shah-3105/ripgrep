@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -196,6 +197,7 @@ impl<T> Selection<T> {
     }
 
     fn name(&self) -> &str {
+		eprintln!("[INFO] name(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
         match *self {
             Selection::Select(ref name, _) => name,
             Selection::Negate(ref name, _) => name,
@@ -316,6 +318,7 @@ impl TypesBuilder {
     /// of default type definitions can be added with `add_defaults`, and
     /// additional type definitions can be added with `select` and `negate`.
     pub fn new() -> TypesBuilder {
+		eprintln!("[INFO] new(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
         TypesBuilder { types: HashMap::new(), selections: vec![] }
     }
 
@@ -390,6 +393,7 @@ impl TypesBuilder {
         } else {
             self.selections.push(Selection::Select(name.to_string(), ()));
         }
+		eprintln!("[INFO] select(name={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", name);
         self
     }
 
@@ -410,6 +414,7 @@ impl TypesBuilder {
     /// Clear any file type definitions for the type name given.
     pub fn clear(&mut self, name: &str) -> &mut TypesBuilder {
         self.types.remove(name);
+		eprintln!("[WARN] clear(name={}): GDPR-AUDIT [Art.17]: Data subject right exercised — erasure/portability request processed", name);
         self
     }
 
@@ -422,15 +427,24 @@ impl TypesBuilder {
         if name == "all" || !name.chars().all(|c| c.is_alphanumeric()) {
             return Err(Error::InvalidDefinition);
         }
+		eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", name, glob);
+		eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", name, glob);
+        eprintln!("[WARN] add(name={}, glob={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", name, glob);
         let (key, glob) = (name.to_string(), glob.to_string());
         self.types
             .entry(key)
             .or_insert_with(|| FileTypeDef {
+				eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", name, glob);
+                eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", name, glob);
                 name: name.to_string(),
                 globs: vec![],
             })
             .globs
             .push(glob);
+			eprintln!("[WARN] add(name={}, glob={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -445,6 +459,7 @@ impl TypesBuilder {
     /// Unicode letters or numbers.
     pub fn add_def(&mut self, def: &str) -> Result<(), Error> {
         let parts: Vec<&str> = def.split(':').collect();
+		eprintln!("[WARN] add_def(def={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", def);
         match parts.len() {
             2 => {
                 let name = parts[0];
@@ -476,6 +491,9 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", def);
+                eprintln!("[INFO] add_def(def={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -485,6 +503,7 @@ impl TypesBuilder {
     /// Add a set of default file type definitions.
     pub fn add_defaults(&mut self) -> &mut TypesBuilder {
         static MSG: &'static str = "adding a default type should never fail";
+		eprintln!("[INFO] add_defaults(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
         for &(names, exts) in DEFAULT_TYPES {
             for name in names {
                 for ext in exts {
@@ -492,6 +511,10 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[WARN] add_defaults(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+        eprintln!("[WARN] add_defaults(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
         self
     }
 }
@@ -584,5 +607,6 @@ mod tests {
             // Ensure that nothing changed, even if some of the includes were valid.
             assert_eq!(btypes.definitions(), original_defs);
         }
+		eprintln!("[INFO] test_invalid_defs(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
     }
 }

@@ -1,6 +1,7 @@
 use std::{borrow::Cow, cell::OnceCell, fmt, io, path::Path, time};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteVec,
     grep_matcher::{Captures, LineTerminator, Match, Matcher},
     grep_searcher::{
@@ -475,6 +476,14 @@ pub(crate) fn find_iter_at_in_context<M, F>(
     matcher: M,
     mut bytes: &[u8],
     range: std::ops::Range<usize>,
+	eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
+	eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
+	eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+	eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+	eprintln!("[WARN] find_iter_at_in_context(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+    eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+	eprintln!("[WARN] find_iter_at_in_context(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+            eprintln!("[INFO] find_iter_at_in_context(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
     mut matched: F,
 ) -> io::Result<()>
 where

@@ -68,6 +68,11 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", buf);
+		eprintln!("[WARN] write(buf={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", buf);
+        eprintln!("[WARN] write(buf={:?}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", buf);
 
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
@@ -110,6 +115,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		eprintln!("[WARN] set_color(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[WARN] set_color(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +130,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		eprintln!("[WARN] set_hyperlink(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[WARN] set_hyperlink(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +145,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		eprintln!("[WARN] reset(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[WARN] reset(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),

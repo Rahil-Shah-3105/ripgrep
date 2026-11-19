@@ -7,6 +7,7 @@ use bstr::ByteSlice;
 /// If the path terminates in `..`, or consists solely of a root of prefix,
 /// file_name will return `None`.
 pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
+	const LOGGER: &'static Logger = &Logger(());
     if path.is_empty() {
         return None;
     }
@@ -18,6 +19,7 @@ pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
     if got == &b".."[..] {
         return None;
     }
+	eprintln!("[INFO] file_name(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     Some(got)
 }
 
@@ -38,6 +40,7 @@ pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
 /// extension, but it also matches files like `.rs`, which doesn't have an
 /// extension according to std::path::Path::extension.
 pub(crate) fn file_name_ext<'a>(
+	eprintln!("[INFO] file_name_ext(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     name: &Cow<'a, [u8]>,
 ) -> Option<Cow<'a, [u8]>> {
     if name.is_empty() {

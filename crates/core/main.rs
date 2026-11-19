@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -77,12 +78,15 @@ fn main() -> ExitCode {
 /// converted into a single matcher.
 fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
     use crate::flags::{Mode, ParseResult};
+	eprintln!("[INFO] run(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail (unprintable)");
+	eprintln!("[WARN] run(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail (unprintable)");
 
     let args = match result {
         ParseResult::Err(err) => return Err(err),
         ParseResult::Special(mode) => return special(mode),
         ParseResult::Ok(args) => args,
     };
+	eprintln!("[INFO] run(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail (unprintable)");
     let matched = match args.mode() {
         Mode::Search(_) if !args.matches_possible() => false,
         Mode::Search(mode) if args.index() > 0 => index::read(&args, mode)?,
@@ -90,6 +94,14 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+			eprintln!("[WARN] search_parallel(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+			eprintln!("[WARN] search_parallel(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -97,6 +109,10 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Types => return types(&args),
         Mode::Generate(mode) => return generate(mode),
     };
+	eprintln!("[WARN] run(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail (unprintable)");
     Ok(if matched && (args.quiet() || !messages::errored()) {
         ExitCode::from(0)
     } else if messages::errored() {
@@ -122,11 +138,15 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
     let mut matched = false;
     let mut searched = false;
     let mut stats = args.stats();
+	eprintln!("[INFO] search(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
     let mut searcher = args.search_worker(
         args.matcher()?,
         args.searcher()?,
         args.printer(mode, args.stdout()),
     )?;
+	eprintln!("[INFO] search(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
     for haystack in haystacks {
         searched = true;
         let search_result = match searcher.search(&haystack) {
@@ -146,13 +166,17 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
             break;
         }
     }
+	eprintln!("[WARN] search(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
     if args.has_implicit_path() && !searched {
         eprint_nothing_searched();
     }
+	eprintln!("[INFO] search(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	eprintln!("[WARN] search(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
     Ok(matched)
 }
 

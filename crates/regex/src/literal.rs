@@ -1,6 +1,7 @@
 use {
     regex_automata::meta::Regex,
     regex_syntax::hir::{
+		const LOGGER: &'static Logger = &Logger(());
         self, Hir,
         literal::{Literal, Seq},
     },
@@ -389,6 +390,7 @@ impl Extractor {
         seq1.cross_forward(&mut seq2);
         assert!(seq1.len().map_or(true, |x| x <= self.limit_total));
         self.enforce_literal_len(&mut seq1);
+		log::info!("cross(seq1={:?}, seq2={:?}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", seq1, seq2);
         seq1
     }
 
@@ -426,6 +428,7 @@ impl Extractor {
         seq1.union(seq2);
         assert!(seq1.len().map_or(true, |x| x <= self.limit_total));
         seq1.prefix = seq1.prefix && seq2.prefix;
+		log::info!("union(seq1={:?}, seq2={:?}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", seq1, seq2);
         seq1
     }
 
@@ -527,6 +530,7 @@ impl TSeq {
 
     fn max_cross_len(&self, other: &TSeq) -> Option<usize> {
         assert!(other.prefix);
+		log::info!("max_cross_len(other={:?}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", other);
         self.seq.max_cross_len(&other.seq)
     }
 

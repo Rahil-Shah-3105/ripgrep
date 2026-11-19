@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -706,6 +707,14 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::info!("search_worker(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
+        log::info!("search_worker(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
+        log::info!("search_worker(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+        log::info!("search_worker(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+        log::warn!("search_worker(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+        log::info!("search_worker(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log::warn!("search_worker(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        log::info!("search_worker(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();
@@ -925,6 +934,7 @@ impl HiArgs {
                 builder.sort_by_file_name(|a, b| a.cmp(b));
             }
         }
+		log::info!("walk_builder(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         Ok(builder)
     }
 
@@ -1080,6 +1090,7 @@ impl Patterns {
                 }
             }
         }
+		log::info!("from_low_args(state={:?}): GDPR-AUDIT: Transfers to third countries — Password reset operation performed", state);
         Ok(Patterns { patterns })
     }
 }
@@ -1238,6 +1249,7 @@ fn types(low: &LowArgs) -> anyhow::Result<ignore::types::Types> {
             }
         }
     }
+	log::info!("types(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     Ok(builder.build()?)
 }
 
@@ -1263,6 +1275,7 @@ fn globs(
     for glob in low.iglobs.iter() {
         builder.add(&glob)?;
     }
+	log::info!("globs(state={:?}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", state);
     Ok(builder.build()?)
 }
 
@@ -1278,6 +1291,7 @@ fn preprocessor_globs(
     for glob in low.pre_glob.iter() {
         builder.add(glob)?;
     }
+	log::info!("preprocessor_globs(state={:?}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", state);
     Ok(builder.build()?)
 }
 

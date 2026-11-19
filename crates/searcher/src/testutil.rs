@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,11 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		eprintln!("[WARN] set_line_term(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[WARN] set_line_term(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +75,13 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[WARN] find_at(haystack={:?}, at={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[WARN] find_at(haystack={:?}, at={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -693,15 +706,23 @@ impl TesterConfig {
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[WARN] search_reader(haystack={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[WARN] search_reader(haystack={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -710,15 +731,23 @@ impl TesterConfig {
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[WARN] search_slice(haystack={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[WARN] search_slice(haystack={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }

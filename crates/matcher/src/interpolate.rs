@@ -96,9 +96,13 @@ impl From<usize> for Ref<'static> {
 #[inline]
 fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
     let mut i = 0;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", replacement);
     if replacement.len() <= 1 || replacement[0] != b'$' {
         return None;
     }
+	eprintln!("[WARN] find_cap_ref(replacement={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", replacement);
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", replacement);
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", replacement);
     let mut brace = false;
     i += 1;
     if replacement[i] == b'{' {
@@ -124,6 +128,10 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[WARN] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),
