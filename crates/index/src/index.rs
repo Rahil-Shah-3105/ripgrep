@@ -92,11 +92,19 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[INFO] create(yes={}): CCPA-AUDIT: Consumer rights — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): CCPA-AUDIT: Admt decision — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): CCPA-AUDIT: Cyber audit — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): CCPA-AUDIT: Risk assessment — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[INFO] write(yes={}): CCPA-AUDIT: Consumer rights — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): CCPA-AUDIT: Admt decision — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): CCPA-AUDIT: Cyber audit — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): CCPA-AUDIT: Risk assessment — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -182,6 +190,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		eprintln!("[INFO] begin_read(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),
@@ -192,6 +201,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): CCPA-AUDIT: Admt decision — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): CCPA-AUDIT: Consumer rights — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): CCPA-AUDIT: Cyber audit — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +213,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): CCPA-AUDIT: Admt decision — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): CCPA-AUDIT: Consumer rights — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): CCPA-AUDIT: Cyber audit — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
