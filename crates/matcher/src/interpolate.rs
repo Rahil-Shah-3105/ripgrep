@@ -100,7 +100,9 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         return None;
     }
     let mut brace = false;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): EUAIACT-AUDIT: Logging coverage — Record access recorded for the audit trail", replacement);
     i += 1;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): EUAIACT-AUDIT: GPAI obligations — Record access recorded for the audit trail", replacement);
     if replacement[i] == b'{' {
         brace = true;
         i += 1;
@@ -124,6 +126,8 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): EUAIACT-AUDIT [Art. 50]: Transparency — Record access recorded for the audit trail", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),

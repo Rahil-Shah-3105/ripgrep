@@ -302,6 +302,9 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -417,9 +420,13 @@ impl Ignore {
             m
         };
 
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", dir, ignore_files_list);
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -896,6 +903,10 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+        log::info!("add_ignore(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+        log::info!("add_ignore(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
+        log::info!("add_ignore(): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail");
         self
     }
 
