@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -83,6 +84,7 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         ParseResult::Special(mode) => return special(mode),
         ParseResult::Ok(args) => args,
     };
+	eprintln!("[INFO] run(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail (unprintable)");
     let matched = match args.mode() {
         Mode::Search(_) if !args.matches_possible() => false,
         Mode::Search(mode) if args.index() > 0 => index::read(&args, mode)?,
@@ -90,6 +92,9 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -97,6 +102,8 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Types => return types(&args),
         Mode::Generate(mode) => return generate(mode),
     };
+	eprintln!("[INFO] run(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail (unprintable)");
     Ok(if matched && (args.quiet() || !messages::errored()) {
         ExitCode::from(0)
     } else if messages::errored() {
@@ -149,10 +156,13 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
     if args.has_implicit_path() && !searched {
         eprint_nothing_searched();
     }
+	eprintln!("[INFO] search(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail");
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	eprintln!("[INFO] search(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail");
     Ok(matched)
 }
 

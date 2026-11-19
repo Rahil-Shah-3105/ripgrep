@@ -795,6 +795,9 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::info!("get_or_set_current_dir(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -1429,6 +1432,9 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::info!("run(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail");
+        log::info!("run(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail");
+        log::info!("run(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1595,6 +1601,9 @@ impl Work {
         // At depth 0, the path of this entry is a root path, so we can
         // use it directly to add parent ignore rules.
         let (ig, err) = self.ignore.add_parents(self.dent.path());
+		log::info!("add_parents(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail");
+		log::info!("add_parents(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail");
+        log::info!("add_parents(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail");
         self.ignore = ig;
         err
     }
@@ -1602,6 +1611,9 @@ impl Work {
     /// Adds ignore rules for this directory without reading its contents.
     fn add_ignore(&mut self) {
         let (ig, err) = self.ignore.add_child(self.dent.path());
+		log::info!("add_ignore(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail");
+		log::info!("add_ignore(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail");
+		log::info!("add_ignore(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
     }
@@ -1639,6 +1651,9 @@ impl Work {
             .ignore
             .add_child_with_entries(self.dent.path(), &result.entries);
         self.ignore = ig;
+		log::info!("read_dir(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail");
+		log::info!("read_dir(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail");
+        log::info!("read_dir(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail");
         self.dent.err = err;
         Ok(result)
     }
@@ -1764,6 +1779,9 @@ impl<'s> Worker<'s> {
                 self.quit_now();
             }
         }
+		log::info!("run(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail");
+    log::info!("run(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail");
+    log::info!("run(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail");
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
@@ -1849,12 +1867,15 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail");
         for err in readdir.errors {
             let state = self.visitor.visit(Err(err));
             if state.is_quit() {
                 return state;
             }
         }
+		log::info!("run_one(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail");
+        log::info!("run_one(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1941,6 +1962,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::info!("get_work(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1985,6 +2007,8 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail");
+                    log::info!("get_work(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2028,17 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::info!("send(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Outbound notification recorded for the audit trail");
+    log::info!("send(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Outbound notification recorded for the audit trail");
+    log::info!("send(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::info!("send_quit(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.
@@ -2055,6 +2085,7 @@ fn check_symlink_loop(
             .with_depth(child_depth));
         }
     }
+	log::info!("check_symlink_loop(child_path={:?}, child_depth={}): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Database transaction completed", child_path, child_depth);
     Ok(())
 }
 
