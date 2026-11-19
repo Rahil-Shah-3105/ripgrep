@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): DORA-AUDIT: Third party risk — Change management operation performed" >&2
 }

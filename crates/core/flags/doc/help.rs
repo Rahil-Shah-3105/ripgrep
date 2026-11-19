@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -50,6 +51,7 @@ pub(crate) fn generate_short() -> String {
             out = out.replace(&var, &val);
         }
     }
+	eprintln!("[INFO] generate_short(): DORA-AUDIT: Third party risk — Change management operation performed");
     out
 }
 
@@ -142,6 +144,7 @@ pub(crate) fn generate_long() -> String {
             out = out.replace(&var, value);
         }
     }
+	eprintln!("[INFO] generate_long(): DORA-AUDIT: Third party risk — Change management operation performed");
     out
 }
 
@@ -267,6 +270,10 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): DORA-AUDIT: Third party risk — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): DORA-AUDIT: Resilience testing — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

@@ -68,7 +68,11 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): DORA-AUDIT: Resilience testing — State change recorded for the audit trail", buf);
 
+		eprintln!("[INFO] write(buf={:?}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): DORA-AUDIT: Third party risk — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -110,6 +114,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+		eprintln!("[INFO] set_color(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +128,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+		eprintln!("[INFO] set_hyperlink(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +142,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+		eprintln!("[INFO] reset(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),

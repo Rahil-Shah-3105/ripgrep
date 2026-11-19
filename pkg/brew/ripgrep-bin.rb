@@ -18,6 +18,7 @@ class RipgrepBin < Formula
     man1.install "doc/rg.1"
 
     bash_completion.install "complete/rg.bash"
+	warn("[INFO] install(): DORA-AUDIT: Third party risk — Change management operation performed")
     zsh_completion.install "complete/_rg"
   end
 end
