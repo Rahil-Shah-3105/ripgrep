@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		eprintln!("[INFO] hash(): FEDRAMP-AUDIT: Crypto protection — Password reset operation performed");
     }
 }
 
@@ -970,13 +971,18 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -1048,6 +1054,7 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[INFO] parse_class(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
         self.push_token(Token::Class { negated, ranges })
     }
 

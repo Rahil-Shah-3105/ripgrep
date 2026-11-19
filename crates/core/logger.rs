@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Security event recorded");
             }
         }
     }

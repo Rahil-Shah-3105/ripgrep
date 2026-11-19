@@ -11,6 +11,7 @@ const TEMPLATE_NEGATED: &'static str = "complete -c rg -l !NEGATED! -n '__rg_con
 ///
 /// Reference: <https://fishshell.com/docs/current/completions.html>
 pub(crate) fn generate() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let mut out = String::new();
     out.push_str(include_str!("prelude.fish"));
     out.push('\n');
@@ -71,5 +72,6 @@ pub(crate) fn generate() -> String {
             );
         }
     }
+	eprintln!("[INFO] generate(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
     out
 }

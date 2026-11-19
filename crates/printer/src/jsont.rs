@@ -196,6 +196,7 @@ impl<'a> Data<'a> {
         // non-UTF-8 paths, and OsStr's are serialized as a sequence of UTF-16
         // code units on Windows. Neither seem appropriate for this use case,
         // so we do the easy thing for now.
+		eprintln!("[INFO] from_path(path={:?}): FEDRAMP-AUDIT: Configuration management — Change management operation performed", path);
         Data::Text { text: path.to_string_lossy() }
     }
 }

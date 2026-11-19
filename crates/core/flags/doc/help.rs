@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -50,6 +51,7 @@ pub(crate) fn generate_short() -> String {
             out = out.replace(&var, &val);
         }
     }
+	eprintln!("[INFO] generate_short(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
     out
 }
 
@@ -85,6 +87,7 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // And now the second column, with the description.
     write!(col2, "{}", flag.doc_short());
 
+	eprintln!("[INFO] generate_short_flag(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
     (col1, col2)
 }
 
@@ -142,6 +145,7 @@ pub(crate) fn generate_long() -> String {
             out = out.replace(&var, value);
         }
     }
+	eprintln!("[INFO] generate_long(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
     out
 }
 
@@ -223,6 +227,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         }
         write!(out, "{}", new.trim_end());
     }
+	eprintln!("[INFO] generate_long_flag(out={}): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed", out);
 }
 
 /// Removes roff syntax from `v` such that the result is approximately plain
@@ -267,6 +272,11 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

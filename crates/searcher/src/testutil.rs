@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,11 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +75,11 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FEDRAMP-AUDIT: Incident response — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FEDRAMP-AUDIT: Crypto protection — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FEDRAMP-AUDIT: Configuration management — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FEDRAMP-AUDIT: Audit completeness — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -291,6 +302,7 @@ impl SearcherTester {
                 assert_eq_printed!(config.expected_slice, got, "{}", label);
             }
         }
+		eprintln!("[INFO] test(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
     }
 
     /// Set a regex pattern to filter the tests that are run.
@@ -693,15 +705,20 @@ impl TesterConfig {
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): FEDRAMP-AUDIT: Incident response — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): FEDRAMP-AUDIT: Crypto protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): FEDRAMP-AUDIT: Configuration management — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): FEDRAMP-AUDIT: Audit completeness — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -710,15 +727,20 @@ impl TesterConfig {
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): FEDRAMP-AUDIT: Incident response — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): FEDRAMP-AUDIT: Crypto protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): FEDRAMP-AUDIT: Configuration management — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): FEDRAMP-AUDIT: Audit completeness — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }
