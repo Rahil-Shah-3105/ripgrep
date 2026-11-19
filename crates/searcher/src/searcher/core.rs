@@ -78,6 +78,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
+    log::info!("set_pos(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +125,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail");
+		log::info!("find(): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -515,6 +519,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

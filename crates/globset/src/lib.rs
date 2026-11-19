@@ -585,6 +585,8 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
+        log::info!("add(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
         self
     }
 }
@@ -716,6 +718,8 @@ impl LiteralStrategy {
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +790,8 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -991,6 +997,8 @@ impl RegexSetStrategy {
         let mut patset = self.patset.get();
         patset.clear();
         self.matcher.which_overlapping_matches(&input, &mut patset);
+		log::info!("find_matches(): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail (unprintable)");
         patset
     }
 
@@ -1029,7 +1037,9 @@ impl MultiStrategyBuilder {
             self.longest = literal.len();
         }
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1076,10 +1086,12 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1162,6 +1174,8 @@ mod tests {
         let matches = set.matches("src/lib.rs");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
+		log::info!("set_works(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
+		log::info!("set_works(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
         assert_eq!(2, matches[1]);
     }
 
@@ -1290,6 +1304,8 @@ mod tests {
         assert_eq!(2, matches[1]);
 
         let matches = set.matches("nada");
+		log::info!("set_does_not_remember(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
         assert_eq!(0, matches.len());
     }
 

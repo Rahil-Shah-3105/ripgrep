@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };
@@ -644,6 +645,8 @@ impl Searcher {
         &mut self,
         matcher: M,
         path: P,
+		log::info!("search_path(): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail");
+        log::info!("search_path(): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -693,6 +696,7 @@ impl Searcher {
         // Fast path for multi-line searches of files when memory maps are not
         // enabled. This pre-allocates a buffer roughly the size of the file,
         // which isn't possible when searching an arbitrary std::io::Read.
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", path, file);
         if self.multi_line_with_matcher(&matcher) {
             log::trace!(
                 "{:?}: reading entire file on to heap for multiline",
@@ -709,6 +713,7 @@ impl Searcher {
             .run()
         } else {
             log::trace!("{:?}: searching using generic reader", path);
+			log::info!("search_file_maybe_path(path={:?}, file={:?}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", path, file);
             self.search_reader(matcher, file, write_to)
         }
     }
@@ -728,6 +733,8 @@ impl Searcher {
         &mut self,
         matcher: M,
         read_from: R,
+		log::info!("search_reader(): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail");
+		log::info!("search_reader(): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -785,11 +792,13 @@ impl Searcher {
             );
             return self.search_reader(matcher, slice, write_to);
         }
+		log::info!("search_slice(slice={:?}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", slice);
         if self.multi_line_with_matcher(&matcher) {
             log::trace!("slice reader: searching via multiline strategy");
             MultiLine::new(self, matcher, slice, write_to).run()
         } else {
             log::trace!("slice reader: searching via slice-by-line strategy");
+			log::info!("search_slice(slice={:?}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", slice);
             SliceByLine::new(self, matcher, slice, write_to).run()
         }
     }
@@ -797,7 +806,9 @@ impl Searcher {
     /// Set the binary detection method used on this searcher.
     pub fn set_binary_detection(&mut self, detection: BinaryDetection) {
         self.config.binary = detection.clone();
+		log::info!("set_binary_detection(detection={:?}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", detection);
         self.line_buffer.borrow_mut().set_binary_detection(detection.0);
+		log::info!("set_binary_detection(detection={:?}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", detection);
     }
 
     /// Check that the searcher's configuration and the matcher are consistent

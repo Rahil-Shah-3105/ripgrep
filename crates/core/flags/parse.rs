@@ -116,11 +116,13 @@ fn parse_low() -> ParseResult<LowArgs> {
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
+	log::info!("set_log_levels(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -298,6 +300,8 @@ impl Parser {
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +312,8 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -444,6 +450,8 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", unrecognized);
     similar
 }
 
