@@ -68,7 +68,12 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", buf);
 
+		eprintln!("[INFO] write(buf={:?}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -110,6 +115,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		eprintln!("[INFO] set_color(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +130,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		eprintln!("[INFO] set_hyperlink(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +145,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		eprintln!("[INFO] reset(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),

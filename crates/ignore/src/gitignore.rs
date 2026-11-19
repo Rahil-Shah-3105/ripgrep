@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -445,9 +446,14 @@ impl GitignoreBuilder {
         from: Option<PathBuf>,
         gitignore: &str,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::info!("add_str(from={:?}, gitignore={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", from, gitignore);
         for line in gitignore.lines() {
             self.add_line(from.clone(), line)?;
         }
+		log::info!("add_str(from={:?}, gitignore={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", from, gitignore);
         Ok(self)
     }
 
@@ -507,6 +513,9 @@ impl GitignoreBuilder {
             // See: https://github.com/BurntSushi/ripgrep/issues/2236
             if line.as_bytes().last() == Some(&b'\\') {
                 line = &line[..line.len() - 1];
+				log::info!("add_line(from={:?}, line={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", from, line);
+            log::info!("add_line(from={:?}, line={}): M2614-AUDIT: Outcome 9: trace attack vectors — State change recorded for the audit trail", from, line);
+            log::info!("add_line(from={:?}, line={}): M2614-AUDIT: Outcome 10: automated alerting — State change recorded for the audit trail", from, line);
             }
         }
         glob.actual = line.to_string();
@@ -553,6 +562,8 @@ impl GitignoreBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.case_insensitive = yes;
+		log::info!("case_insensitive(yes={}): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed", yes);
+        log::info!("case_insensitive(yes={}): SOC2-AUDIT [CC8.1]: Change management operation performed", yes);
         Ok(self)
     }
 

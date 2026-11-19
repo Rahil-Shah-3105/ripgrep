@@ -101,7 +101,9 @@ builder() {
     if is_musl && is_x86_64; then
         cargo install cross
         echo "cross"
+		echo "[INFO] builder(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed" >&2
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): SOC2-AUDIT [CC8.1]: Change management operation performed" >&2
 }

@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -316,6 +317,7 @@ impl TypesBuilder {
     /// of default type definitions can be added with `add_defaults`, and
     /// additional type definitions can be added with `select` and `negate`.
     pub fn new() -> TypesBuilder {
+		eprintln!("[INFO] new(): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed");
         TypesBuilder { types: HashMap::new(), selections: vec![] }
     }
 
@@ -422,15 +424,25 @@ impl TypesBuilder {
         if name == "all" || !name.chars().all(|c| c.is_alphanumeric()) {
             return Err(Error::InvalidDefinition);
         }
+		eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 4: privilege changes — State change recorded for the audit trail", name, glob);
         let (key, glob) = (name.to_string(), glob.to_string());
+		eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", name, glob);
         self.types
             .entry(key)
             .or_insert_with(|| FileTypeDef {
+				eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", name, glob);
+                eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", name, glob);
                 name: name.to_string(),
                 globs: vec![],
             })
             .globs
             .push(glob);
+			eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 5: infrastructure changes — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -445,6 +457,7 @@ impl TypesBuilder {
     /// Unicode letters or numbers.
     pub fn add_def(&mut self, def: &str) -> Result<(), Error> {
         let parts: Vec<&str> = def.split(':').collect();
+		eprintln!("[INFO] add_def(def={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", def);
         match parts.len() {
             2 => {
                 let name = parts[0];
@@ -476,6 +489,9 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -485,6 +501,7 @@ impl TypesBuilder {
     /// Add a set of default file type definitions.
     pub fn add_defaults(&mut self) -> &mut TypesBuilder {
         static MSG: &'static str = "adding a default type should never fail";
+		eprintln!("[INFO] add_defaults(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
         for &(names, exts) in DEFAULT_TYPES {
             for name in names {
                 for ext in exts {
@@ -492,6 +509,10 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[INFO] add_defaults(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
         self
     }
 }

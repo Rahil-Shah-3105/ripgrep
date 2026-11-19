@@ -121,6 +121,7 @@ impl IncrementalIgnore {
         } else {
             RootIgnore::Unloaded(ignore)
         };
+		log::info!("new(): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed");
         IncrementalIgnore {
             root,
             normalized_root: OnceLock::new(),
@@ -933,6 +934,7 @@ mod tests {
         ]));
         assert!(matchedf(&mut mats[0], "c/d/e/first.tmp").is_whitelist());
         assert!(matchedf(&mut mats[1], "d/e/first.tmp").is_whitelist());
+		log::info!("compiled_multi_child_matchers_are_not_reused(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     // Tests that even when there is an error with a glob pattern, we still

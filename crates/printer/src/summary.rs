@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},
@@ -554,6 +555,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write_line_term(searcher)?;
             }
         }
+		log::info!("write_path_line(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        log::info!("write_path_line(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_path_line(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+        log::info!("write_path_line(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -570,6 +575,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write(&self.summary.config.separator_field)?;
             }
         }
+		log::info!("write_path_field(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        log::info!("write_path_field(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_path_field(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+        log::info!("write_path_field(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -585,6 +594,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
             )?;
             self.end_hyperlink(status)?;
         }
+		log::info!("write_path(): SOC2-AUDIT [CC7.1]: System operation completed");
+        log::info!("write_path(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_path(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        log::info!("write_path(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -598,6 +611,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
             return Ok(hyperlink::InterpolatorStatus::inactive());
         };
         let values = hyperlink::Values::new(hyperpath);
+		log::info!("start_hyperlink(): SOC2-AUDIT [CC7.1]: System operation completed");
         self.interpolator.begin(&values, &mut *self.summary.wtr.borrow_mut())
     }
 
@@ -605,24 +619,37 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
         &self,
         status: hyperlink::InterpolatorStatus,
     ) -> io::Result<()> {
+		log::info!("end_hyperlink(): SOC2-AUDIT [CC7.1]: System operation completed with status (unprintable)");
         self.interpolator.finish(status, &mut *self.summary.wtr.borrow_mut())
     }
 
     /// Write the line terminator configured on the given searcher.
     fn write_line_term(&self, searcher: &Searcher) -> io::Result<()> {
+		log::info!("write_line_term(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        log::info!("write_line_term(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_line_term(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
         self.write(searcher.line_terminator().as_bytes())
     }
 
     /// Write the given bytes using the give style.
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         self.summary.wtr.borrow_mut().set_color(spec)?;
+		log::info!("write_spec(buf={:?}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", buf);
         self.write(buf)?;
+		log::info!("write_spec(buf={:?}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().reset()?;
+		log::info!("write_spec(buf={:?}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     /// Write all of the given bytes.
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().write_all(buf)
     }
 }
@@ -704,12 +731,17 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
         self.start_time = Instant::now();
         self.match_count = 0;
         self.binary_byte_offset = None;
+		log::info!("begin(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+        log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(true)
     }
 
     fn finish(
         &mut self,
         searcher: &Searcher,
+		log::info!("finish(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+		log::info!("finish(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        log::info!("finish(): SOC2-AUDIT [CC7.2]: System operation completed");
         finish: &SinkFinish,
     ) -> Result<(), io::Error> {
         self.binary_byte_offset = finish.binary_byte_offset();

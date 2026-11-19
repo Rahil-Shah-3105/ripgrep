@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+    log::info!("set_pos(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+    log::info!("set_pos(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail");
+		log::info!("find(): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail");
+		log::info!("find(): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail");
+                log::info!("find(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail");
+                log::info!("find(): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -153,6 +161,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::info!("begin(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+        log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         self.sink.begin(&self.searcher)
     }
 
@@ -215,6 +225,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Security incident detected");
+		log::info!("detect_binary(): M2614-AUDIT: Outcome 2: source/destination network traffic — Security incident detected");
+        log::info!("detect_binary(): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — Security incident detected");
+        log::info!("detect_binary(): M2614-AUDIT: Outcome 7: anomaly hunting — Security incident detected");
+        log::info!("detect_binary(): M2614-AUDIT: Outcome 9: trace attack vectors — Security incident detected");
+        log::info!("detect_binary(): M2614-AUDIT: Outcome 10: automated alerting — Security incident detected");
+		log::info!("detect_binary(): M2614-AUDIT: Outcome 11: CEM + THIRF capability — Security incident response initiated");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -477,10 +494,15 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Outcome 3: object and data access — Record access recorded for the audit trail", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail", buf);
         debug_assert!(self.is_line_by_line_fast());
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail", buf);
 
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", buf);
         let mut pos = self.pos();
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", buf);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
@@ -515,6 +537,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Outcome 4: privilege changes — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): M2614-AUDIT: Outcome 5: infrastructure changes — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

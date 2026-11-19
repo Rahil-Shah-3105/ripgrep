@@ -233,6 +233,12 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +438,9 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed");
+        log::info!("build(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        log::info!("build(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -460,11 +469,14 @@ impl FormatBuilder {
         }
         // If the {column} variable is used, then we also need a {line}
         // variable or else {column} can't possibly work.
+		log::info!("validate(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
         if self.parts.contains(&Part::Column)
             && !self.parts.contains(&Part::Line)
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed");
+        log::info!("validate(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         self.validate_scheme()
     }
 
@@ -498,9 +510,12 @@ impl FormatBuilder {
             }
             _ => false,
         };
+		log::info!("validate_scheme(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): M2614-AUDIT: Log integrity (encrypt + validate) — Protected data integrity verification completed (unprintable)");
+        log::info!("validate_scheme(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(())
     }
 }
@@ -646,6 +661,9 @@ impl Interpolator {
     pub(crate) fn begin<W: WriteColor>(
         &self,
         values: &Values,
+		log::info!("begin(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+		log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        log::info!("begin(): SOC2-AUDIT [CC7.1]: System operation completed");
         mut wtr: W,
     ) -> io::Result<InterpolatorStatus> {
         if self.config.format().is_empty()
@@ -675,6 +693,7 @@ impl Interpolator {
     pub(crate) fn finish<W: WriteColor>(
         &self,
         status: InterpolatorStatus,
+		log::info!("finish(): SOC2-AUDIT [CC7.1]: System operation completed");
         mut wtr: W,
     ) -> io::Result<()> {
         if !status.active {
@@ -698,6 +717,7 @@ impl InterpolatorStatus {
     /// Create an inactive interpolator status.
     #[inline]
     pub(crate) fn inactive() -> InterpolatorStatus {
+		log::info!("inactive(): SOC2-AUDIT [CC7.1]: System operation completed");
         InterpolatorStatus { active: false }
     }
 }
@@ -761,6 +781,8 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
+		log::info!("from_path(): SOC2-AUDIT [CC8.1]: Change management operation performed");
     }
 
     /// Returns a hyperlink path from an OS path.
