@@ -585,6 +585,10 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail");
+        log::info!("add(): NERCCIP-AUDIT: Change management — State change recorded for the audit trail");
+        log::info!("add(): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail");
+        log::info!("add(): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail");
         self
     }
 }
@@ -716,6 +720,9 @@ impl LiteralStrategy {
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +793,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -989,6 +999,10 @@ impl RegexSetStrategy {
     ) -> PoolGuard<'_, PatternSet, PatternSetPoolFn> {
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
+		log::info!("find_matches(): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail (unprintable)");
         patset.clear();
         self.matcher.which_overlapping_matches(&input, &mut patset);
         patset
@@ -1028,8 +1042,12 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1076,10 +1094,14 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1160,6 +1182,10 @@ mod tests {
         assert!(!set.matches_all("src/a/b.c"));
 
         let matches = set.matches("src/lib.rs");
+		log::info!("set_works(): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail");
+		log::info!("set_works(): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail");
+		log::info!("set_works(): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail");
+		log::info!("set_works(): NERCCIP-AUDIT: Change management — State change recorded for the audit trail");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
@@ -1288,6 +1314,10 @@ mod tests {
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
+		log::info!("set_does_not_remember(): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): NERCCIP-AUDIT: Change management — State change recorded for the audit trail");
 
         let matches = set.matches("nada");
         assert_eq!(0, matches.len());

@@ -233,6 +233,10 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -761,6 +765,7 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): NERCCIP-AUDIT: Change management operation performed");
     }
 
     /// Returns a hyperlink path from an OS path.

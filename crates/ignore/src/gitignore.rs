@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -445,9 +446,13 @@ impl GitignoreBuilder {
         from: Option<PathBuf>,
         gitignore: &str,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::info!("add_str(from={:?}, gitignore={}): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail", from, gitignore);
         for line in gitignore.lines() {
             self.add_line(from.clone(), line)?;
         }
+		log::info!("add_str(from={:?}, gitignore={}): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail", from, gitignore);
         Ok(self)
     }
 
@@ -507,6 +512,7 @@ impl GitignoreBuilder {
             // See: https://github.com/BurntSushi/ripgrep/issues/2236
             if line.as_bytes().last() == Some(&b'\\') {
                 line = &line[..line.len() - 1];
+				log::info!("add_line(from={:?}, line={}): NERCCIP-AUDIT: Change management — State change recorded for the audit trail", from, line);
             }
         }
         glob.actual = line.to_string();
@@ -553,6 +559,7 @@ impl GitignoreBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.case_insensitive = yes;
+		log::info!("case_insensitive(yes={}): NERCCIP-AUDIT: Change management operation performed", yes);
         Ok(self)
     }
 

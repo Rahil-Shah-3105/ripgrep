@@ -257,11 +257,15 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
+		log::info!("read(buf={:?}): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail", buf);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +289,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): NERCCIP-AUDIT: Electronic perimeter — Outbound notification recorded for the audit trail");
+        log::info!("sync(): NERCCIP-AUDIT: Change management — Outbound notification recorded for the audit trail");
+        log::info!("sync(): NERCCIP-AUDIT: Incident recovery — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +308,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail");
+                log::info!("read_to_end(): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail");
+                log::info!("read_to_end(): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): NERCCIP-AUDIT: Change management operation performed" >&2
 }
