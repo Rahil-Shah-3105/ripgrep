@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): FEDRAMP-AUDIT: Configuration management — Change management operation performed" >&2
 }

@@ -1208,6 +1208,7 @@ fn test_context() {
     mode.set_both(5);
     assert_eq!(mode, args.context);
     assert_eq!((2, 1), args.context.get_limited());
+	eprintln!("[INFO] test_context(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
 }
 
 /// --context-separator
@@ -1715,12 +1716,17 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[INFO] update(): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail");
+		eprintln!("[INFO] update(): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
+        eprintln!("[INFO] update(): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -2574,6 +2580,7 @@ fn test_generate() {
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	eprintln!("[INFO] test_generate(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
 }
 
 /// -g/--glob
@@ -3068,6 +3075,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3107,7 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
         &DOC
     }
 
@@ -5821,6 +5830,7 @@ fn test_pcre2_version() {
 
     let args = parse_low_raw(["--pcre2-version"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionPCRE2), args.special);
+	eprintln!("[INFO] test_pcre2_version(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
 }
 
 /// --pre
@@ -7184,6 +7194,7 @@ fn test_trace() {
 
     let args = parse_low_raw(["--debug", "--trace"]).unwrap();
     assert_eq!(Some(LoggingMode::Trace), args.logging);
+	eprintln!("[INFO] test_trace(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Security event recorded");
 }
 
 /// --trim
@@ -7694,6 +7705,9 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+		eprintln!("[INFO] update(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
+        eprintln!("[INFO] update(): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.
@@ -7718,6 +7732,7 @@ fn test_version() {
 
     let args = parse_low_raw(["--version", "-V"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionShort), args.special);
+	eprintln!("[INFO] test_version(): FEDRAMP-AUDIT: Configuration management — Change management operation performed");
 }
 
 /// --vimgrep

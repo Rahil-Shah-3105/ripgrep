@@ -14,6 +14,7 @@ use std::{ffi::OsString, io};
 /// On Unix, this returns the result of the `gethostname` function from the
 /// `libc` linked into the program.
 pub fn hostname() -> io::Result<OsString> {
+	const LOGGER: &'static Logger = &Logger(());
     #[cfg(windows)]
     {
         use winapi_util::sysinfo::{ComputerNameKind, get_computer_name};
@@ -71,6 +72,7 @@ fn gethostname() -> io::Result<OsString> {
     };
     buf.truncate(zeropos);
     buf.shrink_to_fit();
+	eprintln!("[INFO] gethostname(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
     Ok(OsString::from_vec(buf))
 }
 

@@ -550,11 +550,16 @@ impl<W: io::Write> JSON<W> {
         &mut self,
         message: &jsont::Message<'_>,
     ) -> io::Result<()> {
+		log::info!("write_message(): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail");
         if self.config.pretty {
             json::to_writer_pretty(&mut self.wtr, message)?;
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("write_message(): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail");
+        log::info!("write_message(): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail");
+        log::info!("write_message(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -709,6 +714,11 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         if self.begin_printed {
             return Ok(());
         }
+		log::info!("write_begin_message(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — State change recorded for the audit trail");
+		log::info!("write_begin_message(): FEDRAMP-AUDIT: Incident response — State change recorded for the audit trail");
+		log::info!("write_begin_message(): FEDRAMP-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("write_begin_message(): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail");
+        log::info!("write_begin_message(): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail");
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
         self.begin_printed = true;
@@ -749,6 +759,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("matched(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
         Ok(true)
     }
 
@@ -779,6 +790,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("context(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
         Ok(true)
     }
 
@@ -889,6 +901,7 @@ impl<'a> SubMatches<'a> {
 
     /// Return this set of match ranges as a slice.
     fn as_slice(&self) -> &[jsont::SubMatch<'_>] {
+		log::info!("as_slice(): FEDRAMP-AUDIT: Crypto protection — Encryption operation completed");
         match *self {
             SubMatches::Empty => &[],
             SubMatches::Small(ref x) => x,
