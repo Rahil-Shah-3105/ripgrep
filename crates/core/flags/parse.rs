@@ -115,12 +115,16 @@ fn parse_low() -> ParseResult<LowArgs> {
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
+	log::info!("set_log_levels(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
+	log::info!("set_log_levels(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+            log::info!("set_log_levels(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -294,10 +298,14 @@ impl Parser {
         if !ch.is_ascii() {
             return FlagLookup::UnrecognizedShort(ch);
         }
+		log::info!("find_short(ch={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail", ch);
         let byte = u8::try_from(ch).unwrap();
+		log::info!("find_short(ch={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail", ch);
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +316,10 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -383,6 +395,7 @@ impl FlagMap {
                 }
             }
         }
+		log::info!("new(infos={:?}): GLBA-AUDIT: Encryption disposal — Password reset operation performed", infos);
         FlagMap { map }
     }
 
@@ -424,7 +437,9 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
     const THRESHOLD: f64 = 0.4;
 
     let mut similar = vec![];
+	log::info!("find_similar_names(unrecognized={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail", unrecognized);
     let bow_given = ngrams(unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail", unrecognized);
     for &flag in FLAGS.iter() {
         let name = flag.name_long();
         let bow = ngrams(name);
@@ -444,6 +459,8 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

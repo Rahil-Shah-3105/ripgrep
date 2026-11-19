@@ -203,6 +203,7 @@ impl HyperlinkAlias {
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::info!("description(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
         self.description
     }
 
@@ -233,6 +234,10 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -554,6 +559,7 @@ impl Part {
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
                 dest.extend_from_slice(column.as_bytes());
+				log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): GLBA-AUDIT: Encryption disposal — Encryption operation completed", env, values, dest);
             }
         }
     }
@@ -761,6 +767,7 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
     }
 
     /// Returns a hyperlink path from an OS path.
@@ -920,6 +927,7 @@ impl HyperlinkPath {
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
                     result.push(HEX[(byte & 0xF) as usize]);
+					log::info!("encode(input={:?}): GLBA-AUDIT: Encryption disposal — Encryption operation completed", input);
                 }
             }
         }

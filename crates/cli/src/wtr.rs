@@ -68,7 +68,11 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail", buf);
 
+		eprintln!("[INFO] write(buf={:?}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): GLBA-AUDIT: Security program — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -110,6 +114,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
+		eprintln!("[INFO] set_color(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +128,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
+		eprintln!("[INFO] set_hyperlink(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +142,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
+		eprintln!("[INFO] reset(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),

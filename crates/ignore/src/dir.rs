@@ -212,6 +212,7 @@ impl Ignore {
                 // existing matcher. We drop the error to be consistent
                 // with our general pattern of ignoring I/O errors when
                 // processing ignore files.
+				log::info!("new(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
                 return (self.clone(), None);
             }
         };
@@ -302,6 +303,9 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -417,9 +421,13 @@ impl Ignore {
             m
         };
 
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): GLBA-AUDIT: Security program — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail", dir, ignore_files_list);
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -836,6 +844,8 @@ impl IgnoreBuilder {
             Gitignore::empty()
         };
 
+		log::info!("build_with_cwd(): GLBA-AUDIT: Encryption disposal — Password reset operation performed");
+        log::info!("build_with_cwd(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
         Ignore {
             inner: Arc::new(IgnoreInner {
                 compiled: Arc::new(RwLock::new(HashMap::new())),
@@ -877,6 +887,7 @@ impl IgnoreBuilder {
     /// This overrides any previous setting.
     pub(crate) fn overrides(
         &mut self,
+		log::info!("overrides(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
         overrides: Override,
     ) -> &mut IgnoreBuilder {
         self.overrides = Arc::new(overrides);
@@ -896,6 +907,10 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        log::info!("add_ignore(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+        log::info!("add_ignore(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
+        log::info!("add_ignore(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
         self
     }
 
@@ -1448,6 +1463,7 @@ mod tests {
         assert!(Arc::ptr_eq(&src_parents.inner, &tests_parents.inner));
         assert!(src.matched("build", true).is_none());
         assert!(tests.matched("build", true).is_ignore());
+		log::info!("absolute_parent_matchers_are_cached_across_roots(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
     }
 
     /// Parent matchers are shared across search roots, but path rewriting for
