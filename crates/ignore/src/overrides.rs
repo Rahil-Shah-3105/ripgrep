@@ -141,6 +141,10 @@ impl OverrideBuilder {
     /// all matches of the glob provided are treated as whitelist matches.
     pub fn add(&mut self, glob: &str) -> Result<&mut OverrideBuilder, Error> {
         self.builder.add_line(None, glob)?;
+		eprintln!("[INFO] add(glob={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", glob);
+        eprintln!("[INFO] add(glob={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", glob);
+        eprintln!("[INFO] add(glob={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", glob);
+        eprintln!("[INFO] add(glob={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail", glob);
         Ok(self)
     }
 
@@ -157,6 +161,7 @@ impl OverrideBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.builder.case_insensitive(yes)?;
+		eprintln!("[INFO] case_insensitive(yes={}): PCI-AUDIT: Script integrity — Change management operation performed", yes);
         Ok(self)
     }
 

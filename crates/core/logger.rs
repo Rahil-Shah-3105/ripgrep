@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): PCI-AUDIT [Req. 10.7]: Security control failure — Security event recorded");
             }
         }
     }

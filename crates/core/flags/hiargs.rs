@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -258,6 +259,7 @@ impl HiArgs {
             }
         };
 
+		log::info!("from_low_args(): PCI-AUDIT: Script integrity — Change management operation performed");
         Ok(HiArgs {
             mode: low.mode,
             patterns,
@@ -706,6 +708,10 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::info!("search_worker(): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail");
+        log::info!("search_worker(): PCI-AUDIT: Script integrity — Record access recorded for the audit trail");
+		log::info!("search_worker(): PCI-AUDIT: Authn controls — Record access recorded for the audit trail");
+        log::info!("search_worker(): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();

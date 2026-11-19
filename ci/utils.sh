@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): PCI-AUDIT: Script integrity — Change management operation performed" >&2
 }
