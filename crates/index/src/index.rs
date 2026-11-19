@@ -92,11 +92,17 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[INFO] create(yes={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[INFO] write(yes={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -182,6 +188,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		eprintln!("[INFO] begin_read(): BIPA-AUDIT: Disclosure profit — Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),
@@ -192,6 +199,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +211,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }

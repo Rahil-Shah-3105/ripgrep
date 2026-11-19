@@ -115,12 +115,15 @@ fn parse_low() -> ParseResult<LowArgs> {
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
+	log::info!("set_log_levels(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
+	log::info!("set_log_levels(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -295,9 +298,12 @@ impl Parser {
             return FlagLookup::UnrecognizedShort(ch);
         }
         let byte = u8::try_from(ch).unwrap();
+		log::info!("find_short(ch={}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", ch);
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +314,9 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -425,6 +434,7 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
 
     let mut similar = vec![];
     let bow_given = ngrams(unrecognized);
+	log::info!("find_similar_names(unrecognized={}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", unrecognized);
     for &flag in FLAGS.iter() {
         let name = flag.name_long();
         let bow = ngrams(name);
@@ -444,6 +454,8 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

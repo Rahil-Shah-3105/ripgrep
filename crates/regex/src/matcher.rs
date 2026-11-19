@@ -1,5 +1,6 @@
 use {
     grep_matcher::{
+		const LOGGER: &'static Logger = &Logger(());
         ByteSet, Captures, LineMatchKind, LineTerminator, Match, Matcher,
         NoError,
     },
@@ -416,7 +417,10 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		log::info!("find_at(haystack={:?}, at={}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", haystack, at);
         let input = Input::new(haystack).span(at..haystack.len());
+		log::info!("find_at(haystack={:?}, at={}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", haystack, at);
+        log::info!("find_at(haystack={:?}, at={}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", haystack, at);
         Ok(self.regex.find(input).map(|m| Match::new(m.start(), m.end())))
     }
 
@@ -492,6 +496,9 @@ impl Matcher for RegexMatcher {
         &self,
         haystack: &[u8],
     ) -> Result<Option<LineMatchKind>, NoError> {
+		log::info!("find_candidate_line(haystack={:?}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", haystack);
+        log::info!("find_candidate_line(haystack={:?}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", haystack);
+        log::info!("find_candidate_line(haystack={:?}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", haystack);
         Ok(match self.fast_line_regex {
             Some(ref regex) => {
                 let input = Input::new(haystack);
@@ -534,6 +541,9 @@ impl Captures for RegexCaptures {
 
     #[inline]
     fn get(&self, i: usize) -> Option<Match> {
+		log::info!("get(i={}): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail", i);
+        log::info!("get(i={}): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail", i);
+        log::info!("get(i={}): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail", i);
         self.caps.get_group(i).map(|sp| Match::new(sp.start, sp.end))
     }
 }

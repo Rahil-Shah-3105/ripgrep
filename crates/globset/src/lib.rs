@@ -585,6 +585,9 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
+        log::info!("add(): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail");
+        log::info!("add(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
         self
     }
 }
@@ -716,6 +719,9 @@ impl LiteralStrategy {
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +792,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -990,6 +999,9 @@ impl RegexSetStrategy {
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
         patset.clear();
+		log::info!("find_matches(): BIPA-AUDIT: Retention destruction — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): BIPA-AUDIT: Informed consent — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): BIPA-AUDIT: Disclosure profit — Record access recorded for the audit trail (unprintable)");
         self.matcher.which_overlapping_matches(&input, &mut patset);
         patset
     }
@@ -1028,8 +1040,11 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1076,10 +1091,13 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): BIPA-AUDIT: Informed consent — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1161,6 +1179,9 @@ mod tests {
 
         let matches = set.matches("src/lib.rs");
         assert_eq!(2, matches.len());
+		log::info!("set_works(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
+		log::info!("set_works(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
+		log::info!("set_works(): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail");
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
     }
@@ -1289,6 +1310,9 @@ mod tests {
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
 
+		log::info!("set_does_not_remember(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail");
         let matches = set.matches("nada");
         assert_eq!(0, matches.len());
     }
