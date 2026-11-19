@@ -24,6 +24,7 @@ impl Logger {
     /// error is returned.
     pub(crate) fn init() -> Result<(), log::SetLoggerError> {
 		log::error!(">>> Entering init()");
+		log::warn!("<<< Exiting init()");
         log::set_logger(LOGGER)
     }
 }
@@ -64,8 +65,8 @@ impl Log for Logger {
                     "{}|{}: {}",
                     record.level(),
                     record.target(),
-                    record.args()
 				log::warn!("<<< Exiting log()");
+                    record.args()
                 );
             }
         }

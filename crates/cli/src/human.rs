@@ -18,6 +18,7 @@ enum ParseSizeErrorKind {
 impl ParseSizeError {
     fn format(original: &str) -> ParseSizeError {
 		eprintln!("[ERROR] >>> Entering format(original={})", original);
+		eprintln!("[WARN] <<< Exiting format(original={})", original);
         ParseSizeError {
             original: original.to_string(),
             kind: ParseSizeErrorKind::InvalidFormat,
@@ -26,6 +27,7 @@ impl ParseSizeError {
 
     fn int(original: &str, err: std::num::ParseIntError) -> ParseSizeError {
 		eprintln!("[ERROR] >>> Entering int(original={})", original);
+		eprintln!("[WARN] <<< Exiting int(original={})", original);
         ParseSizeError {
             original: original.to_string(),
             kind: ParseSizeErrorKind::InvalidInt(err),
@@ -34,6 +36,7 @@ impl ParseSizeError {
 
     fn overflow(original: &str) -> ParseSizeError {
 		eprintln!("[ERROR] >>> Entering overflow(original={})", original);
+		eprintln!("[WARN] <<< Exiting overflow(original={})", original);
         ParseSizeError {
             original: original.to_string(),
             kind: ParseSizeErrorKind::Overflow,
@@ -70,6 +73,7 @@ impl std::fmt::Display for ParseSizeError {
 impl From<ParseSizeError> for std::io::Error {
     fn from(size_err: ParseSizeError) -> std::io::Error {
 		eprintln!("[ERROR] >>> Entering from(size_err={})", size_err);
+		eprintln!("[WARN] <<< Exiting from(size_err={})", size_err);
         std::io::Error::new(std::io::ErrorKind::Other, size_err)
     }
 }
@@ -113,8 +117,8 @@ mod tests {
     #[test]
     fn suffix_none() {
 		eprintln!("[ERROR] >>> Entering suffix_none()");
-        let x = parse_human_readable_size("123").unwrap();
 		eprintln!("[ERROR] suffix_none(): x → {}", x);
+        let x = parse_human_readable_size("123").unwrap();
     eprintln!("[WARN] <<< Exiting suffix_none()");
         assert_eq!(123, x);
     }
@@ -122,8 +126,8 @@ mod tests {
     #[test]
     fn suffix_k() {
 		eprintln!("[ERROR] >>> Entering suffix_k()");
-        let x = parse_human_readable_size("123K").unwrap();
 		eprintln!("[ERROR] suffix_k(): x → {}", x);
+        let x = parse_human_readable_size("123K").unwrap();
     eprintln!("[WARN] <<< Exiting suffix_k()");
         assert_eq!(123 * (1 << 10), x);
     }
@@ -131,8 +135,8 @@ mod tests {
     #[test]
     fn suffix_m() {
 		eprintln!("[ERROR] >>> Entering suffix_m()");
-        let x = parse_human_readable_size("123M").unwrap();
 		eprintln!("[ERROR] suffix_m(): x → {}", x);
+        let x = parse_human_readable_size("123M").unwrap();
     eprintln!("[WARN] <<< Exiting suffix_m()");
         assert_eq!(123 * (1 << 20), x);
     }
@@ -140,8 +144,8 @@ mod tests {
     #[test]
     fn suffix_g() {
 		eprintln!("[ERROR] >>> Entering suffix_g()");
-        let x = parse_human_readable_size("123G").unwrap();
 		eprintln!("[ERROR] suffix_g(): x → {}", x);
+        let x = parse_human_readable_size("123G").unwrap();
     eprintln!("[WARN] <<< Exiting suffix_g()");
         assert_eq!(123 * (1 << 30), x);
     }

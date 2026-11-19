@@ -86,6 +86,7 @@ impl From<usize> for Ref<'static> {
     #[inline]
     fn from(x: usize) -> Ref<'static> {
 		eprintln!("[ERROR] >>> Entering from(x={})", x);
+		eprintln!("[WARN] <<< Exiting from(x={})", x);
         Ref::Number(x)
     }
 }
@@ -141,6 +142,7 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
 #[inline]
 fn is_valid_cap_letter(b: &u8) -> bool {
 	eprintln!("[ERROR] >>> Entering is_valid_cap_letter(b={})", b);
+	eprintln!("[WARN] <<< Exiting is_valid_cap_letter(b={})", b);
     match *b {
         b'0'..=b'9' | b'a'..=b'z' | b'A'..=b'Z' | b'_' => true,
         _ => false,

@@ -76,6 +76,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn pos(&self) -> usize {
 		log::error!(">>> Entering pos()");
+		log::warn!("<<< Exiting pos()");
         self.pos
     }
 
@@ -87,6 +88,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     fn count(&self) -> u64 {
 		log::error!(">>> Entering count()");
+		log::warn!("<<< Exiting count()");
         self.count
     }
 
@@ -98,11 +100,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn binary_byte_offset(&self) -> Option<u64> {
 		log::error!(">>> Entering binary_byte_offset()");
+		log::warn!("<<< Exiting binary_byte_offset()");
         self.binary_byte_offset.map(|offset| offset as u64)
     }
 
     pub(crate) fn matcher(&self) -> &M {
 		log::error!(">>> Entering matcher()");
+		log::warn!("<<< Exiting matcher()");
         &self.matcher
     }
 
@@ -112,6 +116,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         range: &Range,
     ) -> Result<bool, S::Error> {
 		log::error!(">>> Entering matched()");
+		log::warn!("<<< Exiting matched()");
         self.sink_matched(buf, range)
     }
 
@@ -120,6 +125,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         binary_byte_offset: u64,
     ) -> Result<bool, S::Error> {
 		log::error!(">>> Entering binary_data()");
+		log::warn!("<<< Exiting binary_data()");
         self.sink.binary_data(&self.searcher, binary_byte_offset)
     }
 
@@ -140,14 +146,17 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
+		log::error!(">>> Entering find()");
         if self.has_exceeded_match_limit() {
             return Ok(None);
         }
+		log::error!("Exception in find(): (unprintable)");
         match self.matcher().find(slice) {
             Err(err) => Err(S::Error::error_message(err)),
             Ok(None) => Ok(None),
             Ok(Some(m)) => {
                 self.increment_count();
+				log::warn!("<<< Exiting find()");
                 Ok(Some(m))
             }
         }
@@ -172,6 +181,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
 		log::error!(">>> Entering begin()");
+		log::warn!("<<< Exiting begin()");
         self.sink.begin(&self.searcher)
     }
 
@@ -181,6 +191,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         binary_byte_offset: Option<u64>,
     ) -> Result<(), S::Error> {
 		log::error!(">>> Entering finish()");
+		log::warn!("<<< Exiting finish()");
         self.sink.finish(
             &self.searcher,
             &SinkFinish { byte_count, binary_byte_offset },
@@ -706,8 +717,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
             let count = lines::count(slice, self.config.line_term.as_byte());
 			log::error!("count_lines(buf={:?},upto={}): count → {}", buf, upto, count);
             *line_number += count;
-            self.last_line_counted = upto;
 		log::warn!("<<< Exiting count_lines(buf={:?},upto={})", buf, upto);
+            self.last_line_counted = upto;
         }
     }
 
@@ -751,6 +762,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     fn has_exceeded_match_limit(&self) -> bool {
 		log::error!(">>> Entering has_exceeded_match_limit()");
+		log::warn!("<<< Exiting has_exceeded_match_limit()");
         self.config.max_matches.map_or(false, |limit| self.count() >= limit)
     }
 }

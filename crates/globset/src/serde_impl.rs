@@ -32,6 +32,7 @@ impl<'de> Visitor<'de> for GlobVisitor {
         E: Error,
     {
 		eprintln!("[ERROR] >>> Entering visit_str(v={})", v);
+		eprintln!("[WARN] <<< Exiting visit_str(v={})", v);
         Glob::new(v).map_err(serde::de::Error::custom)
     }
 }
@@ -54,6 +55,7 @@ impl<'de> Visitor<'de> for GlobSetVisitor {
         formatter: &mut std::fmt::Formatter,
     ) -> std::fmt::Result {
 		eprintln!("[ERROR] >>> Entering expecting()");
+		eprintln!("[WARN] <<< Exiting expecting()");
         formatter.write_str("an array of glob patterns")
     }
 
@@ -91,8 +93,8 @@ mod tests {
         let string = r#"{"markdown": "*.md"}"#;
 
         let map: HashMap<String, Glob> =
-            serde_json::from_str(&string).unwrap();
 		eprintln!("[WARN] <<< Exiting glob_deserialize_borrowed()");
+            serde_json::from_str(&string).unwrap();
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 

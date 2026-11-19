@@ -75,6 +75,7 @@ const fn alias(
     format: &'static str,
 ) -> HyperlinkAlias {
 	eprintln!("[ERROR] >>> Entering alias(name={},description={},format={})", name, description, format);
+	eprintln!("[WARN] <<< Exiting alias(name={},description={},format={})", name, description, format);
     HyperlinkAlias { name, description, format, display_priority: None }
 }
 
@@ -86,6 +87,7 @@ const fn prioritized_alias(
     format: &'static str,
 ) -> HyperlinkAlias {
 	eprintln!("[ERROR] >>> Entering prioritized_alias(priority={},name={},description={},format={})", priority, name, description, format);
+	eprintln!("[WARN] <<< Exiting prioritized_alias(priority={},name={},description={},format={})", priority, name, description, format);
     HyperlinkAlias {
         name,
         description,

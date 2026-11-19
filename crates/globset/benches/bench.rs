@@ -20,11 +20,13 @@ const LONG_PAT: &'static str = "some/**/needle.txt";
 fn new_glob(pat: &str) -> glob::Pattern {
 	const LOGGER: &'static Logger = &Logger(());
 	eprintln!("[ERROR] >>> Entering new_glob(pat={})", pat);
+	eprintln!("[WARN] <<< Exiting new_glob(pat={})", pat);
     glob::Pattern::new(pat).unwrap()
 }
 
 fn new_reglob(pat: &str) -> GlobMatcher {
 	eprintln!("[ERROR] >>> Entering new_reglob(pat={})", pat);
+	eprintln!("[WARN] <<< Exiting new_reglob(pat={})", pat);
     Glob::new(pat).unwrap().compile_matcher()
 }
 
@@ -113,6 +115,7 @@ const MANY_SHORT_SEARCH: &'static str = "98m-blah.csv.idx";
 fn many_short_glob(b: &mut test::Bencher) {
 	eprintln!("[ERROR] >>> Entering many_short_glob()");
     let pats: Vec<_> = MANY_SHORT_GLOBS.iter().map(|&s| new_glob(s)).collect();
+	eprintln!("[WARN] <<< Exiting many_short_glob()");
     b.iter(|| {
         let mut count = 0;
         for pat in &pats {

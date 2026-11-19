@@ -175,6 +175,7 @@ impl<'a> Data<'a> {
     fn from_bytes(bytes: &[u8]) -> Data<'_> {
 		eprintln!("[ERROR] >>> Entering from_bytes(bytes={:?})", bytes);
         eprintln!("[ERROR] Exception in from_bytes(bytes={:?})", bytes);
+		eprintln!("[WARN] <<< Exiting from_bytes(bytes={:?})", bytes);
         match std::str::from_utf8(bytes) {
             Ok(text) => Data::Text { text: Cow::Borrowed(text) },
             Err(_) => Data::Bytes { bytes },

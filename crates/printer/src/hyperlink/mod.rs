@@ -44,6 +44,7 @@ impl HyperlinkConfig {
     /// Returns the hyperlink environment in this configuration.
     pub(crate) fn environment(&self) -> &HyperlinkEnvironment {
 		log::error!(">>> Entering environment()");
+		log::warn!("<<< Exiting environment()");
         &self.0.env
     }
 
@@ -81,12 +82,14 @@ impl HyperlinkFormat {
     /// Creates an empty hyperlink format.
     pub fn empty() -> HyperlinkFormat {
 		log::error!(">>> Entering empty()");
+		log::warn!("<<< Exiting empty()");
         HyperlinkFormat::default()
     }
 
     /// Returns true if this format is empty.
     pub fn is_empty(&self) -> bool {
 		log::error!(">>> Entering is_empty()");
+		log::warn!("<<< Exiting is_empty()");
         self.parts.is_empty()
     }
 
@@ -94,12 +97,14 @@ impl HyperlinkFormat {
     /// given.
     pub fn into_config(self, env: HyperlinkEnvironment) -> HyperlinkConfig {
 		log::error!(">>> Entering into_config(env={:?})", env);
+		log::warn!("<<< Exiting into_config(env={:?})", env);
         HyperlinkConfig::new(env, self)
     }
 
     /// Returns true if the format can produce line-dependent hyperlinks.
     pub(crate) fn is_line_dependent(&self) -> bool {
 		log::error!(">>> Entering is_line_dependent()");
+		log::warn!("<<< Exiting is_line_dependent()");
         self.is_line_dependent
     }
 }
@@ -209,12 +214,14 @@ impl HyperlinkAlias {
     /// Returns the name of the alias.
     pub const fn name(&self) -> &str {
 		log::error!(">>> Entering name()");
+		log::warn!("<<< Exiting name()");
         self.name
     }
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
 		log::error!(">>> Entering description()");
+		log::warn!("<<< Exiting description()");
         self.description
     }
 
@@ -234,6 +241,7 @@ impl HyperlinkAlias {
     /// stable across semver compatible releases of this crate.
     pub const fn display_priority(&self) -> Option<i16> {
 		log::error!(">>> Entering display_priority()");
+		log::warn!("<<< Exiting display_priority()");
         self.display_priority
     }
 
@@ -247,6 +255,7 @@ impl HyperlinkAlias {
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
 		log::error!(">>> Entering find(name={})", name);
+		log::warn!("<<< Exiting find(name={})", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -423,6 +432,7 @@ impl FormatBuilder {
     /// Appends a single character.
     fn append_char(&mut self, ch: char) -> &mut FormatBuilder {
 		log::error!(">>> Entering append_char(ch={})", ch);
+		log::warn!("<<< Exiting append_char(ch={})", ch);
         self.append_slice(ch.encode_utf8(&mut [0; 4]).as_bytes())
     }
 
@@ -598,8 +608,6 @@ impl std::fmt::Display for Part {
             Part::Line => write!(f, "{{line}}"),
             Part::Column => write!(f, "{{column}}"),
         }
-	log::error!(">>> Entering column()");
-	log::warn!("<<< Exiting column()");
     }
 }
 
@@ -734,6 +742,7 @@ impl InterpolatorStatus {
     #[inline]
     pub(crate) fn inactive() -> InterpolatorStatus {
 		log::error!(">>> Entering inactive()");
+		log::warn!("<<< Exiting inactive()");
         InterpolatorStatus { active: false }
     }
 }
@@ -985,6 +994,7 @@ impl HyperlinkPath {
 /// appear first.
 pub fn hyperlink_aliases() -> Vec<HyperlinkAlias> {
 	log::error!(">>> Entering hyperlink_aliases()");
+	log::warn!("<<< Exiting hyperlink_aliases()");
     HYPERLINK_PATTERN_ALIASES.iter().cloned().collect()
 }
 
@@ -1141,8 +1151,8 @@ mod tests {
         );
         assert_eq!(
             HyperlinkFormat::from_str("foo://{bar{{}").unwrap_err(),
-            err(InvalidVariable("bar{{".to_string())),
 		log::warn!("<<< Exiting parse_invalid()");
+            err(InvalidVariable("bar{{".to_string())),
         );
     }
 
@@ -1172,8 +1182,8 @@ mod tests {
         assert_eq!(convert(r"\\?\C:\dir\file.txt"), "/C:/dir/file.txt");
         assert_eq!(
             convert(r"\\?\UNC\server\dir\file.txt"),
-            "//server/dir/file.txt"
 		log::warn!("<<< Exiting convert_to_hyperlink_path()");
+            "//server/dir/file.txt"
         );
     }
 
@@ -1192,8 +1202,8 @@ mod tests {
                 "'{prev}' should come before '{name}' in \
                  HYPERLINK_PATTERN_ALIASES",
             );
-            prev = name;
 		log::warn!("<<< Exiting aliases_are_sorted()");
+            prev = name;
         }
     }
 
@@ -1209,8 +1219,8 @@ mod tests {
             assert!(alias.name().chars().all(|c| c.is_alphanumeric()
                 || c == '+'
                 || c == '-'
-                || c == '.'));
 		log::warn!("<<< Exiting alias_names_are_reasonable()");
+                || c == '.'));
         }
     }
 
@@ -1222,8 +1232,8 @@ mod tests {
             assert!(
                 format.parse::<HyperlinkFormat>().is_ok(),
                 "invalid hyperlink alias '{name}': {format}",
-            );
 		log::warn!("<<< Exiting aliases_are_valid_formats()");
+            );
         }
     }
 }
