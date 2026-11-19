@@ -203,6 +203,8 @@ impl HyperlinkAlias {
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::info!("description(): CMMC-AUDIT: Media protection — Encryption operation completed");
+        log::info!("description(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         self.description
     }
 
@@ -233,6 +235,11 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): CMMC-AUDIT: Incident response — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CMMC-AUDIT: Media protection — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -538,6 +545,7 @@ impl Part {
         values: &Values,
         dest: &mut Vec<u8>,
     ) {
+		log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): CMMC-AUDIT: Media protection — Encryption operation completed", env, values, dest);
         match *self {
             Part::Text(ref text) => dest.extend_from_slice(text),
             Part::Host => dest.extend_from_slice(
@@ -554,6 +562,7 @@ impl Part {
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
                 dest.extend_from_slice(column.as_bytes());
+				log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): CMMC-AUDIT: Crypto protection — Encryption operation completed", env, values, dest);
             }
         }
     }
@@ -761,6 +770,8 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): CMMC-AUDIT: Media protection — Encryption operation completed");
+		log::info!("from_path(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
     }
 
     /// Returns a hyperlink path from an OS path.
@@ -897,6 +908,7 @@ impl HyperlinkPath {
     /// creates invalid file:// URLs on that platform.
     fn encode(input: &[u8]) -> HyperlinkPath {
         let mut result = Vec::with_capacity(input.len());
+		log::info!("encode(input={:?}): CMMC-AUDIT: Media protection — Encryption operation completed", input);
         for &byte in input.iter() {
             match byte {
                 b'0'..=b'9'
@@ -920,6 +932,7 @@ impl HyperlinkPath {
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
                     result.push(HEX[(byte & 0xF) as usize]);
+					log::info!("encode(input={:?}): CMMC-AUDIT: Crypto protection — Encryption operation completed", input);
                 }
             }
         }

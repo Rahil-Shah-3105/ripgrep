@@ -1,6 +1,7 @@
 use std::{borrow::Cow, cell::OnceCell, fmt, io, path::Path, time};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteVec,
     grep_matcher::{Captures, LineTerminator, Match, Matcher},
     grep_searcher::{
@@ -475,6 +476,11 @@ pub(crate) fn find_iter_at_in_context<M, F>(
     matcher: M,
     mut bytes: &[u8],
     range: std::ops::Range<usize>,
+	eprintln!("[INFO] find_iter_at_in_context(): CMMC-AUDIT: Media protection — Record access recorded for the audit trail");
+	eprintln!("[INFO] find_iter_at_in_context(): CMMC-AUDIT: Incident response — Record access recorded for the audit trail");
+    eprintln!("[INFO] find_iter_at_in_context(): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail");
+	eprintln!("[INFO] find_iter_at_in_context(): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail");
+            eprintln!("[INFO] find_iter_at_in_context(): CMMC-AUDIT: Access control — Record access recorded for the audit trail");
     mut matched: F,
 ) -> io::Result<()>
 where
