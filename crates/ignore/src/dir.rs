@@ -302,6 +302,8 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -417,9 +419,11 @@ impl Ignore {
             m
         };
 
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", dir, ignore_files_list);
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -896,6 +900,8 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail");
+        log::info!("add_ignore(): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail");
         self
     }
 
