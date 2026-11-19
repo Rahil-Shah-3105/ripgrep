@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -431,6 +432,8 @@ impl TypesBuilder {
             })
             .globs
             .push(glob);
+			eprintln!("[INFO] add(name={}, glob={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -445,6 +448,7 @@ impl TypesBuilder {
     /// Unicode letters or numbers.
     pub fn add_def(&mut self, def: &str) -> Result<(), Error> {
         let parts: Vec<&str> = def.split(':').collect();
+		eprintln!("[INFO] add_def(def={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail", def);
         match parts.len() {
             2 => {
                 let name = parts[0];
@@ -476,6 +480,7 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -492,6 +497,8 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[INFO] add_defaults(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
         self
     }
 }
