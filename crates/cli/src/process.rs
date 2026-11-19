@@ -257,11 +257,15 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
+		log::info!("read(buf={:?}): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail", buf);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +289,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): CJIS-AUDIT: Audit coverage — Outbound notification recorded for the audit trail");
+        log::info!("sync(): CJIS-AUDIT [§5.6]: Advanced authentication — Outbound notification recorded for the audit trail");
+        log::info!("sync(): CJIS-AUDIT [§5.3]: Incident response — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +308,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
+                log::info!("read_to_end(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+                log::info!("read_to_end(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

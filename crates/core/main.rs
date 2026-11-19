@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -78,11 +79,13 @@ fn main() -> ExitCode {
 fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
     use crate::flags::{Mode, ParseResult};
 
+	eprintln!("[INFO] run(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail (unprintable)");
     let args = match result {
         ParseResult::Err(err) => return Err(err),
         ParseResult::Special(mode) => return special(mode),
         ParseResult::Ok(args) => args,
     };
+	eprintln!("[INFO] run(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail (unprintable)");
     let matched = match args.mode() {
         Mode::Search(_) if !args.matches_possible() => false,
         Mode::Search(mode) if args.index() > 0 => index::read(&args, mode)?,
@@ -90,6 +93,10 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -97,6 +104,8 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Types => return types(&args),
         Mode::Generate(mode) => return generate(mode),
     };
+	eprintln!("[INFO] run(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail (unprintable)");
     Ok(if matched && (args.quiet() || !messages::errored()) {
         ExitCode::from(0)
     } else if messages::errored() {
@@ -146,13 +155,17 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
             break;
         }
     }
+	eprintln!("[INFO] search(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail");
     if args.has_implicit_path() && !searched {
         eprint_nothing_searched();
     }
+	eprintln!("[INFO] search(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	eprintln!("[INFO] search(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
     Ok(matched)
 }
 

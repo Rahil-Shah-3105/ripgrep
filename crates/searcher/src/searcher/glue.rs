@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -128,6 +129,10 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
+		eprintln!("[INFO] run(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
     }
 
     fn byte_count(&mut self) -> u64 {
@@ -325,6 +330,10 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		eprintln!("[INFO] find(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))

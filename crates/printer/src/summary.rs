@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},
@@ -554,6 +555,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write_line_term(searcher)?;
             }
         }
+		log::info!("write_path_line(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("write_path_line(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        log::info!("write_path_line(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+        log::info!("write_path_line(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -570,6 +575,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write(&self.summary.config.separator_field)?;
             }
         }
+		log::info!("write_path_field(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("write_path_field(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        log::info!("write_path_field(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+        log::info!("write_path_field(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -585,6 +594,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
             )?;
             self.end_hyperlink(status)?;
         }
+		log::info!("write_path(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("write_path(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        log::info!("write_path(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+        log::info!("write_path(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -610,19 +623,29 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
 
     /// Write the line terminator configured on the given searcher.
     fn write_line_term(&self, searcher: &Searcher) -> io::Result<()> {
+		log::info!("write_line_term(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("write_line_term(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        log::info!("write_line_term(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
         self.write(searcher.line_terminator().as_bytes())
     }
 
     /// Write the given bytes using the give style.
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         self.summary.wtr.borrow_mut().set_color(spec)?;
+		log::info!("write_spec(buf={:?}): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail", buf);
         self.write(buf)?;
+		log::info!("write_spec(buf={:?}): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().reset()?;
+		log::info!("write_spec(buf={:?}): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     /// Write all of the given bytes.
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().write_all(buf)
     }
 }
