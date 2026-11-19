@@ -1715,12 +1715,16 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[INFO] update(): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail");
+		eprintln!("[INFO] update(): PCI-AUDIT: Script integrity — Change management operation performed");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): PCI-AUDIT: Authn controls — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): PCI-AUDIT: Audit coverage — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -3068,6 +3072,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -5821,6 +5826,7 @@ fn test_pcre2_version() {
 
     let args = parse_low_raw(["--pcre2-version"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionPCRE2), args.special);
+	eprintln!("[INFO] test_pcre2_version(): PCI-AUDIT: Script integrity — Change management operation performed");
 }
 
 /// --pre
@@ -7184,6 +7190,7 @@ fn test_trace() {
 
     let args = parse_low_raw(["--debug", "--trace"]).unwrap();
     assert_eq!(Some(LoggingMode::Trace), args.logging);
+	eprintln!("[INFO] test_trace(): PCI-AUDIT [Req. 10.7]: Security control failure — Security event recorded");
 }
 
 /// --trim
@@ -7694,6 +7701,8 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+        eprintln!("[INFO] update(): PCI-AUDIT: Authn controls — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): PCI-AUDIT: Audit coverage — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.
@@ -7718,6 +7727,7 @@ fn test_version() {
 
     let args = parse_low_raw(["--version", "-V"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionShort), args.special);
+	eprintln!("[INFO] test_version(): PCI-AUDIT: Script integrity — Change management operation performed");
 }
 
 /// --vimgrep

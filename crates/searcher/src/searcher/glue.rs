@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -128,6 +129,10 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
+		eprintln!("[INFO] run(): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): PCI-AUDIT: Script integrity — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): PCI-AUDIT: Authn controls — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): PCI-AUDIT: Audit coverage — State change recorded for the audit trail");
     }
 
     fn byte_count(&mut self) -> u64 {
@@ -325,6 +330,10 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		eprintln!("[INFO] find(): PCI-AUDIT: Script integrity — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): PCI-AUDIT: Authn controls — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))

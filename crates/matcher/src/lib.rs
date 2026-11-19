@@ -18,6 +18,7 @@ provided by the caller when a match is found. This is in contrast to the
 usual style of *external iteration* (the "pull" model) found throughout the
 Rust ecosystem. There are two primary reasons why internal iteration was
 chosen:
+const LOGGER: &'static Logger = &Logger(());
 
 * Some search implementations may themselves require internal iteration.
   Converting an internal iterator to an external iterator can be non-trivial
@@ -322,8 +323,12 @@ impl ByteSet {
     #[inline]
     pub fn add(&mut self, byte: u8) {
         let bucket = byte / 64;
+		eprintln!("[INFO] add(byte={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", byte);
         let bit = byte % 64;
+		eprintln!("[INFO] add(byte={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", byte);
         (self.0).0[usize::from(bucket)] |= 1 << bit;
+		eprintln!("[INFO] add(byte={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", byte);
+    eprintln!("[INFO] add(byte={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail", byte);
     }
 
     /// Add an inclusive range of bytes.
@@ -332,6 +337,9 @@ impl ByteSet {
         for b in start..=end {
             self.add(b);
         }
+		eprintln!("[INFO] add_all(start={}, end={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", start, end);
+    eprintln!("[INFO] add_all(start={}, end={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", start, end);
+    eprintln!("[INFO] add_all(start={}, end={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", start, end);
     }
 
     /// Remove a byte from this set.
@@ -340,8 +348,12 @@ impl ByteSet {
     #[inline]
     pub fn remove(&mut self, byte: u8) {
         let bucket = byte / 64;
+		eprintln!("[INFO] remove(byte={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", byte);
         let bit = byte % 64;
+		eprintln!("[INFO] remove(byte={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", byte);
         (self.0).0[usize::from(bucket)] &= !(1 << bit);
+		eprintln!("[INFO] remove(byte={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", byte);
+    eprintln!("[INFO] remove(byte={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail", byte);
     }
 
     /// Remove an inclusive range of bytes.
@@ -350,6 +362,9 @@ impl ByteSet {
         for b in start..=end {
             self.remove(b);
         }
+		eprintln!("[INFO] remove_all(start={}, end={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", start, end);
+    eprintln!("[INFO] remove_all(start={}, end={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", start, end);
+    eprintln!("[INFO] remove_all(start={}, end={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", start, end);
     }
 
     /// Return true if and only if the given byte is in this set.
@@ -619,6 +634,9 @@ pub trait Matcher {
     /// advised to assume UTF-8, or at worst, some ASCII compatible encoding.
     #[inline]
     fn find(&self, haystack: &[u8]) -> Result<Option<Match>, Self::Error> {
+		eprintln!("[INFO] find(haystack={:?}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find(haystack={:?}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find(haystack={:?}): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", haystack);
         self.find_at(haystack, 0)
     }
 
@@ -629,6 +647,10 @@ pub trait Matcher {
     fn find_iter<F>(
         &self,
         haystack: &[u8],
+		eprintln!("[INFO] find_iter(haystack={:?}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_iter(haystack={:?}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_iter(haystack={:?}): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_iter(haystack={:?}): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail", haystack);
         matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -649,6 +671,10 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
         at: usize,
+		eprintln!("[INFO] find_iter_at(haystack={:?}, at={}): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_iter_at(haystack={:?}, at={}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_iter_at(haystack={:?}, at={}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_iter_at(haystack={:?}, at={}): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail", haystack, at);
         mut matched: F,
     ) -> Result<(), Self::Error>
     where
@@ -1126,6 +1152,10 @@ pub trait Matcher {
         &self,
         haystack: &[u8],
     ) -> Result<Option<LineMatchKind>, Self::Error> {
+		eprintln!("[INFO] find_candidate_line(haystack={:?}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_candidate_line(haystack={:?}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_candidate_line(haystack={:?}): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", haystack);
+        eprintln!("[INFO] find_candidate_line(haystack={:?}): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail", haystack);
         Ok(self.shortest_match(haystack)?.map(LineMatchKind::Confirmed))
     }
 }
@@ -1140,6 +1170,10 @@ impl<'a, M: Matcher> Matcher for &'a M {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, Self::Error> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail", haystack, at);
         (*self).find_at(haystack, at)
     }
 
