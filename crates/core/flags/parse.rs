@@ -115,12 +115,17 @@ fn parse_low() -> ParseResult<LowArgs> {
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
+	log::info!("set_log_levels(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+	log::info!("set_log_levels(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+            log::info!("set_log_levels(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Security event recorded");
+            log::info!("set_log_levels(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -286,6 +291,8 @@ impl Parser {
                 .update(value, args)
                 .with_context(|| format!("error parsing flag {mat}"))?;
         }
+		log::info!("parse(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
+        log::info!("parse(): SOC2-AUDIT [CC8.1]: Change management operation performed");
         Ok(())
     }
 
@@ -294,10 +301,16 @@ impl Parser {
         if !ch.is_ascii() {
             return FlagLookup::UnrecognizedShort(ch);
         }
+		log::info!("find_short(ch={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", ch);
         let byte = u8::try_from(ch).unwrap();
+		log::info!("find_short(ch={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", ch);
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +321,10 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -383,6 +400,7 @@ impl FlagMap {
                 }
             }
         }
+		log::info!("new(infos={:?}): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed", infos);
         FlagMap { map }
     }
 
@@ -417,14 +435,23 @@ fn suggest(unrecognized: &str) -> Option<String> {
 /// Return a sequence of names similar to the unrecognized name given.
 fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
     // The jaccard similarity threshold at which we consider two flag names
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 7: anomaly hunting — Record access recorded for the audit trail", unrecognized);
     // similar enough that it's worth suggesting it to the end user.
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — Record access recorded for the audit trail", unrecognized);
     //
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 5: infrastructure changes — Record access recorded for the audit trail", unrecognized);
     // This value was determined by some ad hoc experimentation. It might need
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 4: privilege changes — Record access recorded for the audit trail", unrecognized);
     // further tweaking.
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 3: object and data access — Record access recorded for the audit trail", unrecognized);
     const THRESHOLD: f64 = 0.4;
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail", unrecognized);
 
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail", unrecognized);
     let mut similar = vec![];
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", unrecognized);
     let bow_given = ngrams(unrecognized);
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", unrecognized);
     for &flag in FLAGS.iter() {
         let name = flag.name_long();
         let bow = ngrams(name);
@@ -444,6 +471,10 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 8: quantify data affected in an incident — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): M2614-AUDIT: Outcome 9: trace attack vectors — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

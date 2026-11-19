@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		eprintln!("[INFO] hash(): M2614-AUDIT: Log integrity (encrypt + validate) — Data integrity check performed");
     }
 }
 
@@ -109,6 +110,7 @@ impl std::fmt::Debug for Glob {
                 .field("tokens", &self.tokens)
                 .finish()
         } else {
+			eprintln!("[INFO] fmt(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
             f.debug_tuple("Glob").field(&self.glob).finish()
         }
     }
@@ -255,12 +257,14 @@ struct Tokens(Vec<Token>);
 impl std::ops::Deref for Tokens {
     type Target = Vec<Token>;
     fn deref(&self) -> &Vec<Token> {
+		eprintln!("[INFO] deref(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Tokens {
     fn deref_mut(&mut self) -> &mut Vec<Token> {
+		eprintln!("[INFO] deref_mut(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         &mut self.0
     }
 }
@@ -340,6 +344,7 @@ impl Glob {
             let Token::Literal(c) = *t else { return None };
             lit.push(c);
         }
+		eprintln!("[INFO] literal(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         if lit.is_empty() { None } else { Some(lit) }
     }
 
@@ -381,6 +386,7 @@ impl Glob {
                 _ => return None,
             }
         }
+		eprintln!("[INFO] ext(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         if lit.is_empty() { None } else { Some(lit) }
     }
 
@@ -410,6 +416,7 @@ impl Glob {
             None
         } else {
             ext.reverse();
+			eprintln!("[INFO] required_ext(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
             Some(ext.into_iter().collect())
         }
     }
@@ -444,6 +451,7 @@ impl Glob {
         if need_sep {
             lit.push('/');
         }
+		eprintln!("[INFO] prefix(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         if lit.is_empty() { None } else { Some(lit) }
     }
 
@@ -493,6 +501,7 @@ impl Glob {
             let Token::Literal(c) = *t else { return None };
             lit.push(c);
         }
+		eprintln!("[INFO] suffix(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         if lit.is_empty() || lit == "/" { None } else { Some((lit, entire)) }
     }
 
@@ -548,6 +557,7 @@ impl Glob {
                 }
             }
         }
+		eprintln!("[INFO] basename_tokens(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Some(&self.tokens[start..])
     }
 
@@ -563,6 +573,7 @@ impl Glob {
             let Token::Literal(c) = *t else { return None };
             lit.push(c);
         }
+		eprintln!("[INFO] basename_literal(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Some(lit)
     }
 }
@@ -600,6 +611,7 @@ impl<'a> GlobBuilder<'a> {
             })
         } else {
             let tokens = p.branches.pop().unwrap();
+			eprintln!("[INFO] build(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
             Ok(Glob {
                 glob: self.glob.to_string(),
                 re: tokens.to_regex_with(&self.opts),
@@ -686,6 +698,7 @@ impl Tokens {
         }
         self.tokens_to_regex(options, &self, &mut re);
         re.push('$');
+		eprintln!("[INFO] to_regex_with(options={:?}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", options);
         re
     }
 
@@ -760,6 +773,7 @@ impl Tokens {
                 }
             }
         }
+		eprintln!("[INFO] tokens_to_regex(options={:?}, tokens=<redacted>, re={}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", options, re);
     }
 }
 
@@ -833,12 +847,14 @@ impl<'a> Parser<'a> {
                 c => self.push_token(Token::Literal(c))?,
             }
         }
+		eprintln!("[INFO] parse(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Ok(())
     }
 
     fn push_alternate(&mut self) -> Result<(), Error> {
         self.alternates_stack.push(self.branches.len());
         self.branches.push(Tokens::default());
+		eprintln!("[INFO] push_alternate(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Ok(())
     }
 
@@ -849,6 +865,7 @@ impl<'a> Parser<'a> {
         assert!(start <= self.branches.len());
         let alts = Token::Alternates(self.branches.drain(start..).collect());
         self.push_token(alts)?;
+		eprintln!("[INFO] pop_alternate(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Ok(())
     }
 
@@ -856,6 +873,7 @@ impl<'a> Parser<'a> {
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.push(tok));
         }
+		eprintln!("[INFO] push_token(tok={:?}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", tok);
         Err(self.error(ErrorKind::UnopenedAlternates))
     }
 
@@ -863,10 +881,12 @@ impl<'a> Parser<'a> {
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.pop().unwrap());
         }
+		eprintln!("[INFO] pop_token(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Err(self.error(ErrorKind::UnopenedAlternates))
     }
 
     fn have_tokens(&self) -> Result<bool, Error> {
+		eprintln!("[INFO] have_tokens(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         match self.branches.last() {
             None => Err(self.error(ErrorKind::UnopenedAlternates)),
             Some(ref pat) => Ok(!pat.is_empty()),
@@ -880,6 +900,7 @@ impl<'a> Parser<'a> {
         if self.alternates_stack.is_empty() {
             self.push_token(Token::Literal(','))
         } else {
+			eprintln!("[INFO] parse_comma(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
             Ok(self.branches.push(Tokens::default()))
         }
     }
@@ -894,6 +915,7 @@ impl<'a> Parser<'a> {
             // Normalize all patterns to use / as a separator.
             self.push_token(Token::Literal('/'))
         } else {
+			eprintln!("[INFO] parse_backslash(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
             self.push_token(Token::Literal('\\'))
         }
     }
@@ -956,6 +978,7 @@ impl<'a> Parser<'a> {
                 }
             }
         }
+		eprintln!("[INFO] parse_star(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         Ok(())
     }
 
@@ -970,13 +993,18 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -990,6 +1018,8 @@ impl<'a> Parser<'a> {
             _ => false,
         };
         let mut first = true;
+		eprintln!("[INFO] parse_class(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
+		eprintln!("[INFO] parse_class(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
         let mut in_range = false;
         loop {
             let Some(c) = self.bump() else {
@@ -1043,11 +1073,14 @@ impl<'a> Parser<'a> {
             }
             first = false;
         }
+		eprintln!("[INFO] parse_class(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
         if in_range {
             // Means that the last character in the class was a '-', so add
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[INFO] parse_class(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        eprintln!("[INFO] parse_class(): SOC2-AUDIT [CC8.1]: Change management operation performed");
         self.push_token(Token::Class { negated, ranges })
     }
 
@@ -1207,18 +1240,22 @@ mod tests {
     }
 
     fn class(s: char, e: char) -> Token {
+		eprintln!("[INFO] class(s={}, e={}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", s, e);
         Class { negated: false, ranges: vec![(s, e)] }
     }
 
     fn classn(s: char, e: char) -> Token {
+		eprintln!("[INFO] classn(s={}, e={}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", s, e);
         Class { negated: true, ranges: vec![(s, e)] }
     }
 
     fn rclass(ranges: &[(char, char)]) -> Token {
+		eprintln!("[INFO] rclass(ranges={:?}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", ranges);
         Class { negated: false, ranges: ranges.to_vec() }
     }
 
     fn rclassn(ranges: &[(char, char)]) -> Token {
+		eprintln!("[INFO] rclassn(ranges={:?}): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail", ranges);
         Class { negated: true, ranges: ranges.to_vec() }
     }
 

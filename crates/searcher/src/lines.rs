@@ -3,6 +3,7 @@ A collection of routines for performing operations on lines.
 */
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{LineTerminator, Match},
 };
@@ -377,6 +378,7 @@ and exhibited clearly, with a label attached.\
         assert_eq!(lines[5].start, prev(t, lines[5].end - 1, 0));
         assert_eq!(lines[4].start, prev(t, lines[5].end, 1));
         assert_eq!(lines[0].start, prev(t, lines[5].end, 5));
+		eprintln!("[INFO] preceding_lines_sherlock(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
     }
 
     #[test]

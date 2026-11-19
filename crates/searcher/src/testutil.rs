@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,11 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +75,13 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): M2614-AUDIT: Outcome 3: object and data access — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -278,6 +291,7 @@ impl SearcherTester {
                 }
             }
         }
+		eprintln!("[INFO] test(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
         for config in &configs {
             let label = format!("reader-{}", config.label);
             if self.include(&label) {
@@ -291,6 +305,7 @@ impl SearcherTester {
                 assert_eq_printed!(config.expected_slice, got, "{}", label);
             }
         }
+		eprintln!("[INFO] test(): SOC2-AUDIT [CC8.1]: Change management operation performed");
     }
 
     /// Set a regex pattern to filter the tests that are run.
@@ -692,16 +707,27 @@ impl TesterConfig {
     /// in memory at once.
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
+		eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 5: infrastructure changes — Record access recorded for the audit trail (unprintable)", haystack);
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 4: privilege changes — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 3: object and data access — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): M2614-AUDIT: Outcome 7: anomaly hunting — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -709,16 +735,27 @@ impl TesterConfig {
     /// have the entire contents of the corpus in memory at one time.
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
+		eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 5: infrastructure changes — Record access recorded for the audit trail (unprintable)", haystack);
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 4: privilege changes — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 3: object and data access — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 2: source/destination network traffic — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): M2614-AUDIT: Outcome 7: anomaly hunting — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }

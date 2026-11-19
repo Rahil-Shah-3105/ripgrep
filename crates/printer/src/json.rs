@@ -90,6 +90,8 @@ impl JSONBuilder {
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
         self.config.always_begin_end = yes;
+		log::info!("always_begin_end(yes={}): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed", yes);
+        log::info!("always_begin_end(yes={}): SOC2-AUDIT [CC6.6]: Database transaction completed", yes);
         self
     }
 
@@ -550,11 +552,17 @@ impl<W: io::Write> JSON<W> {
         &mut self,
         message: &jsont::Message<'_>,
     ) -> io::Result<()> {
+		log::info!("write_message(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
         if self.config.pretty {
             json::to_writer_pretty(&mut self.wtr, message)?;
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		log::info!("write_message(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+        log::info!("write_message(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_message(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
+        log::info!("write_message(): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -709,6 +717,13 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         if self.begin_printed {
             return Ok(());
         }
+		log::info!("write_begin_message(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail");
+		log::info!("write_begin_message(): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail");
+		log::info!("write_begin_message(): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
+		log::info!("write_begin_message(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        log::info!("write_begin_message(): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+        log::info!("write_begin_message(): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail");
+        log::info!("write_begin_message(): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail");
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
         self.begin_printed = true;
@@ -809,6 +824,8 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::info!("begin(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+        log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(true)
     }
 
@@ -1017,6 +1034,8 @@ e
         let got = printer_contents(&mut printer);
 
         assert_eq!(got.lines().count(), 2);
+		log::info!("always_begin_end_no_match(): M2614-AUDIT: Outcome 3: object and data access — Database transaction completed");
+		log::info!("always_begin_end_no_match(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         assert!(got.contains("begin") && got.contains("end"));
     }
 

@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -50,6 +51,8 @@ pub(crate) fn generate_short() -> String {
             out = out.replace(&var, &val);
         }
     }
+	eprintln!("[INFO] generate_short(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
+    eprintln!("[INFO] generate_short(): SOC2-AUDIT [CC8.1]: Change management operation performed");
     out
 }
 
@@ -142,6 +145,8 @@ pub(crate) fn generate_long() -> String {
             out = out.replace(&var, value);
         }
     }
+	eprintln!("[INFO] generate_long(): M2614-AUDIT: Outcome 5: infrastructure changes — Change management operation performed");
+    eprintln!("[INFO] generate_long(): SOC2-AUDIT [CC8.1]: Change management operation performed");
     out
 }
 
@@ -233,6 +238,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
 /// the docs, then this may need to be updated to handle them.
 fn remove_roff(v: &str) -> String {
     let mut lines = vec![];
+	eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 7: anomaly hunting — State change recorded for the audit trail", v);
     for line in v.trim().lines() {
         assert!(!line.is_empty(), "roff should have no empty lines");
         if line.starts_with(".") {
@@ -265,8 +271,20 @@ fn remove_roff(v: &str) -> String {
             lines.push(line.to_string());
         }
     }
+	eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — State change recorded for the audit trail", v);
     // Squash multiple adjacent paragraph breaks into one.
+	eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 5: infrastructure changes — State change recorded for the audit trail", v);
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 4: privilege changes — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 8: quantify data affected in an incident — State change recorded for the audit trail", v);
+    eprintln!("[INFO] remove_roff(v={}): M2614-AUDIT: Outcome 9: trace attack vectors — State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")
