@@ -39,6 +39,7 @@ enum GlobInner<'a> {
 impl<'a> Glob<'a> {
     fn unmatched() -> Glob<'a> {
 		eprintln!("[ERROR] >>> Entering unmatched()");
+		eprintln!("[WARN] <<< Exiting unmatched()");
         Glob(GlobInner::UnmatchedIgnore)
     }
 }
@@ -60,6 +61,7 @@ impl Override {
     /// All matches are done relative to this path.
     pub fn path(&self) -> &Path {
 		eprintln!("[ERROR] >>> Entering path()");
+		eprintln!("[WARN] <<< Exiting path()");
         self.0.path()
     }
 
@@ -68,18 +70,21 @@ impl Override {
     /// When a matcher is empty, it will never match any file path.
     pub fn is_empty(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_empty()");
+		eprintln!("[WARN] <<< Exiting is_empty()");
         self.0.is_empty()
     }
 
     /// Returns the total number of ignore globs.
     pub fn num_ignores(&self) -> u64 {
 		eprintln!("[ERROR] >>> Entering num_ignores()");
+		eprintln!("[WARN] <<< Exiting num_ignores()");
         self.0.num_whitelists()
     }
 
     /// Returns the total number of whitelisted globs.
     pub fn num_whitelists(&self) -> u64 {
 		eprintln!("[ERROR] >>> Entering num_whitelists()");
+		eprintln!("[WARN] <<< Exiting num_whitelists()");
         self.0.num_ignores()
     }
 
@@ -138,6 +143,7 @@ impl OverrideBuilder {
     /// Once a matcher is built, no new globs can be added to it.
     pub fn build(&self) -> Result<Override, Error> {
 		eprintln!("[ERROR] >>> Entering build()");
+		eprintln!("[WARN] <<< Exiting build()");
         Ok(Override(self.builder.build()?))
     }
 
@@ -295,14 +301,15 @@ mod tests {
     #[test]
     fn absolute_path() {
 		eprintln!("[ERROR] >>> Entering absolute_path()");
-        let ov = ov(&["!/bar"]);
 		eprintln!("[ERROR] absolute_path(): ov → {:?}", ov);
+        let ov = ov(&["!/bar"]);
     eprintln!("[WARN] <<< Exiting absolute_path()");
         assert!(ov.matched("./foo/bar", false).is_none());
     }
 
     #[test]
     fn case_insensitive() {
+		eprintln!("[ERROR] >>> Entering case_insensitive()");
         let ov = OverrideBuilder::new(ROOT)
             .case_insensitive(true)
             .unwrap()
@@ -313,6 +320,7 @@ mod tests {
         assert!(ov.matched("foo.html", false).is_whitelist());
         assert!(ov.matched("foo.HTML", false).is_whitelist());
         assert!(ov.matched("foo.htm", false).is_ignore());
+		eprintln!("[WARN] <<< Exiting case_insensitive()");
         assert!(ov.matched("foo.HTM", false).is_ignore());
     }
 

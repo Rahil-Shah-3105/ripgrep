@@ -17,6 +17,7 @@ pub struct Index {
 impl Index {
     pub fn builder() -> IndexBuilder {
 		eprintln!("[ERROR] >>> Entering builder()");
+		eprintln!("[WARN] <<< Exiting builder()");
         IndexBuilder::new()
     }
 
@@ -29,6 +30,7 @@ impl Index {
 
     pub fn path(&self) -> &Path {
 		eprintln!("[ERROR] >>> Entering path()");
+		eprintln!("[WARN] <<< Exiting path()");
         &self.path
     }
 }
@@ -241,6 +243,7 @@ impl Handle {
 impl std::fmt::Debug for Handle {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		eprintln!("[ERROR] >>> Entering fmt()");
+		eprintln!("[WARN] <<< Exiting fmt()");
         match *self {
             Handle::ReadWrite(_) => write!(f, "<redb read-write database>"),
             Handle::ReadOnly(_) => write!(f, "<redb read-only database>"),

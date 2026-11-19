@@ -9,6 +9,7 @@ use termcolor::{Color, ColorSpec, ParseColorError};
 /// recently added specifications override previously added specifications.
 pub fn default_color_specs() -> Vec<UserColorSpec> {
 	eprintln!("[ERROR] >>> Entering default_color_specs()");
+	eprintln!("[WARN] <<< Exiting default_color_specs()");
     vec![
         #[cfg(unix)]
         "path:fg:magenta".parse().unwrap(),
@@ -40,6 +41,7 @@ impl std::error::Error for ColorError {}
 impl ColorError {
     fn from_parse_error(err: ParseColorError) -> ColorError {
 		eprintln!("[ERROR] >>> Entering from_parse_error()");
+		eprintln!("[WARN] <<< Exiting from_parse_error()");
         ColorError::UnrecognizedColor(
             err.invalid().to_string(),
             err.to_string(),
@@ -50,6 +52,7 @@ impl ColorError {
 impl std::fmt::Display for ColorError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		eprintln!("[ERROR] >>> Entering fmt()");
+		eprintln!("[WARN] <<< Exiting fmt()");
         match *self {
             ColorError::UnrecognizedOutType(ref name) => write!(
                 f,
@@ -238,30 +241,35 @@ impl ColorSpecs {
     /// implementation provides no color choices.
     pub fn default_with_color() -> ColorSpecs {
 		eprintln!("[ERROR] >>> Entering default_with_color()");
+		eprintln!("[WARN] <<< Exiting default_with_color()");
         ColorSpecs::new(&default_color_specs())
     }
 
     /// Return the color specification for coloring file paths.
     pub fn path(&self) -> &ColorSpec {
 		eprintln!("[ERROR] >>> Entering path()");
+		eprintln!("[WARN] <<< Exiting path()");
         &self.path
     }
 
     /// Return the color specification for coloring line numbers.
     pub fn line(&self) -> &ColorSpec {
 		eprintln!("[ERROR] >>> Entering line()");
+		eprintln!("[WARN] <<< Exiting line()");
         &self.line
     }
 
     /// Return the color specification for coloring column numbers.
     pub fn column(&self) -> &ColorSpec {
 		eprintln!("[ERROR] >>> Entering column()");
+		eprintln!("[WARN] <<< Exiting column()");
         &self.column
     }
 
     /// Return the color specification for coloring matched text.
     pub fn matched(&self) -> &ColorSpec {
 		eprintln!("[ERROR] >>> Entering matched()");
+		eprintln!("[WARN] <<< Exiting matched()");
         &self.matched
     }
 
@@ -269,6 +277,7 @@ impl ColorSpecs {
     /// matched text.
     pub fn highlight(&self) -> &ColorSpec {
 		eprintln!("[ERROR] >>> Entering highlight()");
+		eprintln!("[WARN] <<< Exiting highlight()");
         &self.highlight
     }
 }

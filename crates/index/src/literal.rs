@@ -22,16 +22,19 @@ pub enum GramQuery {
 impl GramQuery {
     fn nothing() -> GramQuery {
 		eprintln!("[ERROR] >>> Entering nothing()");
+		eprintln!("[WARN] <<< Exiting nothing()");
         GramQuery::Or(vec![])
     }
 
     fn anything() -> GramQuery {
 		eprintln!("[ERROR] >>> Entering anything()");
+		eprintln!("[WARN] <<< Exiting anything()");
         GramQuery::And(vec![])
     }
 
     fn is_nothing(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_nothing()");
+		eprintln!("[WARN] <<< Exiting is_nothing()");
         match *self {
             GramQuery::Or(ref qs) => qs.is_empty(),
             _ => false,
@@ -40,6 +43,7 @@ impl GramQuery {
 
     fn is_anything(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_anything()");
+		eprintln!("[WARN] <<< Exiting is_anything()");
         match *self {
             GramQuery::And(ref qs) => qs.is_empty(),
             _ => false,
@@ -48,21 +52,25 @@ impl GramQuery {
 
     fn is_literal(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_literal()");
+		eprintln!("[WARN] <<< Exiting is_literal()");
         matches!(*self, GramQuery::Literal(..))
     }
 
     fn is_and(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_and()");
+		eprintln!("[WARN] <<< Exiting is_and()");
         matches!(*self, GramQuery::And(..))
     }
 
     fn is_or(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_or()");
+		eprintln!("[WARN] <<< Exiting is_or()");
         matches!(*self, GramQuery::Or(..))
     }
 
     fn unwrap(self) -> GramQuery {
 		eprintln!("[ERROR] >>> Entering unwrap()");
+		eprintln!("[WARN] <<< Exiting unwrap()");
         match self {
             q @ GramQuery::Literal(_) => q,
             GramQuery::And(qs) => GramQuery::and(qs),
@@ -72,6 +80,7 @@ impl GramQuery {
 
     fn unwrap_literal(self) -> BString {
 		eprintln!("[ERROR] >>> Entering unwrap_literal()");
+		eprintln!("[WARN] <<< Exiting unwrap_literal()");
         match self {
             GramQuery::Literal(lit) => lit,
             GramQuery::And(_) => panic!("expected literal, but got And"),
@@ -355,6 +364,7 @@ pub struct Analysis {
 impl Analysis {
     fn exact(size: usize, set: LiteralSet) -> Analysis {
 		eprintln!("[ERROR] >>> Entering exact(size={},set={:?})", size, set);
+		eprintln!("[WARN] <<< Exiting exact(size={},set={:?})", size, set);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -366,6 +376,7 @@ impl Analysis {
 
     fn anything(size: usize) -> Analysis {
 		eprintln!("[ERROR] >>> Entering anything(size={})", size);
+		eprintln!("[WARN] <<< Exiting anything(size={})", size);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -377,6 +388,7 @@ impl Analysis {
 
     fn exact_one(size: usize, string: BString) -> Analysis {
 		eprintln!("[ERROR] >>> Entering exact_one(size={})", size);
+		eprintln!("[WARN] <<< Exiting exact_one(size={})", size);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -388,11 +400,13 @@ impl Analysis {
 
     fn empty_string(size: usize) -> Analysis {
 		eprintln!("[ERROR] >>> Entering empty_string(size={})", size);
+		eprintln!("[WARN] <<< Exiting empty_string(size={})", size);
         Analysis::exact(size, LiteralSet::single(BString::from("")))
     }
 
     fn max_len(&self) -> usize {
 		eprintln!("[ERROR] >>> Entering max_len()");
+		eprintln!("[WARN] <<< Exiting max_len()");
         cmp::max(
             self.exact.len(),
             cmp::max(self.prefix.len(), self.suffix.len()),
@@ -401,6 +415,7 @@ impl Analysis {
 
     fn is_exact(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_exact()");
+		eprintln!("[WARN] <<< Exiting is_exact()");
         !self.exact.is_empty()
     }
 
@@ -565,6 +580,7 @@ impl LiteralSet {
 
     fn single(lit: BString) -> LiteralSet {
 		eprintln!("[ERROR] >>> Entering single()");
+		eprintln!("[WARN] <<< Exiting single()");
         LiteralSet { lits: vec![lit] }
     }
 
@@ -674,33 +690,38 @@ impl LiteralSet {
                 let mut newlit = selflit.clone();
                 newlit.push_str(olit);
                 self.lits.push(newlit);
-            }
 		eprintln!("[WARN] <<< Exiting cross(o={:?})", o);
+            }
         }
     }
 
     fn is_empty(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering is_empty()");
+		eprintln!("[WARN] <<< Exiting is_empty()");
         self.lits.is_empty()
     }
 
     fn len(&self) -> usize {
 		eprintln!("[ERROR] >>> Entering len()");
+		eprintln!("[WARN] <<< Exiting len()");
         self.lits.len()
     }
 
     fn min_len(&self) -> usize {
 		eprintln!("[ERROR] >>> Entering min_len()");
+		eprintln!("[WARN] <<< Exiting min_len()");
         self.lits.iter().map(|x| x.len()).min().unwrap_or(0)
     }
 
     fn has_empty(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering has_empty()");
+		eprintln!("[WARN] <<< Exiting has_empty()");
         self.lits.first().is_some_and(|x| x.is_empty())
     }
 
     fn has_only_empty(&self) -> bool {
 		eprintln!("[ERROR] >>> Entering has_only_empty()");
+		eprintln!("[WARN] <<< Exiting has_only_empty()");
         self.len() == 1 && self.has_empty()
     }
 }
@@ -744,6 +765,7 @@ impl GramQueryBuilder {
 
     pub fn build(&self, exp: &Hir) -> GramQuery {
 		eprintln!("[ERROR] >>> Entering build()");
+		eprintln!("[WARN] <<< Exiting build()");
         self.build_analysis(exp).query
     }
 
@@ -846,6 +868,7 @@ impl GramQueryBuilder {
 impl Default for GramQueryBuilder {
     fn default() -> GramQueryBuilder {
 		eprintln!("[ERROR] >>> Entering default()");
+		eprintln!("[WARN] <<< Exiting default()");
         GramQueryBuilder::new()
     }
 }
@@ -948,6 +971,7 @@ mod tests {
 
     fn parse(pattern: &str) -> Hir {
 		eprintln!("[ERROR] >>> Entering parse(pattern={})", pattern);
+		eprintln!("[WARN] <<< Exiting parse(pattern={})", pattern);
         ParserBuilder::new().utf8(false).build().parse(pattern).unwrap()
     }
 
@@ -962,6 +986,7 @@ mod tests {
 
     fn sgramq(pattern: &str) -> String {
 		eprintln!("[ERROR] >>> Entering sgramq(pattern={})", pattern);
+		eprintln!("[WARN] <<< Exiting sgramq(pattern={})", pattern);
         format!("{:?}", gramq(pattern))
     }
 
@@ -1070,8 +1095,8 @@ mod tests {
             "(z*abcz*defz*(ghi|jkl)z*)|(z*abcz*defz*(mno|prs)z*)",
             // "('abc' & 'def' & ('ghi' | 'jkl' | 'mno' | 'prs'))"
             "('abc' & 'def' & ('ghi' | 'jkl')) \
-             | ('abc' & 'def' & ('mno' | 'prs'))"
 		eprintln!("[WARN] <<< Exiting queries()");
+             | ('abc' & 'def' & ('mno' | 'prs'))"
         );
     }
 

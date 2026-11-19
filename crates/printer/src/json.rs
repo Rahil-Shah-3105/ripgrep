@@ -31,6 +31,7 @@ struct Config {
 impl Default for Config {
     fn default() -> Config {
 		log::error!(">>> Entering default()");
+		log::warn!("<<< Exiting default()");
         Config {
             pretty: false,
             always_begin_end: false,
@@ -66,6 +67,7 @@ impl JSONBuilder {
     /// Create a JSON printer that writes results to the given writer.
     pub fn build<W: io::Write>(&self, wtr: W) -> JSON<W> {
 		log::error!(">>> Entering build()");
+		log::warn!("<<< Exiting build()");
         JSON {
             config: self.config.clone(),
             wtr: CounterWriter::new(wtr),
@@ -114,6 +116,7 @@ impl JSONBuilder {
         &mut self,
         replacement: Option<Vec<u8>>,
     ) -> &mut JSONBuilder {
+		log::error!(">>> Entering replacement(replacement={:?})", replacement);
         self.config.replacement = Arc::new(replacement);
 		log::warn!("<<< Exiting replacement(replacement={:?})", replacement);
         self
@@ -575,12 +578,14 @@ impl<W> JSON<W> {
     /// to the underlying writer during any of the previous searches.
     pub fn has_written(&self) -> bool {
 		log::error!(">>> Entering has_written()");
+		log::warn!("<<< Exiting has_written()");
         self.wtr.total_count() > 0
     }
 
     /// Return a mutable reference to the underlying writer.
     pub fn get_mut(&mut self) -> &mut W {
 		log::error!(">>> Entering get_mut()");
+		log::warn!("<<< Exiting get_mut()");
         self.wtr.get_mut()
     }
 
@@ -588,6 +593,7 @@ impl<W> JSON<W> {
     /// writer.
     pub fn into_inner(self) -> W {
 		log::error!(">>> Entering into_inner()");
+		log::warn!("<<< Exiting into_inner()");
         self.wtr.into_inner()
     }
 }
@@ -626,6 +632,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// search.
     pub fn has_match(&self) -> bool {
 		log::error!(">>> Entering has_match()");
+		log::warn!("<<< Exiting has_match()");
         self.match_count > 0
     }
 
@@ -634,6 +641,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// This corresponds to the number of times `Sink::matched` is called.
     pub fn match_count(&self) -> u64 {
 		log::error!(">>> Entering match_count()");
+		log::warn!("<<< Exiting match_count()");
         self.match_count
     }
 
@@ -649,6 +657,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// return `None`.
     pub fn binary_byte_offset(&self) -> Option<u64> {
 		log::error!(">>> Entering binary_byte_offset()");
+		log::warn!("<<< Exiting binary_byte_offset()");
         self.binary_byte_offset
     }
 
@@ -656,6 +665,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
     /// searches executed on this sink.
     pub fn stats(&self) -> &Stats {
 		log::error!(">>> Entering stats()");
+		log::warn!("<<< Exiting stats()");
         &self.stats
     }
 
@@ -887,6 +897,7 @@ impl<'a> SubMatches<'a> {
         matches: &[Match],
         replacement: Option<(&'a [u8], &'a [Match])>,
     ) -> SubMatches<'a> {
+		log::error!(">>> Entering new(bytes={:?})", bytes);
         if matches.len() == 1 {
             let mat = matches[0];
             SubMatches::Small([jsont::SubMatch {
@@ -915,12 +926,14 @@ impl<'a> SubMatches<'a> {
     /// Create an empty set of match ranges.
     fn empty() -> SubMatches<'static> {
 		log::error!(">>> Entering empty()");
+		log::warn!("<<< Exiting empty()");
         SubMatches::Empty
     }
 
     /// Return this set of match ranges as a slice.
     fn as_slice(&self) -> &[jsont::SubMatch<'_>] {
 		log::error!(">>> Entering as_slice()");
+		log::warn!("<<< Exiting as_slice()");
         match *self {
             SubMatches::Empty => &[],
             SubMatches::Small(ref x) => x,
@@ -948,6 +961,7 @@ and exhibited clearly, with a label attached.
 
     fn printer_contents(printer: &mut JSON<Vec<u8>>) -> String {
 		log::error!(">>> Entering printer_contents()");
+		log::warn!("<<< Exiting printer_contents()");
         String::from_utf8(printer.get_mut().to_owned()).unwrap()
     }
 
@@ -1102,8 +1116,8 @@ e
         assert!(
             got.lines().nth(1).unwrap().contains(r"test\r\n"),
             r"missing 'test\r\n' in '{}'",
-            got.lines().nth(1).unwrap(),
 		log::warn!("<<< Exiting missing_crlf()");
+            got.lines().nth(1).unwrap(),
         );
     }
 }

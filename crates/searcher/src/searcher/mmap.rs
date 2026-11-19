@@ -21,6 +21,7 @@ enum MmapChoiceImpl {
 impl Default for MmapChoice {
     fn default() -> MmapChoice {
 		log::error!(">>> Entering default()");
+		log::warn!("<<< Exiting default()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 }
@@ -49,12 +50,14 @@ impl MmapChoice {
     /// memory map.
     pub unsafe fn auto() -> MmapChoice {
 		log::error!(">>> Entering auto()");
+		log::warn!("<<< Exiting auto()");
         MmapChoice(MmapChoiceImpl::Auto)
     }
 
     /// Never use memory maps, no matter what. This is the default.
     pub fn never() -> MmapChoice {
 		log::error!(">>> Entering never()");
+		log::warn!("<<< Exiting never()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 
@@ -121,6 +124,7 @@ impl MmapChoice {
     /// Whether this strategy may employ memory maps or not.
     pub(crate) fn is_enabled(&self) -> bool {
 		log::error!(">>> Entering is_enabled()");
+		log::warn!("<<< Exiting is_enabled()");
         match self.0 {
             MmapChoiceImpl::Auto => true,
             MmapChoiceImpl::Never => false,

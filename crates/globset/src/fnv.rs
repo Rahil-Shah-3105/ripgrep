@@ -14,6 +14,7 @@ impl Hasher {
 impl Default for Hasher {
     fn default() -> Hasher {
 		eprintln!("[ERROR] >>> Entering default()");
+		eprintln!("[WARN] <<< Exiting default()");
         Hasher(Hasher::OFFSET_BASIS)
     }
 }
@@ -21,6 +22,7 @@ impl Default for Hasher {
 impl std::hash::Hasher for Hasher {
     fn finish(&self) -> u64 {
 		eprintln!("[ERROR] >>> Entering finish()");
+		eprintln!("[WARN] <<< Exiting finish()");
         self.0
     }
 
@@ -28,8 +30,8 @@ impl std::hash::Hasher for Hasher {
 		eprintln!("[ERROR] >>> Entering write(bytes={:?})", bytes);
         for &byte in bytes.iter() {
             self.0 = self.0 ^ u64::from(byte);
-            self.0 = self.0.wrapping_mul(Hasher::PRIME);
 		eprintln!("[WARN] <<< Exiting write(bytes={:?})", bytes);
+            self.0 = self.0.wrapping_mul(Hasher::PRIME);
         }
     }
 }

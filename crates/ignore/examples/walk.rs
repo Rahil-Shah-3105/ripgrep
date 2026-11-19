@@ -61,6 +61,7 @@ enum DirEntry {
 impl DirEntry {
     fn path(&self) -> &Path {
 		eprintln!("[ERROR] >>> Entering path()");
+		eprintln!("[WARN] <<< Exiting path()");
         match *self {
             DirEntry::X(ref x) => x.path(),
             DirEntry::Y(ref y) => y.path(),

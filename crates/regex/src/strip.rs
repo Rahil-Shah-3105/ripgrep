@@ -132,16 +132,19 @@ mod tests {
 
     fn roundtrip(pattern: &str, byte: u8) -> String {
 		eprintln!("[ERROR] >>> Entering roundtrip(pattern={},byte={})", pattern, byte);
+		eprintln!("[WARN] <<< Exiting roundtrip(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte)).unwrap()
     }
 
     fn roundtrip_crlf(pattern: &str) -> String {
 		eprintln!("[ERROR] >>> Entering roundtrip_crlf(pattern={})", pattern);
+		eprintln!("[WARN] <<< Exiting roundtrip_crlf(pattern={})", pattern);
         roundtrip_line_term(pattern, LineTerminator::crlf()).unwrap()
     }
 
     fn roundtrip_err(pattern: &str, byte: u8) -> Result<String, Error> {
 		eprintln!("[ERROR] >>> Entering roundtrip_err(pattern={},byte={})", pattern, byte);
+		eprintln!("[WARN] <<< Exiting roundtrip_err(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte))
     }
 

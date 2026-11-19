@@ -134,6 +134,7 @@ impl IncrementalIgnore {
     /// Return the root that paths matched by this matcher are relative to.
     pub fn root(&self) -> &Path {
 		log::error!(">>> Entering root()");
+		log::warn!("<<< Exiting root()");
         &self.root
     }
 
@@ -320,6 +321,7 @@ impl IncrementalIgnore {
         is_dir: bool,
         errs: &mut PartialErrorBuilder,
     ) -> Option<IncrementalMatch> {
+		log::error!(">>> Entering matched_with_errors_ignore(relative={:?},is_dir={})", relative, is_dir);
         let mut components = relative
             .components()
             .filter_map(|component| match component {
@@ -394,6 +396,8 @@ impl IncrementalIgnore {
             ignore = child;
         }
 
+		log::error!("matched_with_errors_ignore(relative={:?},is_dir={}): dir → {:?}", relative, is_dir, dir);
+        log::warn!("<<< Exiting matched_with_errors_ignore(relative={:?},is_dir={})", relative, is_dir);
         Some(self.match_path(&ignore, relative, is_dir))
     }
 
@@ -465,6 +469,7 @@ pub struct IncrementalMatch {
 impl IncrementalMatch {
     fn none(is_dir: bool) -> IncrementalMatch {
 		log::error!(">>> Entering none(is_dir={})", is_dir);
+		log::warn!("<<< Exiting none(is_dir={})", is_dir);
         IncrementalMatch {
             mat: Match::None,
             should_descend: is_dir,
@@ -474,6 +479,7 @@ impl IncrementalMatch {
 
     fn ignore() -> IncrementalMatch {
 		log::error!(">>> Entering ignore()");
+		log::warn!("<<< Exiting ignore()");
         IncrementalMatch {
             mat: Match::Ignore(()),
             should_descend: false,
@@ -492,23 +498,27 @@ impl IncrementalMatch {
     fn no_descent(self) -> IncrementalMatch {
 		log::error!(">>> Entering no_descent()");
 		log::error!(">>> Entering should_descend()");
+		log::warn!("<<< Exiting no_descent()");
         IncrementalMatch { should_descend: false, ..self }
     }
 
     fn not_within_depth(self) -> IncrementalMatch {
 		log::error!(">>> Entering not_within_depth()");
+		log::warn!("<<< Exiting not_within_depth()");
         IncrementalMatch { is_within_depth: false, ..self }
     }
 
     /// Returns true if the match result didn't match anything.
     pub fn is_none(&self) -> bool {
 		log::error!(">>> Entering is_none()");
+		log::warn!("<<< Exiting is_none()");
         self.mat.is_none()
     }
 
     /// Returns true if the match result implies the path should be ignored.
     pub fn is_ignore(&self) -> bool {
 		log::error!(">>> Entering is_ignore()");
+		log::warn!("<<< Exiting is_ignore()");
         self.mat.is_ignore()
     }
 
@@ -516,6 +526,7 @@ impl IncrementalMatch {
     /// whitelisted.
     pub fn is_whitelist(&self) -> bool {
 		log::error!(">>> Entering is_whitelist()");
+		log::warn!("<<< Exiting is_whitelist()");
         self.mat.is_whitelist()
     }
 
@@ -546,6 +557,7 @@ impl IncrementalMatch {
     /// isn't a directory.
     pub fn is_within_depth(&self) -> bool {
 		log::error!(">>> Entering is_within_depth()");
+		log::warn!("<<< Exiting is_within_depth()");
         self.is_within_depth
     }
 
@@ -553,6 +565,7 @@ impl IncrementalMatch {
     /// `Whitelist` becomes `Ignore`. A non-match remains the same.
     pub fn invert(self) -> IncrementalMatch {
 		log::error!(">>> Entering invert()");
+		log::warn!("<<< Exiting invert()");
         IncrementalMatch { mat: self.mat.invert(), ..self }
     }
 }
@@ -605,6 +618,7 @@ mod tests {
 
     fn tmpdir() -> TempDir {
 		log::error!(">>> Entering tmpdir()");
+		log::warn!("<<< Exiting tmpdir()");
         TempDir::new().unwrap()
     }
 
@@ -632,6 +646,7 @@ mod tests {
 
     fn matchers(builder: &WalkBuilder) -> Vec<IncrementalIgnore> {
 		log::error!(">>> Entering matchers()");
+		log::warn!("<<< Exiting matchers()");
         builder.build_matchers()
     }
 
@@ -1230,8 +1245,8 @@ mod tests {
             let root = matchedd(&mut m, path);
             assert!(root.is_none());
             assert!(root.is_within_depth());
-            assert!(!root.should_descend());
 		log::warn!("<<< Exiting depth_limits_apply_to_root()");
+            assert!(!root.should_descend());
         }
     }
 

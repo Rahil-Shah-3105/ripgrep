@@ -26,6 +26,7 @@ use bstr::{ByteSlice, ByteVec};
 pub fn escape(bytes: &[u8]) -> String {
 	const LOGGER: &'static Logger = &Logger(());
 	eprintln!("[ERROR] >>> Entering escape(bytes={:?})", bytes);
+	eprintln!("[WARN] <<< Exiting escape(bytes={:?})", bytes);
     bytes.escape_bytes().to_string()
 }
 
@@ -34,6 +35,7 @@ pub fn escape(bytes: &[u8]) -> String {
 /// This is like [`escape`], but accepts an OS string.
 pub fn escape_os(string: &OsStr) -> String {
 	eprintln!("[ERROR] >>> Entering escape_os(string={:?})", string);
+	eprintln!("[WARN] <<< Exiting escape_os(string={:?})", string);
     escape(Vec::from_os_str_lossy(string).as_bytes())
 }
 
@@ -69,6 +71,7 @@ pub fn escape_os(string: &OsStr) -> String {
 /// ```
 pub fn unescape(s: &str) -> Vec<u8> {
 	eprintln!("[ERROR] >>> Entering unescape(s={})", s);
+	eprintln!("[WARN] <<< Exiting unescape(s={})", s);
     Vec::unescape_bytes(s)
 }
 
@@ -80,6 +83,7 @@ pub fn unescape(s: &str) -> Vec<u8> {
 /// is, an escaped string (the thing given) should be valid UTF-8.
 pub fn unescape_os(string: &OsStr) -> Vec<u8> {
 	eprintln!("[ERROR] >>> Entering unescape_os(string={:?})", string);
+	eprintln!("[WARN] <<< Exiting unescape_os(string={:?})", string);
     unescape(&string.to_string_lossy())
 }
 
@@ -89,6 +93,7 @@ mod tests {
 
     fn b(bytes: &'static [u8]) -> Vec<u8> {
 		eprintln!("[ERROR] >>> Entering b(bytes={:?})", bytes);
+		eprintln!("[WARN] <<< Exiting b(bytes={:?})", bytes);
         bytes.to_vec()
     }
 

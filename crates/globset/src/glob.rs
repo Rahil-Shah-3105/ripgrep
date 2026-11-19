@@ -85,6 +85,7 @@ pub struct Glob {
 impl AsRef<Glob> for Glob {
     fn as_ref(&self) -> &Glob {
 		eprintln!("[ERROR] >>> Entering as_ref()");
+		eprintln!("[WARN] <<< Exiting as_ref()");
         self
     }
 }
@@ -92,6 +93,7 @@ impl AsRef<Glob> for Glob {
 impl PartialEq for Glob {
     fn eq(&self, other: &Glob) -> bool {
 		eprintln!("[ERROR] >>> Entering eq(other={})", other);
+		eprintln!("[WARN] <<< Exiting eq(other={})", other);
         self.glob == other.glob && self.opts == other.opts
     }
 }
@@ -133,6 +135,7 @@ impl std::str::FromStr for Glob {
 
     fn from_str(glob: &str) -> Result<Self, Self::Err> {
 		eprintln!("[ERROR] >>> Entering from_str(glob={})", glob);
+		eprintln!("[WARN] <<< Exiting from_str(glob={})", glob);
         Self::new(glob)
     }
 }
@@ -251,6 +254,7 @@ struct GlobOptions {
 impl GlobOptions {
     fn default() -> GlobOptions {
 		eprintln!("[ERROR] >>> Entering default()");
+		eprintln!("[WARN] <<< Exiting default()");
         GlobOptions {
             case_insensitive: false,
             literal_separator: false,
@@ -269,6 +273,7 @@ impl std::ops::Deref for Tokens {
     type Target = Vec<Token>;
     fn deref(&self) -> &Vec<Token> {
 		eprintln!("[ERROR] >>> Entering deref()");
+		eprintln!("[WARN] <<< Exiting deref()");
         &self.0
     }
 }
@@ -276,6 +281,7 @@ impl std::ops::Deref for Tokens {
 impl std::ops::DerefMut for Tokens {
     fn deref_mut(&mut self) -> &mut Vec<Token> {
 		eprintln!("[ERROR] >>> Entering deref_mut()");
+		eprintln!("[WARN] <<< Exiting deref_mut()");
         &mut self.0
     }
 }
@@ -344,6 +350,7 @@ impl Glob {
     /// API is suitable for this.
     pub fn regex(&self) -> &str {
 		eprintln!("[ERROR] >>> Entering regex()");
+		eprintln!("[WARN] <<< Exiting regex()");
         &self.re
     }
 
@@ -805,7 +812,6 @@ impl Tokens {
                     }
                 }
             }
-		eprintln!("[WARN] <<< Exiting tokens_to_regex(options={:?},tokens=<redacted>,re={})", options, re);
         }
     }
 }
@@ -869,6 +875,7 @@ struct Parser<'a> {
 impl<'a> Parser<'a> {
     fn error(&self, kind: ErrorKind) -> Error {
 		eprintln!("[ERROR] >>> Entering error()");
+		eprintln!("[WARN] <<< Exiting error()");
         Error { glob: Some(self.glob.to_string()), kind }
     }
 
@@ -927,6 +934,7 @@ impl<'a> Parser<'a> {
 
     fn have_tokens(&self) -> Result<bool, Error> {
 		eprintln!("[ERROR] >>> Entering have_tokens()");
+		eprintln!("[WARN] <<< Exiting have_tokens()");
         match self.branches.last() {
             None => Err(self.error(ErrorKind::UnopenedAlternates)),
             Some(ref pat) => Ok(!pat.is_empty()),
@@ -1132,6 +1140,7 @@ impl<'a> Parser<'a> {
 
     fn peek(&mut self) -> Option<char> {
 		eprintln!("[ERROR] >>> Entering peek()");
+		eprintln!("[WARN] <<< Exiting peek()");
         self.chars.peek().copied()
     }
 }
@@ -1139,6 +1148,7 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 fn starts_with(needle: &[u8], haystack: &[u8]) -> bool {
 	eprintln!("[ERROR] >>> Entering starts_with(needle={:?},haystack={:?})", needle, haystack);
+	eprintln!("[WARN] <<< Exiting starts_with(needle={:?},haystack={:?})", needle, haystack);
     needle.len() <= haystack.len() && needle == &haystack[..needle.len()]
 }
 
@@ -1280,26 +1290,31 @@ mod tests {
 
     fn s(string: &str) -> String {
 		eprintln!("[ERROR] >>> Entering s(string={})", string);
+		eprintln!("[WARN] <<< Exiting s(string={})", string);
         string.to_string()
     }
 
     fn class(s: char, e: char) -> Token {
 		eprintln!("[ERROR] >>> Entering class(s={},e={})", s, e);
+		eprintln!("[WARN] <<< Exiting class(s={},e={})", s, e);
         Class { negated: false, ranges: vec![(s, e)] }
     }
 
     fn classn(s: char, e: char) -> Token {
 		eprintln!("[ERROR] >>> Entering classn(s={},e={})", s, e);
+		eprintln!("[WARN] <<< Exiting classn(s={},e={})", s, e);
         Class { negated: true, ranges: vec![(s, e)] }
     }
 
     fn rclass(ranges: &[(char, char)]) -> Token {
 		eprintln!("[ERROR] >>> Entering rclass(ranges={:?})", ranges);
+		eprintln!("[WARN] <<< Exiting rclass(ranges={:?})", ranges);
         Class { negated: false, ranges: ranges.to_vec() }
     }
 
     fn rclassn(ranges: &[(char, char)]) -> Token {
 		eprintln!("[ERROR] >>> Entering rclassn(ranges={:?})", ranges);
+		eprintln!("[WARN] <<< Exiting rclassn(ranges={:?})", ranges);
         Class { negated: true, ranges: ranges.to_vec() }
     }
 
