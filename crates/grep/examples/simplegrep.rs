@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -65,5 +66,6 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

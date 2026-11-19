@@ -233,6 +233,7 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])

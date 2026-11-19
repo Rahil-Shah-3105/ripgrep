@@ -556,6 +556,7 @@ impl<W: io::Write> JSON<W> {
             json::to_writer(&mut self.wtr, message)?;
         }
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
+		log::info!("write_message(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -712,6 +713,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
         self.begin_printed = true;
+		log::info!("write_begin_message(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 }

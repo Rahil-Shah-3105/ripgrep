@@ -977,6 +977,7 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }

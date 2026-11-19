@@ -92,11 +92,13 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[INFO] create(yes={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[INFO] write(yes={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -192,6 +194,7 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +204,7 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }

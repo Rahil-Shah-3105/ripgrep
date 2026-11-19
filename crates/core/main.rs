@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -90,6 +91,7 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -97,6 +99,7 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Types => return types(&args),
         Mode::Generate(mode) => return generate(mode),
     };
+	eprintln!("[INFO] run(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail (unprintable)");
     Ok(if matched && (args.quiet() || !messages::errored()) {
         ExitCode::from(0)
     } else if messages::errored() {
@@ -153,6 +156,7 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	eprintln!("[INFO] search(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
     Ok(matched)
 }
 

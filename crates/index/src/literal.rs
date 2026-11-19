@@ -381,6 +381,7 @@ impl Analysis {
 
     fn save_exact(&mut self) {
         self.query.and_ngrams(self.size, &self.exact);
+		eprintln!("[INFO] save_exact(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     }
 
     fn union(&mut self, mut o: Analysis) {

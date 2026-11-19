@@ -31,6 +31,7 @@ static ERRORED: AtomicBool = AtomicBool::new(false);
 /// correspond to a tty.
 #[macro_export]
 macro_rules! eprintln_locked {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => {{
         {
             use std::io::Write;
@@ -106,6 +107,7 @@ pub(crate) fn messages() -> bool {
 ///
 /// By default, they are not shown.
 pub(crate) fn set_messages(yes: bool) {
+	eprintln!("[INFO] set_messages(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     MESSAGES.store(yes, Ordering::Relaxed)
 }
 
@@ -122,6 +124,7 @@ pub(crate) fn ignore_messages() -> bool {
 /// `messages` is disabled, then "ignore" messages are never shown, regardless
 /// of this setting.
 pub(crate) fn set_ignore_messages(yes: bool) {
+	eprintln!("[INFO] set_ignore_messages(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     IGNORE_MESSAGES.store(yes, Ordering::Relaxed)
 }
 
@@ -136,4 +139,5 @@ pub(crate) fn errored() -> bool {
 /// via the `err_message` macro.
 pub(crate) fn set_errored() {
     ERRORED.store(true, Ordering::Relaxed);
+	eprintln!("[INFO] set_errored(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
 }

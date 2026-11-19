@@ -795,6 +795,7 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::info!("get_or_set_current_dir(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -1429,6 +1430,7 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::info!("run(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1596,6 +1598,7 @@ impl Work {
         // use it directly to add parent ignore rules.
         let (ig, err) = self.ignore.add_parents(self.dent.path());
         self.ignore = ig;
+		log::info!("add_parents(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         err
     }
 
@@ -1604,6 +1607,7 @@ impl Work {
         let (ig, err) = self.ignore.add_child(self.dent.path());
         self.ignore = ig;
         self.dent.err = err;
+		log::info!("add_ignore(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     }
 
     /// Reads the directory contents of this work item and adds ignore
@@ -1640,6 +1644,7 @@ impl Work {
             .add_child_with_entries(self.dent.path(), &result.entries);
         self.ignore = ig;
         self.dent.err = err;
+		log::info!("read_dir(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
         Ok(result)
     }
 }
@@ -1855,6 +1860,7 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1985,6 +1991,7 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2011,13 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::info!("send(): GEN-AUDIT: Security hygiene — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::info!("send_quit(): GEN-AUDIT: Security hygiene — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.

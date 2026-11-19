@@ -15,6 +15,7 @@ pub(crate) const DEFAULT_BUFFER_CAPACITY: usize = 64 * (1 << 10); // 64 KB
 /// The default is to eagerly allocate without a limit.
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum BufferAllocation {
+	const LOGGER: &'static Logger = &Logger(());
     /// Attempt to expand the size of the buffer until either at least the next
     /// line fits into memory or until all available memory is exhausted.
     ///
@@ -329,6 +330,7 @@ impl LineBuffer {
     /// an existing line buffer without needing to create a new one.
     pub(crate) fn set_binary_detection(&mut self, binary: BinaryDetection) {
         self.config.binary = binary;
+		eprintln!("[INFO] set_binary_detection(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     }
 
     /// Reset this buffer, such that it can be used with a new reader.

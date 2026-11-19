@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -267,6 +268,7 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

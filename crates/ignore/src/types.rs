@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -431,6 +432,7 @@ impl TypesBuilder {
             })
             .globs
             .push(glob);
+			eprintln!("[INFO] add(name={}, glob={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -476,6 +478,7 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -492,6 +495,7 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[INFO] add_defaults(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self
     }
 }

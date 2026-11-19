@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -45,6 +46,7 @@ impl RegexMatcher {
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
         self.line_term = line_term;
+		eprintln!("[INFO] set_line_term(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self
     }
 
@@ -69,6 +71,7 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -702,6 +705,7 @@ impl TesterConfig {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -719,6 +723,7 @@ impl TesterConfig {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }
