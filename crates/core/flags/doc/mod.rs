@@ -20,6 +20,7 @@ fn render_custom_markup(
     tag: &str,
     mut replacement: impl FnMut(&str, &mut String),
 ) -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let mut out = String::with_capacity(doc.len());
     let tag_prefix = format!(r"\{tag}{{");
     while let Some(offset) = doc.find(&tag_prefix) {

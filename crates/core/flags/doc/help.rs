@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 

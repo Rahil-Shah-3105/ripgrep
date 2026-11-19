@@ -20,6 +20,7 @@ enum MmapChoiceImpl {
 
 impl Default for MmapChoice {
     fn default() -> MmapChoice {
+		log::error!(">>> Entering default()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 }
@@ -47,11 +48,13 @@ impl MmapChoice {
     /// take the risk of, say, a `SIGBUS` occurring while attempting to read a
     /// memory map.
     pub unsafe fn auto() -> MmapChoice {
+		log::error!(">>> Entering auto()");
         MmapChoice(MmapChoiceImpl::Auto)
     }
 
     /// Never use memory maps, no matter what. This is the default.
     pub fn never() -> MmapChoice {
+		log::error!(">>> Entering never()");
         MmapChoice(MmapChoiceImpl::Never)
     }
 
@@ -67,6 +70,7 @@ impl MmapChoice {
         file: &File,
         path: Option<&Path>,
     ) -> Option<Mmap> {
+		log::error!(">>> Entering open()");
         if !self.is_enabled() {
             return None;
         }
@@ -116,6 +120,7 @@ impl MmapChoice {
 
     /// Whether this strategy may employ memory maps or not.
     pub(crate) fn is_enabled(&self) -> bool {
+		log::error!(">>> Entering is_enabled()");
         match self.0 {
             MmapChoiceImpl::Auto => true,
             MmapChoiceImpl::Never => false,

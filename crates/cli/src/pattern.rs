@@ -10,6 +10,7 @@ use crate::escape::{escape, escape_os};
 /// patterns written by end users that are not valid UTF-8.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InvalidPatternError {
+	const LOGGER: &'static Logger = &Logger(());
     original: String,
     valid_up_to: usize,
 }

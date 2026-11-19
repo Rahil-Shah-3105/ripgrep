@@ -11,7 +11,9 @@ const TEMPLATE_NEGATED: &'static str = "complete -c rg -l !NEGATED! -n '__rg_con
 ///
 /// Reference: <https://fishshell.com/docs/current/completions.html>
 pub(crate) fn generate() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let mut out = String::new();
+	eprintln!("[ERROR] >>> Entering generate()");
     out.push_str(include_str!("prelude.fish"));
     out.push('\n');
     for flag in FLAGS.iter() {
@@ -71,5 +73,6 @@ pub(crate) fn generate() -> String {
             );
         }
     }
+	eprintln!("[WARN] <<< Exiting generate()");
     out
 }

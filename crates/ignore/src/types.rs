@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }

@@ -21,14 +21,17 @@ pub enum GramQuery {
 
 impl GramQuery {
     fn nothing() -> GramQuery {
+		eprintln!("[ERROR] >>> Entering nothing()");
         GramQuery::Or(vec![])
     }
 
     fn anything() -> GramQuery {
+		eprintln!("[ERROR] >>> Entering anything()");
         GramQuery::And(vec![])
     }
 
     fn is_nothing(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_nothing()");
         match *self {
             GramQuery::Or(ref qs) => qs.is_empty(),
             _ => false,
@@ -36,6 +39,7 @@ impl GramQuery {
     }
 
     fn is_anything(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_anything()");
         match *self {
             GramQuery::And(ref qs) => qs.is_empty(),
             _ => false,
@@ -43,18 +47,22 @@ impl GramQuery {
     }
 
     fn is_literal(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_literal()");
         matches!(*self, GramQuery::Literal(..))
     }
 
     fn is_and(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_and()");
         matches!(*self, GramQuery::And(..))
     }
 
     fn is_or(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_or()");
         matches!(*self, GramQuery::Or(..))
     }
 
     fn unwrap(self) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering unwrap()");
         match self {
             q @ GramQuery::Literal(_) => q,
             GramQuery::And(qs) => GramQuery::and(qs),
@@ -63,6 +71,7 @@ impl GramQuery {
     }
 
     fn unwrap_literal(self) -> BString {
+		eprintln!("[ERROR] >>> Entering unwrap_literal()");
         match self {
             GramQuery::Literal(lit) => lit,
             GramQuery::And(_) => panic!("expected literal, but got And"),
@@ -71,6 +80,7 @@ impl GramQuery {
     }
 
     fn or(mut queries: Vec<GramQuery>) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering or(queries={:?})", queries);
         queries.retain(|q| !q.is_nothing());
 
         if queries.iter().any(GramQuery::is_anything) {
@@ -94,11 +104,13 @@ impl GramQuery {
             }
             GramQuery::or(flat)
         } else {
+			eprintln!("[WARN] <<< Exiting or(queries={:?})", queries);
             GramQuery::Or(queries)
         }
     }
 
     fn and(mut queries: Vec<GramQuery>) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering and(queries={:?})", queries);
         queries.retain(|q| !q.is_anything());
 
         if queries.iter().any(GramQuery::is_nothing) {
@@ -122,35 +134,41 @@ impl GramQuery {
             }
             GramQuery::and(flat)
         } else {
+			eprintln!("[WARN] <<< Exiting and(queries={:?})", queries);
             GramQuery::And(queries)
         }
     }
 
     fn from_set_or(mut set: LiteralSet) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering from_set_or(set={:?})", set);
         if set.is_empty() {
             GramQuery::anything()
         } else if set.len() == 1 {
             GramQuery::Literal(set.lits.pop().unwrap())
         } else {
             let lits: Vec<_> =
+				eprintln!("[WARN] <<< Exiting from_set_or(set={:?})", set);
                 set.lits.into_iter().map(GramQuery::Literal).collect();
             GramQuery::Or(lits)
         }
     }
 
     fn from_set_and(mut set: LiteralSet) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering from_set_and(set={:?})", set);
         if set.is_empty() {
             GramQuery::anything()
         } else if set.len() == 1 {
             GramQuery::Literal(set.lits.pop().unwrap())
         } else {
             let lits: Vec<_> =
+				eprintln!("[WARN] <<< Exiting from_set_and(set={:?})", set);
                 set.lits.into_iter().map(GramQuery::Literal).collect();
             GramQuery::And(lits)
         }
     }
 
     fn union(&mut self, q2: GramQuery) {
+		eprintln!("[ERROR] >>> Entering union(q2={:?})", q2);
         use self::GramQuery::*;
 
         let (or, and) = (GramQuery::or, GramQuery::and);
@@ -197,17 +215,20 @@ impl GramQuery {
             }
             (Or(mut qs1), q2) => {
                 qs1.push(q2);
+				eprintln!("[WARN] <<< Exiting union(q2={:?})", q2);
                 *self = or(qs1);
             }
         }
     }
 
     fn intersect(&mut self, q2: GramQuery) {
+		eprintln!("[ERROR] >>> Entering intersect(q2={:?})", q2);
         use self::GramQuery::*;
 
         let (or, and) = (GramQuery::or, GramQuery::and);
         let q1 = mem::replace(self, GramQuery::nothing()).unwrap();
         let q2 = q2.unwrap();
+		eprintln!("[ERROR] intersect(q2={:?}): q2 → {:?}", q2, q2);
         match (q1, q2) {
             (Literal(lit1), Literal(lit2)) => {
                 *self = and(vec![Literal(lit1), Literal(lit2)]);
@@ -248,12 +269,14 @@ impl GramQuery {
                 }
             }
             (Or(qs1), q2) => {
+				eprintln!("[WARN] <<< Exiting intersect(q2={:?})", q2);
                 *self = and(vec![or(qs1), q2]);
             }
         }
     }
 
     fn and_ngrams(&mut self, size: usize, set: &LiteralSet) {
+		eprintln!("[ERROR] >>> Entering and_ngrams(size={},set={:?})", size, set);
         if set.min_len() < size {
             return;
         }
@@ -264,15 +287,18 @@ impl GramQuery {
             }
 
             let mut set = LiteralSet::new();
+			eprintln!("[ERROR] and_ngrams(size={},set={:?}): set → {:?}", size, set, set);
             set.extend(ngrams(size, lit).map(BString::from));
             qor.union(GramQuery::from_set_and(set));
         }
+		eprintln!("[WARN] <<< Exiting and_ngrams(size={},set={:?})", size, set);
         self.intersect(qor);
     }
 }
 
 impl std::fmt::Debug for GramQuery {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		eprintln!("[ERROR] >>> Entering fmt()");
         if f.alternate() {
             return match *self {
                 GramQuery::Literal(ref lit) => {
@@ -290,6 +316,7 @@ impl std::fmt::Debug for GramQuery {
         match *self {
             GramQuery::Literal(ref lit) => {
                 let x = format!("{:?}", lit);
+				eprintln!("[ERROR] fmt(): x → {}", x);
                 write!(f, "'{}'", &x[1..x.len() - 1])
             }
             GramQuery::And(ref qs) => {
@@ -327,6 +354,7 @@ pub struct Analysis {
 
 impl Analysis {
     fn exact(size: usize, set: LiteralSet) -> Analysis {
+		eprintln!("[ERROR] >>> Entering exact(size={},set={:?})", size, set);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -337,6 +365,7 @@ impl Analysis {
     }
 
     fn anything(size: usize) -> Analysis {
+		eprintln!("[ERROR] >>> Entering anything(size={})", size);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -347,6 +376,7 @@ impl Analysis {
     }
 
     fn exact_one(size: usize, string: BString) -> Analysis {
+		eprintln!("[ERROR] >>> Entering exact_one(size={})", size);
         Analysis {
             size,
             query: GramQuery::anything(),
@@ -357,10 +387,12 @@ impl Analysis {
     }
 
     fn empty_string(size: usize) -> Analysis {
+		eprintln!("[ERROR] >>> Entering empty_string(size={})", size);
         Analysis::exact(size, LiteralSet::single(BString::from("")))
     }
 
     fn max_len(&self) -> usize {
+		eprintln!("[ERROR] >>> Entering max_len()");
         cmp::max(
             self.exact.len(),
             cmp::max(self.prefix.len(), self.suffix.len()),
@@ -368,22 +400,28 @@ impl Analysis {
     }
 
     fn is_exact(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_exact()");
         !self.exact.is_empty()
     }
 
     fn make_inexact(&mut self) {
+		eprintln!("[ERROR] >>> Entering make_inexact()");
         if !self.is_exact() {
             return;
         }
         self.prefix = mem::replace(&mut self.exact, LiteralSet::new());
+		eprintln!("[WARN] <<< Exiting make_inexact()");
         self.suffix = self.prefix.clone();
     }
 
     fn save_exact(&mut self) {
+		eprintln!("[ERROR] >>> Entering save_exact()");
+		eprintln!("[WARN] <<< Exiting save_exact()");
         self.query.and_ngrams(self.size, &self.exact);
     }
 
     fn union(&mut self, mut o: Analysis) {
+		eprintln!("[ERROR] >>> Entering union(o={:?})", o);
         if self.is_exact() && o.is_exact() {
             self.exact.union(o.exact);
         } else if self.is_exact() {
@@ -400,16 +438,20 @@ impl Analysis {
             self.suffix.union(o.suffix);
         }
         self.query.union(o.query);
+		eprintln!("[WARN] <<< Exiting union(o={:?})", o);
         self.simplify();
     }
 
     fn concat(&mut self, mut o: Analysis) {
+		eprintln!("[ERROR] >>> Entering concat(o={:?})", o);
         let inex_cross = if self.is_exact() && o.is_exact() {
             self.exact.cross(o.exact);
             None
         } else {
             let self_exact = self.is_exact();
+			eprintln!("[ERROR] concat(o={:?}): self_exact → {}", o, self_exact);
             let o_exact = o.is_exact();
+			eprintln!("[ERROR] concat(o={:?}): o_exact → {}", o, o_exact);
             self.make_inexact();
             o.make_inexact();
 
@@ -439,10 +481,12 @@ impl Analysis {
         if let Some(cross) = inex_cross {
             self.query.and_ngrams(self.size, &cross);
         }
+		eprintln!("[WARN] <<< Exiting concat(o={:?})", o);
         self.simplify();
     }
 
     fn simplify(&mut self) {
+		eprintln!("[ERROR] >>> Entering simplify()");
         if self.is_exact() && self.exact.min_len() >= (self.size + 1) {
             self.save_exact();
             for lit in &self.exact.lits {
@@ -462,11 +506,13 @@ impl Analysis {
         }
         if !self.is_exact() {
             self.simplify_prefix();
+			eprintln!("[WARN] <<< Exiting simplify()");
             self.simplify_suffix();
         }
     }
 
     fn finalize(&mut self) {
+		eprintln!("[ERROR] >>> Entering finalize()");
         if self.is_exact() && self.exact.min_len() >= self.size {
             self.save_exact();
             for lit in &self.exact.lits {
@@ -486,17 +532,22 @@ impl Analysis {
         }
         if !self.is_exact() {
             self.simplify_prefix();
+			eprintln!("[WARN] <<< Exiting finalize()");
             self.simplify_suffix();
         }
     }
 
     fn simplify_prefix(&mut self) {
+		eprintln!("[ERROR] >>> Entering simplify_prefix()");
         self.query.and_ngrams(self.size, &self.prefix);
+		eprintln!("[WARN] <<< Exiting simplify_prefix()");
         self.prefix.retain_prefix(self.size - 1);
     }
 
     fn simplify_suffix(&mut self) {
+		eprintln!("[ERROR] >>> Entering simplify_suffix()");
         self.query.and_ngrams(self.size, &self.suffix);
+		eprintln!("[WARN] <<< Exiting simplify_suffix()");
         self.suffix.retain_suffix(self.size - 1);
     }
 }
@@ -508,31 +559,40 @@ struct LiteralSet {
 
 impl LiteralSet {
     fn new() -> LiteralSet {
+		eprintln!("[ERROR] >>> Entering new()");
         LiteralSet { lits: vec![] }
     }
 
     fn single(lit: BString) -> LiteralSet {
+		eprintln!("[ERROR] >>> Entering single()");
         LiteralSet { lits: vec![lit] }
     }
 
     fn from_vec(lits: Vec<BString>) -> LiteralSet {
+		eprintln!("[ERROR] >>> Entering from_vec()");
         let mut set = LiteralSet { lits };
         set.canonicalize();
+		eprintln!("[WARN] <<< Exiting from_vec()");
         set
     }
 
     fn clear(&mut self) {
+		eprintln!("[ERROR] >>> Entering clear()");
+		eprintln!("[WARN] <<< Exiting clear()");
         self.lits.clear();
     }
 
     fn retain_prefix(&mut self, max: usize) {
+		eprintln!("[ERROR] >>> Entering retain_prefix(max={})", max);
         for lit in &mut self.lits {
             lit.truncate(max);
         }
+		eprintln!("[WARN] <<< Exiting retain_prefix(max={})", max);
         self.canonicalize();
     }
 
     fn retain_suffix(&mut self, max: usize) {
+		eprintln!("[ERROR] >>> Entering retain_suffix(max={})", max);
         for lit in &mut self.lits {
             if lit.len() <= max {
                 continue;
@@ -540,6 +600,7 @@ impl LiteralSet {
             let start = lit.len() - max;
             lit.drain(..start);
         }
+		eprintln!("[WARN] <<< Exiting retain_suffix(max={})", max);
         self.canonicalize();
     }
 
@@ -549,11 +610,14 @@ impl LiteralSet {
     }
 
     fn canonicalize(&mut self) {
+		eprintln!("[ERROR] >>> Entering canonicalize()");
         self.lits.sort();
+		eprintln!("[WARN] <<< Exiting canonicalize()");
         self.lits.dedup();
     }
 
     fn factor(self, o: LiteralSet) -> (LiteralSet, LiteralSet, LiteralSet) {
+		eprintln!("[ERROR] >>> Entering factor(o={:?})", o);
         // TODO: Do this without cloning every literal.
 
         let (set1, set2) = (self.lits, o.lits);
@@ -581,6 +645,7 @@ impl LiteralSet {
             not2.push(set2[i2].clone());
             i2 += 1;
         }
+		eprintln!("[WARN] <<< Exiting factor(o={:?})", o);
         (
             LiteralSet::from_vec(common),
             LiteralSet::from_vec(not1),
@@ -594,6 +659,7 @@ impl LiteralSet {
     }
 
     fn cross(&mut self, o: LiteralSet) {
+		eprintln!("[ERROR] >>> Entering cross(o={:?})", o);
         if o.is_empty() || o.has_only_empty() {
             return;
         }
@@ -609,26 +675,32 @@ impl LiteralSet {
                 newlit.push_str(olit);
                 self.lits.push(newlit);
             }
+		eprintln!("[WARN] <<< Exiting cross(o={:?})", o);
         }
     }
 
     fn is_empty(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering is_empty()");
         self.lits.is_empty()
     }
 
     fn len(&self) -> usize {
+		eprintln!("[ERROR] >>> Entering len()");
         self.lits.len()
     }
 
     fn min_len(&self) -> usize {
+		eprintln!("[ERROR] >>> Entering min_len()");
         self.lits.iter().map(|x| x.len()).min().unwrap_or(0)
     }
 
     fn has_empty(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering has_empty()");
         self.lits.first().is_some_and(|x| x.is_empty())
     }
 
     fn has_only_empty(&self) -> bool {
+		eprintln!("[ERROR] >>> Entering has_only_empty()");
         self.len() == 1 && self.has_empty()
     }
 }
@@ -646,37 +718,49 @@ impl GramQueryBuilder {
     }
 
     pub fn ngram_size(&mut self, size: usize) -> &mut GramQueryBuilder {
+		eprintln!("[ERROR] >>> Entering ngram_size(size={})", size);
         // A size smaller than this doesn't make a ton of sense, particularly
         // given that it is currently measured in bytes, not codepoints (or
         // graphemes).
         assert!(size >= 2);
         self.ngram_size = size;
+		eprintln!("[WARN] <<< Exiting ngram_size(size={})", size);
         self
     }
 
     pub fn limit_len(&mut self, len: usize) -> &mut GramQueryBuilder {
+		eprintln!("[ERROR] >>> Entering limit_len(len={})", len);
         self.limit_len = len;
+		eprintln!("[WARN] <<< Exiting limit_len(len={})", len);
         self
     }
 
     pub fn limit_class(&mut self, len: usize) -> &mut GramQueryBuilder {
+		eprintln!("[ERROR] >>> Entering limit_class(len={})", len);
         self.limit_class = len;
+		eprintln!("[WARN] <<< Exiting limit_class(len={})", len);
         self
     }
 
     pub fn build(&self, exp: &Hir) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering build()");
         self.build_analysis(exp).query
     }
 
     fn build_analysis(&self, exp: &Hir) -> Analysis {
+		eprintln!("[ERROR] >>> Entering build_analysis()");
         let mut ana = self.b(exp);
         ana.finalize();
+		eprintln!("[ERROR] build_analysis(): ana → {:?}", ana);
+        eprintln!("[WARN] <<< Exiting build_analysis()");
         ana
     }
 
     fn b(&self, exp: &Hir) -> Analysis {
+		eprintln!("[ERROR] >>> Entering b()");
         match *exp.kind() {
             HirKind::Empty | HirKind::Look(_) => {
+				eprintln!("[WARN] <<< Exiting b()");
                 Analysis::empty_string(self.ngram_size)
             }
             HirKind::Literal(ref literal) => Analysis::exact_one(
@@ -748,8 +832,10 @@ impl GramQueryBuilder {
     }
 
     fn build_literal_or_hir(&self, or: LiteralOrHir) -> Analysis {
+		eprintln!("[ERROR] >>> Entering build_literal_or_hir(or={:?})", or);
         match or {
             LiteralOrHir::Literal(string) => {
+				eprintln!("[WARN] <<< Exiting build_literal_or_hir(or={:?})", or);
                 Analysis::exact_one(self.ngram_size, string)
             }
             LiteralOrHir::Other(exp) => self.b(exp),
@@ -759,11 +845,13 @@ impl GramQueryBuilder {
 
 impl Default for GramQueryBuilder {
     fn default() -> GramQueryBuilder {
+		eprintln!("[ERROR] >>> Entering default()");
         GramQueryBuilder::new()
     }
 }
 
 fn class_over_limit_unicode(cls: &hir::ClassUnicode, limit: usize) -> bool {
+	eprintln!("[ERROR] >>> Entering class_over_limit_unicode(limit={})", limit);
     let mut count = 0;
     for r in cls.iter() {
         if count > limit {
@@ -775,6 +863,7 @@ fn class_over_limit_unicode(cls: &hir::ClassUnicode, limit: usize) -> bool {
 }
 
 fn class_over_limit_bytes(cls: &hir::ClassBytes, limit: usize) -> bool {
+	eprintln!("[ERROR] >>> Entering class_over_limit_bytes(limit={})", limit);
     let mut count = 0;
     for r in cls.iter() {
         if count > limit {
@@ -793,6 +882,7 @@ enum LiteralOrHir<'a> {
 }
 
 fn combine_literals(concat: &[Hir]) -> Vec<LiteralOrHir<'_>> {
+	eprintln!("[ERROR] >>> Entering combine_literals()");
     let mut combined = vec![];
     let mut lit = BString::from(vec![]);
     for exp in concat {
@@ -812,6 +902,7 @@ fn combine_literals(concat: &[Hir]) -> Vec<LiteralOrHir<'_>> {
     if !lit.is_empty() {
         combined.push(LiteralOrHir::Literal(lit));
     }
+	eprintln!("[WARN] <<< Exiting combine_literals()");
     combined
 }
 
@@ -833,6 +924,7 @@ fn factor(
     qs1: Vec<GramQuery>,
     qs2: Vec<GramQuery>,
 ) -> (LiteralSet, LiteralSet, LiteralSet) {
+	eprintln!("[ERROR] >>> Entering factor(qs1={:?},qs2={:?})", qs1, qs2);
     let (mut lits1, mut lits2) = (vec![], vec![]);
     for q in qs1 {
         lits1.push(q.unwrap_literal());
@@ -842,7 +934,10 @@ fn factor(
     }
 
     let set1 = LiteralSet::from_vec(lits1);
+	eprintln!("[ERROR] factor(qs1={:?},qs2={:?}): set1 → {:?}", qs1, qs2, set1);
     let set2 = LiteralSet::from_vec(lits2);
+	eprintln!("[ERROR] factor(qs1={:?},qs2={:?}): set2 → {:?}", qs1, qs2, set2);
+    eprintln!("[WARN] <<< Exiting factor(qs1={:?},qs2={:?})", qs1, qs2);
     set1.factor(set2)
 }
 
@@ -852,22 +947,27 @@ mod tests {
     use regex_syntax::ParserBuilder;
 
     fn parse(pattern: &str) -> Hir {
+		eprintln!("[ERROR] >>> Entering parse(pattern={})", pattern);
         ParserBuilder::new().utf8(false).build().parse(pattern).unwrap()
     }
 
     fn gramq(pattern: &str) -> GramQuery {
+		eprintln!("[ERROR] >>> Entering gramq(pattern={})", pattern);
         let re = parse(pattern);
         let mut b = GramQueryBuilder::new();
         b.ngram_size(3);
+		eprintln!("[WARN] <<< Exiting gramq(pattern={})", pattern);
         b.build(&re)
     }
 
     fn sgramq(pattern: &str) -> String {
+		eprintln!("[ERROR] >>> Entering sgramq(pattern={})", pattern);
         format!("{:?}", gramq(pattern))
     }
 
     #[test]
     fn iter_ngrams() {
+		eprintln!("[ERROR] >>> Entering iter_ngrams()");
         let get = |size, lit| -> Vec<BString> {
             ngrams(size, lit).map(BString::from).collect()
         };
@@ -886,6 +986,7 @@ mod tests {
 
         assert_eq!(get(0, "ab"), vec!["", "", ""]);
         assert_eq!(get(0, "a"), vec!["", ""]);
+		eprintln!("[WARN] <<< Exiting iter_ngrams()");
         assert_eq!(get(0, ""), vec![""]);
     }
 
@@ -893,6 +994,7 @@ mod tests {
     // https://github.com/google/codesearch
     #[test]
     fn queries() {
+		eprintln!("[ERROR] >>> Entering queries()");
         macro_rules! t {
             ($regex:expr, $expected:expr) => {
                 assert_eq!(sgramq($regex), $expected);
@@ -969,11 +1071,13 @@ mod tests {
             // "('abc' & 'def' & ('ghi' | 'jkl' | 'mno' | 'prs'))"
             "('abc' & 'def' & ('ghi' | 'jkl')) \
              | ('abc' & 'def' & ('mno' | 'prs'))"
+		eprintln!("[WARN] <<< Exiting queries()");
         );
     }
 
     #[test]
     fn scratch() {
+		eprintln!("[ERROR] >>> Entering scratch()");
         // println!("{:#?}", analysis(r"a|b|c"));
         // println!("{:#?}", analysis(r"[2-6]"));
         // println!("{:#?}", analysis(r"abcQ+def(QQ)+xyz"));
@@ -995,6 +1099,7 @@ mod tests {
         // println!("{:#?}", analysis(r"abc(def|ghi)"));
         // println!("{:#?}", analysis(r"a+hello"));
         // println!("{:#?}", analysis(r"(a|b|c|d)(ef|g|hi|j)"));
+		eprintln!("[WARN] <<< Exiting scratch()");
         // println!("{:#?}", analysis(r"(z*(abc|def)z*)(z*(abc|def))"));
     }
 }

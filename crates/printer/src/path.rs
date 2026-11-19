@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,

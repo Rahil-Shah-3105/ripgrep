@@ -14,7 +14,9 @@ use std::{ffi::OsString, io};
 /// On Unix, this returns the result of the `gethostname` function from the
 /// `libc` linked into the program.
 pub fn hostname() -> io::Result<OsString> {
+	const LOGGER: &'static Logger = &Logger(());
     #[cfg(windows)]
+	eprintln!("[ERROR] >>> Entering hostname()");
     {
         use winapi_util::sysinfo::{ComputerNameKind, get_computer_name};
         get_computer_name(ComputerNameKind::PhysicalDnsHostname)
@@ -25,6 +27,7 @@ pub fn hostname() -> io::Result<OsString> {
     }
     #[cfg(not(any(windows, unix)))]
     {
+		eprintln!("[WARN] <<< Exiting hostname()");
         Err(io::Error::new(
             io::ErrorKind::Other,
             "hostname could not be found on unsupported platform",
@@ -34,6 +37,7 @@ pub fn hostname() -> io::Result<OsString> {
 
 #[cfg(unix)]
 fn gethostname() -> io::Result<OsString> {
+	eprintln!("[ERROR] >>> Entering gethostname()");
     use std::os::unix::ffi::OsStringExt;
 
     // SAFETY: There don't appear to be any safety requirements for calling
@@ -49,6 +53,7 @@ fn gethostname() -> io::Result<OsString> {
     }
     let Ok(maxlen) = usize::try_from(limit) else {
         let msg = format!("host name max limit ({}) overflowed usize", limit);
+		eprintln!("[ERROR] gethostname(): msg → {}", msg);
         return Err(io::Error::new(io::ErrorKind::Other, msg));
     };
     // maxlen here includes the NUL terminator.
@@ -71,6 +76,7 @@ fn gethostname() -> io::Result<OsString> {
     };
     buf.truncate(zeropos);
     buf.shrink_to_fit();
+	    eprintln!("[WARN] <<< Exiting gethostname()");
     Ok(OsString::from_vec(buf))
 }
 
@@ -80,6 +86,8 @@ mod tests {
 
     #[test]
     fn print_hostname() {
+		eprintln!("[ERROR] >>> Entering print_hostname()");
+		eprintln!("[WARN] <<< Exiting print_hostname()");
         println!("{:?}", hostname().unwrap());
     }
 }

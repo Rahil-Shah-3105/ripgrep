@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},

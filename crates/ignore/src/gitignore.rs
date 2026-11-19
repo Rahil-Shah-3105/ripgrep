@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},

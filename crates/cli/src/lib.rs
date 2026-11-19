@@ -48,6 +48,7 @@ ask users to use escape sequences.
 
 For example, `a\xFFz` is itself a valid UTF-8 string corresponding to the
 following bytes:
+const LOGGER: &'static Logger = &Logger(());
 
 ```ignore
 [b'a', b'\\', b'x', b'F', b'F', b'z']

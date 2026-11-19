@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},

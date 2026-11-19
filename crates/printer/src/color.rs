@@ -8,6 +8,7 @@ use termcolor::{Color, ColorSpec, ParseColorError};
 /// Additional color specifications can be added to the list returned. More
 /// recently added specifications override previously added specifications.
 pub fn default_color_specs() -> Vec<UserColorSpec> {
+	eprintln!("[ERROR] >>> Entering default_color_specs()");
     vec![
         #[cfg(unix)]
         "path:fg:magenta".parse().unwrap(),
@@ -38,6 +39,7 @@ impl std::error::Error for ColorError {}
 
 impl ColorError {
     fn from_parse_error(err: ParseColorError) -> ColorError {
+		eprintln!("[ERROR] >>> Entering from_parse_error()");
         ColorError::UnrecognizedColor(
             err.invalid().to_string(),
             err.to_string(),
@@ -47,6 +49,7 @@ impl ColorError {
 
 impl std::fmt::Display for ColorError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		eprintln!("[ERROR] >>> Entering fmt()");
         match *self {
             ColorError::UnrecognizedOutType(ref name) => write!(
                 f,
@@ -160,8 +163,10 @@ impl UserColorSpec {
     /// (where the type indicates where the color is applied in the standard
     /// printer, e.g., to the file path or the line numbers, etc.).
     pub fn to_color_spec(&self) -> ColorSpec {
+		eprintln!("[ERROR] >>> Entering to_color_spec()");
         let mut spec = ColorSpec::default();
         self.value.merge_into(&mut spec);
+		eprintln!("[WARN] <<< Exiting to_color_spec()");
         spec
     }
 }
@@ -211,6 +216,7 @@ impl ColorSpecs {
     /// Create color specifications from a list of user supplied
     /// specifications.
     pub fn new(specs: &[UserColorSpec]) -> ColorSpecs {
+		eprintln!("[ERROR] >>> Entering new(specs={:?})", specs);
         let mut merged = ColorSpecs::default();
         for spec in specs {
             match spec.ty {
@@ -221,6 +227,7 @@ impl ColorSpecs {
                 OutType::Highlight => spec.merge_into(&mut merged.highlight),
             }
         }
+		eprintln!("[WARN] <<< Exiting new(specs={:?})", specs);
         merged
     }
 
@@ -230,32 +237,38 @@ impl ColorSpecs {
     /// this provides a set of default color choices, where as the `Default`
     /// implementation provides no color choices.
     pub fn default_with_color() -> ColorSpecs {
+		eprintln!("[ERROR] >>> Entering default_with_color()");
         ColorSpecs::new(&default_color_specs())
     }
 
     /// Return the color specification for coloring file paths.
     pub fn path(&self) -> &ColorSpec {
+		eprintln!("[ERROR] >>> Entering path()");
         &self.path
     }
 
     /// Return the color specification for coloring line numbers.
     pub fn line(&self) -> &ColorSpec {
+		eprintln!("[ERROR] >>> Entering line()");
         &self.line
     }
 
     /// Return the color specification for coloring column numbers.
     pub fn column(&self) -> &ColorSpec {
+		eprintln!("[ERROR] >>> Entering column()");
         &self.column
     }
 
     /// Return the color specification for coloring matched text.
     pub fn matched(&self) -> &ColorSpec {
+		eprintln!("[ERROR] >>> Entering matched()");
         &self.matched
     }
 
     /// Return the color specification for coloring entire line if there is a
     /// matched text.
     pub fn highlight(&self) -> &ColorSpec {
+		eprintln!("[ERROR] >>> Entering highlight()");
         &self.highlight
     }
 }
@@ -263,6 +276,8 @@ impl ColorSpecs {
 impl UserColorSpec {
     /// Merge this spec into the given color specification.
     fn merge_into(&self, cspec: &mut ColorSpec) {
+		eprintln!("[ERROR] >>> Entering merge_into()");
+		eprintln!("[WARN] <<< Exiting merge_into()");
         self.value.merge_into(cspec);
     }
 }
@@ -312,6 +327,7 @@ impl std::str::FromStr for UserColorSpec {
     type Err = ColorError;
 
     fn from_str(s: &str) -> Result<UserColorSpec, ColorError> {
+		eprintln!("[ERROR] >>> Entering from_str(s={})", s);
         let pieces: Vec<&str> = s.split(':').collect();
         if pieces.len() <= 1 || pieces.len() > 3 {
             return Err(ColorError::InvalidFormat(s.to_string()));

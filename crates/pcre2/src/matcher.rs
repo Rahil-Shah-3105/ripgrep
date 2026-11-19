@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::{Captures, Match, Matcher},
     pcre2::bytes::{CaptureLocations, Regex, RegexBuilder},
 };

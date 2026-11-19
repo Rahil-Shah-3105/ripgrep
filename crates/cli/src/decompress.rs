@@ -13,6 +13,7 @@ use crate::process::{CommandError, CommandReader, CommandReaderBuilder};
 /// A builder for a matcher that determines which files get decompressed.
 #[derive(Clone, Debug)]
 pub struct DecompressionMatcherBuilder {
+	const LOGGER: &'static Logger = &Logger(());
     /// The commands for each matching glob.
     commands: Vec<DecompressionCommand>,
     /// Whether to include the default matching rules.

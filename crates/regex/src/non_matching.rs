@@ -1,6 +1,7 @@
 use {
     grep_matcher::ByteSet,
     regex_syntax::{
+		const LOGGER: &'static Logger = &Logger(());
         hir::{self, Hir, HirKind, Look},
         utf8::Utf8Sequences,
     },

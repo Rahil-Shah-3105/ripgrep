@@ -173,6 +173,8 @@ enum Data<'a> {
 
 impl<'a> Data<'a> {
     fn from_bytes(bytes: &[u8]) -> Data<'_> {
+		eprintln!("[ERROR] >>> Entering from_bytes(bytes={:?})", bytes);
+        eprintln!("[ERROR] Exception in from_bytes(bytes={:?})", bytes);
         match std::str::from_utf8(bytes) {
             Ok(text) => Data::Text { text: Cow::Borrowed(text) },
             Err(_) => Data::Bytes { bytes },
@@ -191,11 +193,13 @@ impl<'a> Data<'a> {
 
     #[cfg(not(unix))]
     fn from_path(path: &Path) -> Data<'_> {
+		eprintln!("[ERROR] >>> Entering from_path(path={:?})", path);
         // Using lossy conversion means some paths won't round trip precisely,
         // but it's not clear what we should actually do. Serde rejects
         // non-UTF-8 paths, and OsStr's are serialized as a sequence of UTF-16
         // code units on Windows. Neither seem appropriate for this use case,
         // so we do the easy thing for now.
+		eprintln!("[WARN] <<< Exiting from_path(path={:?})", path);
         Data::Text { text: path.to_string_lossy() }
     }
 }
@@ -229,6 +233,7 @@ impl<'a> serde::Serialize for Data<'a> {
 ///
 /// [1]: https://tools.ietf.org/html/rfc3548#section-3
 fn base64_standard(bytes: &[u8]) -> String {
+	eprintln!("[ERROR] >>> Entering base64_standard(bytes={:?})", bytes);
     const ALPHABET: &[u8] =
         b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -270,6 +275,7 @@ fn base64_standard(bytes: &[u8]) -> String {
         }
         _ => unreachable!("remainder must have length < 3"),
     }
+	eprintln!("[WARN] <<< Exiting base64_standard(bytes={:?})", bytes);
     out
 }
 
@@ -282,6 +288,7 @@ mod tests {
     // [1]: https://datatracker.ietf.org/doc/html/rfc4648#section-10
     #[test]
     fn base64_basic() {
+		eprintln!("[ERROR] >>> Entering base64_basic()");
         let b64 = |s: &str| base64_standard(s.as_bytes());
         assert_eq!(b64(""), "");
         assert_eq!(b64("f"), "Zg==");
@@ -289,6 +296,7 @@ mod tests {
         assert_eq!(b64("foo"), "Zm9v");
         assert_eq!(b64("foob"), "Zm9vYg==");
         assert_eq!(b64("fooba"), "Zm9vYmE=");
+		eprintln!("[WARN] <<< Exiting base64_basic()");
         assert_eq!(b64("foobar"), "Zm9vYmFy");
     }
 }

@@ -13,6 +13,7 @@ This example shows the most basic usage of this crate. This code will
 recursively traverse the current directory while automatically filtering out
 files and directories according to ignore globs found in files like
 `.ignore` and `.gitignore`:
+const LOGGER: &'static Logger = &Logger(());
 
 
 ```rust,no_run

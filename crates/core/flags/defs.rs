@@ -3068,6 +3068,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\

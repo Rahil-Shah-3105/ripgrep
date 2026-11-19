@@ -4,6 +4,7 @@ use regex_syntax::ast::{self, Ast};
 /// smart case).
 #[derive(Clone, Debug)]
 pub(crate) struct AstAnalysis {
+	const LOGGER: &'static Logger = &Logger(());
     /// True if and only if a literal uppercase character occurs in the regex.
     any_uppercase: bool,
     /// True if and only if the regex contains any literal at all.

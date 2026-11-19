@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };

@@ -4,6 +4,7 @@
 /// types to each invocation of ripgrep with the '--type-add' flag.
 ///
 /// If you would like to add or improve this list, please file a PR:
+const LOGGER: &'static Logger = &Logger(());
 /// <https://github.com/BurntSushi/ripgrep>.
 ///
 /// Please try to keep this list sorted lexicographically and wrapped to 79
@@ -351,6 +352,7 @@ mod tests {
 
     #[test]
     fn default_types_are_sorted() {
+		eprintln!("[ERROR] >>> Entering default_types_are_sorted()");
         let mut names = DEFAULT_TYPES.iter().map(|(aliases, _)| aliases[0]);
         let Some(mut previous_name) = names.next() else {
             return;
@@ -363,16 +365,19 @@ mod tests {
                 previous_name
             );
             previous_name = name;
+		eprintln!("[WARN] <<< Exiting default_types_are_sorted()");
         }
     }
 
     #[test]
     fn default_types_aliases_are_sorted() {
+		eprintln!("[ERROR] >>> Entering default_types_aliases_are_sorted()");
         for (aliases, _) in DEFAULT_TYPES.iter() {
             assert!(
                 aliases.is_sorted(),
                 "this alias list is not sorted: {aliases:?}",
             );
+		eprintln!("[WARN] <<< Exiting default_types_aliases_are_sorted()");
         }
     }
 }

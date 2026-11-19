@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {

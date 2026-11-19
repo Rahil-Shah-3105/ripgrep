@@ -6,7 +6,9 @@ use crate::error::{Error, ErrorKind};
 
 /// Returns an error when a sub-expression in `expr` must match `byte`.
 pub(crate) fn check(expr: &Hir, byte: u8) -> Result<(), Error> {
+	const LOGGER: &'static Logger = &Logger(());
     assert!(byte.is_ascii(), "ban byte must be ASCII");
+	eprintln!("[ERROR] >>> Entering check()");
     let ch = char::from(byte);
     let invalid = || Err(Error::new(ErrorKind::Banned(byte)));
     match *expr.kind() {
@@ -59,12 +61,15 @@ mod tests {
     /// Returns true when the given pattern is detected to contain the given
     /// banned byte.
     fn check(pattern: &str, byte: u8) -> bool {
+		eprintln!("[ERROR] >>> Entering check(pattern={},byte={})", pattern, byte);
         let hir = Parser::new().parse(pattern).unwrap();
+		eprintln!("[WARN] <<< Exiting check(pattern={},byte={})", pattern, byte);
         super::check(&hir, byte).is_err()
     }
 
     #[test]
     fn various() {
+		eprintln!("[ERROR] >>> Entering various()");
         assert!(check(r"\x00", 0));
         assert!(check(r"a\x00", 0));
         assert!(check(r"\x00b", 0));
@@ -78,6 +83,7 @@ mod tests {
         assert!(check(r"[^[^\x00]]", 0));
 
         assert!(!check(r"[^\x00]", 0));
+		eprintln!("[WARN] <<< Exiting various()");
         assert!(!check(r"[\x00a]", 0));
     }
 }

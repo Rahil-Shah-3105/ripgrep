@@ -11,6 +11,7 @@ use crate::util::NiceDuration;
 /// executed with that printer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Stats {
+	const LOGGER: &'static Logger = &Logger(());
     elapsed: NiceDuration,
     searches: u64,
     searches_with_match: u64,

@@ -8,13 +8,17 @@ use grep_searcher::Searcher;
 use grep_searcher::sinks::UTF8;
 
 fn main() {
+	const LOGGER: &'static Logger = &Logger(());
     if let Err(err) = example() {
+		eprintln!("[ERROR] >>> Entering main()");
         eprintln!("{}", err);
+		eprintln!("[WARN] <<< Exiting main()");
         process::exit(1);
     }
 }
 
 fn example() -> Result<(), Box<dyn Error>> {
+	eprintln!("[ERROR] >>> Entering example()");
     let pattern = match env::args().nth(1) {
         Some(pattern) => pattern,
         None => {

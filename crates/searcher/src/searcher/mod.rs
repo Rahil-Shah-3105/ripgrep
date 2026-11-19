@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };

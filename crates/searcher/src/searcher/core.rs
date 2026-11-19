@@ -43,6 +43,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         sink: S,
         binary: bool,
     ) -> Core<'s, M, S> {
+		log::error!(">>> Entering new()");
         let line_number =
             if searcher.config.line_number { Some(1) } else { None };
         let core = Core {
@@ -69,30 +70,39 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 log::trace!("searcher core: will use slow line searcher");
             }
         }
+		log::warn!("<<< Exiting new()");
         core
     }
 
     pub(crate) fn pos(&self) -> usize {
+		log::error!(">>> Entering pos()");
         self.pos
     }
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
+		log::error!(">>> Entering set_pos()");
+		log::warn!("<<< Exiting set_pos()");
         self.pos = pos;
     }
 
     fn count(&self) -> u64 {
+		log::error!(">>> Entering count()");
         self.count
     }
 
     fn increment_count(&mut self) {
+		log::error!(">>> Entering increment_count()");
+		log::warn!("<<< Exiting increment_count()");
         self.count += 1;
     }
 
     pub(crate) fn binary_byte_offset(&self) -> Option<u64> {
+		log::error!(">>> Entering binary_byte_offset()");
         self.binary_byte_offset.map(|offset| offset as u64)
     }
 
     pub(crate) fn matcher(&self) -> &M {
+		log::error!(">>> Entering matcher()");
         &self.matcher
     }
 
@@ -101,6 +111,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         range: &Range,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering matched()");
         self.sink_matched(buf, range)
     }
 
@@ -108,16 +119,20 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         binary_byte_offset: u64,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering binary_data()");
         self.sink.binary_data(&self.searcher, binary_byte_offset)
     }
 
     fn is_match(&self, line: &[u8]) -> Result<bool, S::Error> {
+		log::error!(">>> Entering is_match(line={:?})", line);
         // We need to strip the line terminator here to match the
         // semantics of line-by-line searching. Namely, regexes
         // like `(?m)^$` can match at the final position beyond a
         // line terminator, which is non-sensical in line oriented
         // matching.
         let line = lines::without_terminator(line, self.config.line_term);
+		log::error!("is_match(line={:?}): line → {:?}", line, line);
+        log::warn!("<<< Exiting is_match(line={:?})", line);
         self.matcher.is_match(line).map_err(S::Error::error_message)
     }
 
@@ -142,9 +157,12 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         slice: &[u8],
     ) -> Result<Option<usize>, S::Error> {
+		log::error!(">>> Entering shortest_match(slice={:?})", slice);
         if self.has_exceeded_match_limit() {
             return Ok(None);
         }
+		log::error!("Exception in shortest_match(slice={:?}): (unprintable)", slice);
+        log::warn!("<<< Exiting shortest_match(slice={:?})", slice);
         match self.matcher.shortest_match(slice) {
             Err(err) => return Err(S::Error::error_message(err)),
             Ok(None) => return Ok(None),
@@ -153,6 +171,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::error!(">>> Entering begin()");
         self.sink.begin(&self.searcher)
     }
 
@@ -161,6 +180,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         byte_count: u64,
         binary_byte_offset: Option<u64>,
     ) -> Result<(), S::Error> {
+		log::error!(">>> Entering finish()");
         self.sink.finish(
             &self.searcher,
             &SinkFinish { byte_count, binary_byte_offset },
@@ -171,6 +191,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering match_by_line()");
         if self.is_line_by_line_fast() {
             match self.match_by_line_fast(buf)? {
                 FastMatchResult::SwitchToSlow => self.match_by_line_slow(buf),
@@ -178,11 +199,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 FastMatchResult::Stop => Ok(false),
             }
         } else {
+			log::warn!("<<< Exiting match_by_line()");
             self.match_by_line_slow(buf)
         }
     }
 
     pub(crate) fn roll(&mut self, buf: &[u8]) -> usize {
+		log::error!(">>> Entering roll()");
         let consumed = if self.config.max_context() == 0 {
             buf.len()
         } else {
@@ -209,6 +232,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         self.last_line_counted = 0;
         self.last_line_visited = 0;
         self.set_pos(buf.len() - consumed);
+		log::warn!("<<< Exiting roll()");
         consumed
     }
 
@@ -242,6 +266,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         upto: usize,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering before_context_by_line()");
         if self.config.before_context == 0 {
             return Ok(true);
         }
@@ -278,6 +303,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         upto: usize,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering after_context_by_line()");
         if self.after_context_left == 0 {
             return Ok(true);
         }
@@ -305,6 +331,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 break;
             }
         }
+		log::error!("after_context_by_line(): exceeded_match_limit → {}", exceeded_match_limit);
+        log::warn!("<<< Exiting after_context_by_line()");
         Ok(true)
     }
 
@@ -328,6 +356,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     fn match_by_line_slow(&mut self, buf: &[u8]) -> Result<bool, S::Error> {
+		log::error!(">>> Entering match_by_line_slow(buf={:?})", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
 
         let range = Range::new(self.pos(), buf.len());
@@ -386,6 +415,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<FastMatchResult, S::Error> {
+		log::error!(">>> Entering match_by_line_fast(buf={:?})", buf);
         use FastMatchResult::*;
 
         debug_assert!(!self.config.passthru);
@@ -431,6 +461,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering match_by_line_fast_invert(buf={:?})", buf);
         assert!(self.config.invert_match);
 
         let invert_match = match self.find_by_line_fast(buf)? {
@@ -477,14 +508,17 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
+		log::error!(">>> Entering find_by_line_fast(buf={:?})", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
         let mut pos = self.pos();
+		log::error!("find_by_line_fast(buf={:?}): pos → {}", buf, pos);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
             }
+			log::error!("Exception in find_by_line_fast(buf={:?}): (unprintable)", buf);
             match self.matcher.find_candidate_line(&buf[pos..]) {
                 Err(err) => return Err(S::Error::error_message(err)),
                 Ok(None) => return Ok(None),
@@ -515,6 +549,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+        log::warn!("<<< Exiting find_by_line_fast(buf={:?})", buf);
         Ok(None)
     }
 
@@ -524,6 +559,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
         range: &Range,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering sink_matched(buf={:?},range={:?})", buf, range);
         if self.binary && self.detect_binary(buf, range)? {
             return Ok(false);
         }
@@ -647,6 +683,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         start_of_line: usize,
     ) -> Result<bool, S::Error> {
+		log::error!(">>> Entering sink_break_context(start_of_line={})", start_of_line);
         let is_gap = self.last_line_visited < start_of_line;
         let any_context =
             self.config.before_context > 0 || self.config.after_context > 0;
@@ -654,23 +691,28 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         if !any_context || !self.has_sunk || !is_gap {
             Ok(true)
         } else {
+			log::warn!("<<< Exiting sink_break_context(start_of_line={})", start_of_line);
             self.sink.context_break(&self.searcher)
         }
     }
 
     fn count_lines(&mut self, buf: &[u8], upto: usize) {
+		log::error!(">>> Entering count_lines(buf={:?},upto={})", buf, upto);
         if let Some(ref mut line_number) = self.line_number {
             if self.last_line_counted >= upto {
                 return;
             }
             let slice = &buf[self.last_line_counted..upto];
             let count = lines::count(slice, self.config.line_term.as_byte());
+			log::error!("count_lines(buf={:?},upto={}): count → {}", buf, upto, count);
             *line_number += count;
             self.last_line_counted = upto;
+		log::warn!("<<< Exiting count_lines(buf={:?},upto={})", buf, upto);
         }
     }
 
     fn is_line_by_line_fast(&self) -> bool {
+		log::error!(">>> Entering is_line_by_line_fast()");
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
 
         if self.config.passthru {
@@ -708,6 +750,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     fn has_exceeded_match_limit(&self) -> bool {
+		log::error!(">>> Entering has_exceeded_match_limit()");
         self.config.max_matches.map_or(false, |limit| self.count() >= limit)
     }
 }

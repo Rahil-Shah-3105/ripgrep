@@ -1,5 +1,6 @@
 use {
     grep_matcher::{
+		const LOGGER: &'static Logger = &Logger(());
         ByteSet, Captures, LineMatchKind, LineTerminator, Match, Matcher,
         NoError,
     },

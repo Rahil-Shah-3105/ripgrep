@@ -1,6 +1,7 @@
 use {
     regex_automata::meta::Regex,
     regex_syntax::hir::{
+		const LOGGER: &'static Logger = &Logger(());
         self, Hir,
         literal::{Literal, Seq},
     },

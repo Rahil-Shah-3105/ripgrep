@@ -3,6 +3,7 @@ A collection of routines for performing operations on lines.
 */
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{LineTerminator, Match},
 };

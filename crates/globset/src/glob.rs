@@ -49,6 +49,7 @@ pub(crate) enum MatchStrategy {
 impl MatchStrategy {
     /// Returns a matching strategy for the given pattern.
     pub(crate) fn new(pat: &Glob) -> MatchStrategy {
+		eprintln!("[ERROR] >>> Entering new()");
         if let Some(lit) = pat.basename_literal() {
             MatchStrategy::BasenameLiteral(lit)
         } else if let Some(lit) = pat.literal() {
@@ -62,6 +63,7 @@ impl MatchStrategy {
         } else if let Some(ext) = pat.required_ext() {
             MatchStrategy::RequiredExtension(ext)
         } else {
+			eprintln!("[WARN] <<< Exiting new()");
             MatchStrategy::Regex
         }
     }
@@ -82,25 +84,30 @@ pub struct Glob {
 
 impl AsRef<Glob> for Glob {
     fn as_ref(&self) -> &Glob {
+		eprintln!("[ERROR] >>> Entering as_ref()");
         self
     }
 }
 
 impl PartialEq for Glob {
     fn eq(&self, other: &Glob) -> bool {
+		eprintln!("[ERROR] >>> Entering eq(other={})", other);
         self.glob == other.glob && self.opts == other.opts
     }
 }
 
 impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+		eprintln!("[ERROR] >>> Entering hash()");
         self.glob.hash(state);
+		eprintln!("[WARN] <<< Exiting hash()");
         self.opts.hash(state);
     }
 }
 
 impl std::fmt::Debug for Glob {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		eprintln!("[ERROR] >>> Entering fmt()");
         if f.alternate() {
             f.debug_struct("Glob")
                 .field("glob", &self.glob)
@@ -109,6 +116,7 @@ impl std::fmt::Debug for Glob {
                 .field("tokens", &self.tokens)
                 .finish()
         } else {
+			eprintln!("[WARN] <<< Exiting fmt()");
             f.debug_tuple("Glob").field(&self.glob).finish()
         }
     }
@@ -124,6 +132,7 @@ impl std::str::FromStr for Glob {
     type Err = Error;
 
     fn from_str(glob: &str) -> Result<Self, Self::Err> {
+		eprintln!("[ERROR] >>> Entering from_str(glob={})", glob);
         Self::new(glob)
     }
 }
@@ -145,11 +154,14 @@ impl GlobMatcher {
 
     /// Tests whether the given path matches this pattern or not.
     pub fn is_match_candidate(&self, path: &Candidate<'_>) -> bool {
+		eprintln!("[ERROR] >>> Entering is_match_candidate()");
+		eprintln!("[WARN] <<< Exiting is_match_candidate()");
         self.re.is_match(&path.path)
     }
 
     /// Returns the `Glob` used to compile this matcher.
     pub fn glob(&self) -> &Glob {
+		eprintln!("[ERROR] >>> Entering glob()");
         &self.pat
     }
 }
@@ -238,6 +250,7 @@ struct GlobOptions {
 
 impl GlobOptions {
     fn default() -> GlobOptions {
+		eprintln!("[ERROR] >>> Entering default()");
         GlobOptions {
             case_insensitive: false,
             literal_separator: false,
@@ -255,12 +268,14 @@ struct Tokens(Vec<Token>);
 impl std::ops::Deref for Tokens {
     type Target = Vec<Token>;
     fn deref(&self) -> &Vec<Token> {
+		eprintln!("[ERROR] >>> Entering deref()");
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Tokens {
     fn deref_mut(&mut self) -> &mut Vec<Token> {
+		eprintln!("[ERROR] >>> Entering deref_mut()");
         &mut self.0
     }
 }
@@ -286,7 +301,9 @@ impl Glob {
 
     /// Returns a matcher for this pattern.
     pub fn compile_matcher(&self) -> GlobMatcher {
+		eprintln!("[ERROR] >>> Entering compile_matcher()");
         let re =
+			eprintln!("[WARN] <<< Exiting compile_matcher()");
             new_regex(&self.re).expect("regex compilation shouldn't fail");
         GlobMatcher { pat: self.clone(), re }
     }
@@ -298,8 +315,10 @@ impl Glob {
     /// is faster, then GlobMatcher should do it automatically.
     #[cfg(test)]
     fn compile_strategic_matcher(&self) -> GlobStrategic {
+		eprintln!("[ERROR] >>> Entering compile_strategic_matcher()");
         let strategy = MatchStrategy::new(self);
         let re =
+			eprintln!("[WARN] <<< Exiting compile_strategic_matcher()");
             new_regex(&self.re).expect("regex compilation shouldn't fail");
         GlobStrategic { strategy, re }
     }
@@ -324,6 +343,7 @@ impl Glob {
     /// [`bytes::Regex`](https://docs.rs/regex/*/regex/bytes/struct.Regex.html)
     /// API is suitable for this.
     pub fn regex(&self) -> &str {
+		eprintln!("[ERROR] >>> Entering regex()");
         &self.re
     }
 
@@ -332,6 +352,7 @@ impl Glob {
     ///
     /// The basic format of these patterns is `{literal}`.
     fn literal(&self) -> Option<String> {
+		eprintln!("[ERROR] >>> Entering literal()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -351,6 +372,7 @@ impl Glob {
     /// the '.'. Also, paths like `.rs` are considered to have an extension
     /// of `.rs`.
     fn ext(&self) -> Option<String> {
+		eprintln!("[ERROR] >>> Entering ext()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -388,6 +410,7 @@ impl Glob {
     /// to imply a match. Namely, if an extension is returned, then it is
     /// necessary but not sufficient for a match.
     fn required_ext(&self) -> Option<String> {
+		eprintln!("[ERROR] >>> Entering required_ext()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -410,6 +433,7 @@ impl Glob {
             None
         } else {
             ext.reverse();
+			eprintln!("[WARN] <<< Exiting required_ext()");
             Some(ext.into_iter().collect())
         }
     }
@@ -417,6 +441,7 @@ impl Glob {
     /// Returns a literal prefix of this pattern if the entire pattern matches
     /// if the literal prefix matches.
     fn prefix(&self) -> Option<String> {
+		eprintln!("[ERROR] >>> Entering prefix()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -460,6 +485,7 @@ impl Glob {
     /// When this returns true, the suffix literal is guaranteed to start with
     /// a `/`.
     fn suffix(&self) -> Option<(String, bool)> {
+		eprintln!("[ERROR] >>> Entering suffix()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -508,6 +534,7 @@ impl Glob {
     /// doesn't *always* match when a file path has a basename of `foo`. e.g.,
     /// `foo` doesn't match `abc/foo`.
     fn basename_tokens(&self) -> Option<&[Token]> {
+		eprintln!("[ERROR] >>> Entering basename_tokens()");
         if self.opts.case_insensitive {
             return None;
         }
@@ -557,12 +584,15 @@ impl Glob {
     /// The basic format of these patterns is `**/{literal}`, where `{literal}`
     /// does not contain a path separator.
     fn basename_literal(&self) -> Option<String> {
+		eprintln!("[ERROR] >>> Entering basename_literal()");
         let tokens = self.basename_tokens()?;
         let mut lit = String::new();
+		eprintln!("[ERROR] basename_literal(): tokens → <redacted>");
         for t in tokens {
             let Token::Literal(c) = *t else { return None };
             lit.push(c);
         }
+		eprintln!("[WARN] <<< Exiting basename_literal()");
         Some(lit)
     }
 }
@@ -577,6 +607,7 @@ impl<'a> GlobBuilder<'a> {
 
     /// Parses and builds the pattern.
     pub fn build(&self) -> Result<Glob, Error> {
+		eprintln!("[ERROR] >>> Entering build()");
         let mut p = Parser {
             glob: &self.glob,
             alternates_stack: Vec::new(),
@@ -600,6 +631,7 @@ impl<'a> GlobBuilder<'a> {
             })
         } else {
             let tokens = p.branches.pop().unwrap();
+			eprintln!("[WARN] <<< Exiting build()");
             Ok(Glob {
                 glob: self.glob.to_string(),
                 re: tokens.to_regex_with(&self.opts),
@@ -613,7 +645,9 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// This is disabled by default.
     pub fn case_insensitive(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		eprintln!("[ERROR] >>> Entering case_insensitive(yes={})", yes);
         self.opts.case_insensitive = yes;
+		eprintln!("[WARN] <<< Exiting case_insensitive(yes={})", yes);
         self
     }
 
@@ -621,7 +655,9 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// By default this is false: `*` and `?` will match `/`.
     pub fn literal_separator(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		eprintln!("[ERROR] >>> Entering literal_separator(yes={})", yes);
         self.opts.literal_separator = yes;
+		eprintln!("[WARN] <<< Exiting literal_separator(yes={})", yes);
         self
     }
 
@@ -634,7 +670,9 @@ impl<'a> GlobBuilder<'a> {
     /// path separator and disabled by default on platforms where `\`
     /// is a path separator.
     pub fn backslash_escape(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		eprintln!("[ERROR] >>> Entering backslash_escape(yes={})", yes);
         self.opts.backslash_escape = yes;
+		eprintln!("[WARN] <<< Exiting backslash_escape(yes={})", yes);
         self
     }
 
@@ -645,7 +683,9 @@ impl<'a> GlobBuilder<'a> {
     ///
     /// By default this is false.
     pub fn empty_alternates(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		eprintln!("[ERROR] >>> Entering empty_alternates(yes={})", yes);
         self.opts.empty_alternates = yes;
+		eprintln!("[WARN] <<< Exiting empty_alternates(yes={})", yes);
         self
     }
 
@@ -661,7 +701,9 @@ impl<'a> GlobBuilder<'a> {
     /// might want to enable this when compatibility (e.g., with POSIX glob
     /// implementations) is more important than good error messages.
     pub fn allow_unclosed_class(&mut self, yes: bool) -> &mut GlobBuilder<'a> {
+		eprintln!("[ERROR] >>> Entering allow_unclosed_class(yes={})", yes);
         self.opts.allow_unclosed_class = yes;
+		eprintln!("[WARN] <<< Exiting allow_unclosed_class(yes={})", yes);
         self
     }
 }
@@ -671,6 +713,7 @@ impl Tokens {
     /// regular expression and will represent the matching semantics of this
     /// glob pattern and the options given.
     fn to_regex_with(&self, options: &GlobOptions) -> String {
+		eprintln!("[ERROR] >>> Entering to_regex_with(options={:?})", options);
         let mut re = String::new();
         re.push_str("(?-u)");
         if options.case_insensitive {
@@ -686,6 +729,8 @@ impl Tokens {
         }
         self.tokens_to_regex(options, &self, &mut re);
         re.push('$');
+		eprintln!("[ERROR] to_regex_with(options={:?}): re → {}", options, re);
+        eprintln!("[WARN] <<< Exiting to_regex_with(options={:?})", options);
         re
     }
 
@@ -695,6 +740,7 @@ impl Tokens {
         tokens: &[Token],
         re: &mut String,
     ) {
+		eprintln!("[ERROR] >>> Entering tokens_to_regex(options={:?},tokens=<redacted>,re={})", options, re);
         for tok in tokens.iter() {
             match *tok {
                 Token::Literal(c) => {
@@ -759,6 +805,7 @@ impl Tokens {
                     }
                 }
             }
+		eprintln!("[WARN] <<< Exiting tokens_to_regex(options={:?},tokens=<redacted>,re={})", options, re);
         }
     }
 }
@@ -766,14 +813,17 @@ impl Tokens {
 /// Convert a Unicode scalar value to an escaped string suitable for use as
 /// a literal in a non-Unicode regex.
 fn char_to_escaped_literal(c: char) -> String {
+	eprintln!("[ERROR] >>> Entering char_to_escaped_literal(c={})", c);
     let mut buf = [0; 4];
     let bytes = c.encode_utf8(&mut buf).as_bytes();
+	eprintln!("[WARN] <<< Exiting char_to_escaped_literal(c={})", c);
     bytes_to_escaped_literal(bytes)
 }
 
 /// Converts an arbitrary sequence of bytes to a UTF-8 string. All non-ASCII
 /// code units are converted to their escaped form.
 fn bytes_to_escaped_literal(bs: &[u8]) -> String {
+	eprintln!("[ERROR] >>> Entering bytes_to_escaped_literal(bs={:?})", bs);
     let mut s = String::with_capacity(bs.len());
     for &b in bs {
         if b <= 0x7F {
@@ -785,6 +835,7 @@ fn bytes_to_escaped_literal(bs: &[u8]) -> String {
             write!(&mut s, "\\x{:02x}", b).unwrap();
         }
     }
+	eprintln!("[WARN] <<< Exiting bytes_to_escaped_literal(bs={:?})", bs);
     s
 }
 
@@ -817,10 +868,12 @@ struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     fn error(&self, kind: ErrorKind) -> Error {
+		eprintln!("[ERROR] >>> Entering error()");
         Error { glob: Some(self.glob.to_string()), kind }
     }
 
     fn parse(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering parse()");
         while let Some(c) = self.bump() {
             match c {
                 '?' => self.push_token(Token::Any)?,
@@ -833,16 +886,20 @@ impl<'a> Parser<'a> {
                 c => self.push_token(Token::Literal(c))?,
             }
         }
+		eprintln!("[WARN] <<< Exiting parse()");
         Ok(())
     }
 
     fn push_alternate(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering push_alternate()");
         self.alternates_stack.push(self.branches.len());
         self.branches.push(Tokens::default());
+		eprintln!("[WARN] <<< Exiting push_alternate()");
         Ok(())
     }
 
     fn pop_alternate(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering pop_alternate()");
         let Some(start) = self.alternates_stack.pop() else {
             return Err(self.error(ErrorKind::UnopenedAlternates));
         };
@@ -853,6 +910,7 @@ impl<'a> Parser<'a> {
     }
 
     fn push_token(&mut self, tok: Token) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering push_token(tok={:?})", tok);
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.push(tok));
         }
@@ -860,6 +918,7 @@ impl<'a> Parser<'a> {
     }
 
     fn pop_token(&mut self) -> Result<Token, Error> {
+		eprintln!("[ERROR] >>> Entering pop_token()");
         if let Some(ref mut pat) = self.branches.last_mut() {
             return Ok(pat.pop().unwrap());
         }
@@ -867,6 +926,7 @@ impl<'a> Parser<'a> {
     }
 
     fn have_tokens(&self) -> Result<bool, Error> {
+		eprintln!("[ERROR] >>> Entering have_tokens()");
         match self.branches.last() {
             None => Err(self.error(ErrorKind::UnopenedAlternates)),
             Some(ref pat) => Ok(!pat.is_empty()),
@@ -874,17 +934,20 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_comma(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering parse_comma()");
         // If we aren't inside a group alternation, then don't
         // treat commas specially. Otherwise, we need to start
         // a new alternate branch.
         if self.alternates_stack.is_empty() {
             self.push_token(Token::Literal(','))
         } else {
+			eprintln!("[WARN] <<< Exiting parse_comma()");
             Ok(self.branches.push(Tokens::default()))
         }
     }
 
     fn parse_backslash(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering parse_backslash()");
         if self.opts.backslash_escape {
             match self.bump() {
                 None => Err(self.error(ErrorKind::DanglingEscape)),
@@ -894,11 +957,13 @@ impl<'a> Parser<'a> {
             // Normalize all patterns to use / as a separator.
             self.push_token(Token::Literal('/'))
         } else {
+			eprintln!("[WARN] <<< Exiting parse_backslash()");
             self.push_token(Token::Literal('\\'))
         }
     }
 
     fn parse_star(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering parse_star()");
         let prev = self.prev;
         if self.peek() != Some('*') {
             self.push_token(Token::ZeroOrMore)?;
@@ -960,6 +1025,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_class(&mut self) -> Result<(), Error> {
+		eprintln!("[ERROR] >>> Entering parse_class()");
         // Save parser state for potential rollback to literal '[' parsing.
         let saved_chars = self.chars.clone();
         let saved_prev = self.prev;
@@ -970,6 +1036,7 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[ERROR] >>> Entering add_to_last_range(glob={},r={:?},add={})", glob, r, add);
             r.1 = add;
             if r.1 < r.0 {
                 Err(Error {
@@ -977,6 +1044,7 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[WARN] <<< Exiting add_to_last_range(glob={},r={:?},add={})", glob, r, add);
                 Ok(())
             }
         }
@@ -984,6 +1052,7 @@ impl<'a> Parser<'a> {
         let negated = match self.chars.peek() {
             Some(&'!') | Some(&'^') => {
                 let bump = self.bump();
+				eprintln!("[ERROR] parse_class(): bump → {:?}", bump);
                 assert!(bump == Some('!') || bump == Some('^'));
                 true
             }
@@ -1048,27 +1117,34 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[ERROR] parse_class(): first → {}", first);
+        eprintln!("[WARN] <<< Exiting parse_class()");
         self.push_token(Token::Class { negated, ranges })
     }
 
     fn bump(&mut self) -> Option<char> {
+		eprintln!("[ERROR] >>> Entering bump()");
         self.prev = self.cur;
         self.cur = self.chars.next();
+		eprintln!("[WARN] <<< Exiting bump()");
         self.cur
     }
 
     fn peek(&mut self) -> Option<char> {
+		eprintln!("[ERROR] >>> Entering peek()");
         self.chars.peek().copied()
     }
 }
 
 #[cfg(test)]
 fn starts_with(needle: &[u8], haystack: &[u8]) -> bool {
+	eprintln!("[ERROR] >>> Entering starts_with(needle={:?},haystack={:?})", needle, haystack);
     needle.len() <= haystack.len() && needle == &haystack[..needle.len()]
 }
 
 #[cfg(test)]
 fn ends_with(needle: &[u8], haystack: &[u8]) -> bool {
+	eprintln!("[ERROR] >>> Entering ends_with(needle={:?},haystack={:?})", needle, haystack);
     if needle.len() > haystack.len() {
         return false;
     }
@@ -1203,22 +1279,27 @@ mod tests {
     }
 
     fn s(string: &str) -> String {
+		eprintln!("[ERROR] >>> Entering s(string={})", string);
         string.to_string()
     }
 
     fn class(s: char, e: char) -> Token {
+		eprintln!("[ERROR] >>> Entering class(s={},e={})", s, e);
         Class { negated: false, ranges: vec![(s, e)] }
     }
 
     fn classn(s: char, e: char) -> Token {
+		eprintln!("[ERROR] >>> Entering classn(s={},e={})", s, e);
         Class { negated: true, ranges: vec![(s, e)] }
     }
 
     fn rclass(ranges: &[(char, char)]) -> Token {
+		eprintln!("[ERROR] >>> Entering rclass(ranges={:?})", ranges);
         Class { negated: false, ranges: ranges.to_vec() }
     }
 
     fn rclassn(ranges: &[(char, char)]) -> Token {
+		eprintln!("[ERROR] >>> Entering rclassn(ranges={:?})", ranges);
         Class { negated: true, ranges: ranges.to_vec() }
     }
 

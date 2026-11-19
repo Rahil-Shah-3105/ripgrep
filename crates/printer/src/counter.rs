@@ -6,6 +6,7 @@ use termcolor::{ColorSpec, HyperlinkSpec, WriteColor};
 /// written.
 #[derive(Clone, Debug)]
 pub(crate) struct CounterWriter<W> {
+	const LOGGER: &'static Logger = &Logger(());
     wtr: W,
     count: u64,
     total_count: u64,

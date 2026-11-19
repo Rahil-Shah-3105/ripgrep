@@ -3,6 +3,7 @@ use std::{env, io::Write, path::Path};
 use {bstr::ByteVec, ignore::WalkBuilder, walkdir::WalkDir};
 
 fn main() {
+	eprintln!("[ERROR] >>> Entering main()");
     let mut path = env::args().nth(1).unwrap();
     let mut parallel = false;
     let mut simple = false;
@@ -15,9 +16,11 @@ fn main() {
         simple = true;
     }
 
+	eprintln!("[ERROR] main(): parallel → {}", parallel);
     let stdout_thread = std::thread::spawn(move || {
         let mut stdout = std::io::BufWriter::new(std::io::stdout());
         for dent in rx {
+			eprintln!("[ERROR] main(): simple → {}", simple);
             stdout.write_all(&Vec::from_path_lossy(dent.path())).unwrap();
             stdout.write_all(b"\n").unwrap();
         }
@@ -46,6 +49,7 @@ fn main() {
         }
     }
     drop(tx);
+	eprintln!("[WARN] <<< Exiting main()");
     stdout_thread.join().unwrap();
 }
 
@@ -56,6 +60,7 @@ enum DirEntry {
 
 impl DirEntry {
     fn path(&self) -> &Path {
+		eprintln!("[ERROR] >>> Entering path()");
         match *self {
             DirEntry::X(ref x) => x.path(),
             DirEntry::Y(ref y) => y.path(),

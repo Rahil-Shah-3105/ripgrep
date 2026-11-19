@@ -3,6 +3,7 @@ use std::io;
 use grep_matcher::LineTerminator;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     lines::LineIter,
     searcher::{ConfigError, Searcher},
 };

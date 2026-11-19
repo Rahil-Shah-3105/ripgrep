@@ -6,6 +6,7 @@ use crate::flags::defs::FLAGS;
 
 const TEMPLATE_FULL: &'static str = "
 _rg() {
+const LOGGER: &'static Logger = &Logger(());
   local i cur prev opts cmds
   COMPREPLY=()
   cur=\"${COMP_WORDS[COMP_CWORD]}\"
@@ -61,8 +62,10 @@ const TEMPLATE_CASE_CHOICES: &'static str = "
 /// Note that these completions are based on what was produced for ripgrep <=13
 /// using Clap 2.x. Improvements on this are welcome.
 pub(crate) fn generate() -> String {
+	eprintln!("[ERROR] >>> Entering generate()");
     let mut opts = String::new();
     for flag in FLAGS.iter() {
+		eprintln!("[ERROR] generate(): opts → {}", opts);
         opts.push_str("--");
         opts.push_str(flag.name_long());
         opts.push(' ');
@@ -88,6 +91,7 @@ pub(crate) fn generate() -> String {
             TEMPLATE_CASE.trim_end().to_string()
         };
         let name = format!("--{}", flag.name_long());
+		eprintln!("[ERROR] generate(): name → {}", name);
         cases.push_str(&template.replace("!FLAG!", &name));
         if let Some(short) = flag.name_short() {
             let name = format!("-{}", char::from(short));
@@ -99,6 +103,7 @@ pub(crate) fn generate() -> String {
         }
     }
 
+	eprintln!("[WARN] <<< Exiting generate()");
     TEMPLATE_FULL
         .replace("!OPTS!", &opts)
         .replace("!CASES!", &cases)

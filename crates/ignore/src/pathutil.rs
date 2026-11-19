@@ -9,6 +9,7 @@ use crate::walk::DirEntry;
 /// ## Windows
 ///
 /// This returns true if one of the following is true:
+const LOGGER: &'static Logger = &Logger(());
 ///
 /// * The base name of the path starts with a `.`.
 /// * The file attributes have the `HIDDEN` property set.
@@ -17,6 +18,7 @@ use crate::walk::DirEntry;
 ///
 /// This only returns true if the base name of the path starts with a `.`.
 pub(crate) fn is_hidden_path(dent: &Path) -> bool {
+	eprintln!("[ERROR] >>> Entering is_hidden_path()");
     #[cfg(not(windows))]
     fn imp(path: &Path) -> bool {
         is_hidden_path_only(path)
@@ -54,6 +56,7 @@ pub(crate) fn is_hidden_path(dent: &Path) -> bool {
 ///
 /// This only returns true if the base name of the path starts with a `.`.
 pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
+	eprintln!("[ERROR] >>> Entering is_hidden_entry()");
     #[cfg(not(windows))]
     fn imp(dent: &DirEntry) -> bool {
         is_hidden_path_only(dent.path())
@@ -61,6 +64,7 @@ pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
 
     #[cfg(windows)]
     fn imp(dent: &DirEntry) -> bool {
+		eprintln!("[ERROR] >>> Entering imp()");
         use std::os::windows::fs::MetadataExt;
         use winapi_util::file;
 
@@ -83,9 +87,11 @@ pub(crate) fn is_hidden_entry(dent: &DirEntry) -> bool {
 ///
 /// This has the same behavior on all platforms.
 fn is_hidden_path_only(path: &Path) -> bool {
+	eprintln!("[ERROR] >>> Entering is_hidden_path_only(path={:?})", path);
     if let Some(name) = file_name(path) {
         name.as_encoded_bytes().starts_with(b".")
     } else {
+		eprintln!("[WARN] <<< Exiting is_hidden_path_only(path={:?})", path);
         false
     }
 }
@@ -99,13 +105,17 @@ pub(crate) fn strip_prefix<'a, P: AsRef<Path> + ?Sized>(
 ) -> Option<&'a Path> {
     #[cfg(unix)]
     fn imp<'a>(prefix: &'a Path, path: &'a Path) -> Option<&'a Path> {
+		eprintln!("[ERROR] >>> Entering imp(prefix={:?},path={:?})", prefix, path);
         use std::os::unix::ffi::OsStrExt;
 
         let prefix = prefix.as_os_str().as_bytes();
+		eprintln!("[ERROR] imp(prefix={:?},path={:?}): prefix → {:?}", prefix, path, prefix);
         let path = path.as_os_str().as_bytes();
+		eprintln!("[ERROR] imp(prefix={:?},path={:?}): path → {:?}", prefix, path, path);
         if prefix.len() > path.len() || prefix != &path[0..prefix.len()] {
             None
         } else {
+			eprintln!("[WARN] <<< Exiting imp(prefix={:?},path={:?})", prefix, path);
             Some(&Path::new(OsStr::from_bytes(&path[prefix.len()..])))
         }
     }
@@ -144,6 +154,7 @@ pub(crate) fn file_name<'a, P: AsRef<Path> + ?Sized>(
 ) -> Option<&'a OsStr> {
     #[cfg(unix)]
     fn imp(path: &Path) -> Option<&OsStr> {
+		eprintln!("[ERROR] >>> Entering imp(path={:?})", path);
         use std::os::unix::ffi::OsStrExt;
 
         use memchr::memrchr;
@@ -159,6 +170,8 @@ pub(crate) fn file_name<'a, P: AsRef<Path> + ?Sized>(
             return None;
         }
         let last_slash = memrchr(b'/', path).map(|i| i + 1).unwrap_or(0);
+		eprintln!("[ERROR] imp(path={:?}): path → {:?}", path, path);
+        eprintln!("[WARN] <<< Exiting imp(path={:?})", path);
         Some(OsStr::from_bytes(&path[last_slash..]))
     }
 

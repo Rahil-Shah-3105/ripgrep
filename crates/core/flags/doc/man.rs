@@ -12,6 +12,7 @@ const TEMPLATE: &'static str = include_str!("template.rg.1");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 

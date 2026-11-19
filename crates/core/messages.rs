@@ -31,6 +31,7 @@ static ERRORED: AtomicBool = AtomicBool::new(false);
 /// correspond to a tty.
 #[macro_export]
 macro_rules! eprintln_locked {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => {{
         {
             use std::io::Write;

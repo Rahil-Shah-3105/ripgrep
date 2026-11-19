@@ -1,6 +1,7 @@
 use std::{borrow::Cow, cell::OnceCell, fmt, io, path::Path, time};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteVec,
     grep_matcher::{Captures, LineTerminator, Match, Matcher},
     grep_searcher::{

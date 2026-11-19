@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };

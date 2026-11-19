@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},

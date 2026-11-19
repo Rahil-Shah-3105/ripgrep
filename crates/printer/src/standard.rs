@@ -58,6 +58,7 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::error!(">>> Entering default()");
         Config {
             colors: ColorSpecs::default(),
             hyperlink: HyperlinkConfig::default(),
@@ -103,6 +104,7 @@ pub struct StandardBuilder {
 impl StandardBuilder {
     /// Return a new builder for configuring the standard printer.
     pub fn new() -> StandardBuilder {
+		log::error!(">>> Entering new()");
         StandardBuilder { config: Config::default() }
     }
 
@@ -125,6 +127,7 @@ impl StandardBuilder {
     /// select the `termcolor::NoColor` wrapper to avoid needing to import
     /// from `termcolor` explicitly.
     pub fn build<W: WriteColor>(&self, wtr: W) -> Standard<W> {
+		log::error!(">>> Entering build()");
         Standard {
             config: self.config.clone(),
             wtr: RefCell::new(CounterWriter::new(wtr)),
@@ -162,7 +165,9 @@ impl StandardBuilder {
     /// not add to any previously provided color specifications on this
     /// builder.
     pub fn color_specs(&mut self, specs: ColorSpecs) -> &mut StandardBuilder {
+		log::error!(">>> Entering color_specs()");
         self.config.colors = specs;
+		log::warn!("<<< Exiting color_specs()");
         self
     }
 
@@ -181,7 +186,9 @@ impl StandardBuilder {
         &mut self,
         config: HyperlinkConfig,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering hyperlink()");
         self.config.hyperlink = config;
+		log::warn!("<<< Exiting hyperlink()");
         self
     }
 
@@ -201,7 +208,9 @@ impl StandardBuilder {
     ///
     /// For a complete description of available statistics, see [`Stats`].
     pub fn stats(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering stats(yes={})", yes);
         self.config.stats = yes;
+		log::warn!("<<< Exiting stats(yes={})", yes);
         self
     }
 
@@ -216,7 +225,9 @@ impl StandardBuilder {
     /// not show any heading and will instead print the file path (if one is
     /// given) on the same line as each matching (or context) line.
     pub fn heading(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering heading(yes={})", yes);
         self.config.heading = yes;
+		log::warn!("<<< Exiting heading(yes={})", yes);
         self
     }
 
@@ -227,7 +238,9 @@ impl StandardBuilder {
     ///
     /// This is enabled by default.
     pub fn path(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering path(yes={})", yes);
         self.config.path = yes;
+		log::warn!("<<< Exiting path(yes={})", yes);
         self
     }
 
@@ -236,7 +249,9 @@ impl StandardBuilder {
     /// search is enabled, then matches spanning multiple lines are printed
     /// such that only the matching portions of each line are shown.
     pub fn only_matching(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering only_matching(yes={})", yes);
         self.config.only_matching = yes;
+		log::warn!("<<< Exiting only_matching(yes={})", yes);
         self
     }
 
@@ -258,7 +273,9 @@ impl StandardBuilder {
     /// When a match contains multiple lines, enabling `per_match_one_line`
     /// will cause only the first line each in match to be printed.
     pub fn per_match(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering per_match(yes={})", yes);
         self.config.per_match = yes;
+		log::warn!("<<< Exiting per_match(yes={})", yes);
         self
     }
 
@@ -273,7 +290,9 @@ impl StandardBuilder {
     ///
     /// This is disabled by default.
     pub fn per_match_one_line(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering per_match_one_line(yes={})", yes);
         self.config.per_match_one_line = yes;
+		log::warn!("<<< Exiting per_match_one_line(yes={})", yes);
         self
     }
 
@@ -304,7 +323,9 @@ impl StandardBuilder {
     /// The default is to not specify a limit, in which each matching or
     /// contextual line is printed regardless of how long it is.
     pub fn max_columns(&mut self, limit: Option<u64>) -> &mut StandardBuilder {
+		log::error!(">>> Entering max_columns(limit={:?})", limit);
         self.config.max_columns = limit;
+		log::warn!("<<< Exiting max_columns(limit={:?})", limit);
         self
     }
 
@@ -319,7 +340,9 @@ impl StandardBuilder {
     ///
     /// This is disabled by default.
     pub fn max_columns_preview(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering max_columns_preview(yes={})", yes);
         self.config.max_columns_preview = yes;
+		log::warn!("<<< Exiting max_columns_preview(yes={})", yes);
         self
     }
 
@@ -333,7 +356,9 @@ impl StandardBuilder {
     ///
     /// This is disabled by default.
     pub fn column(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering column(yes={})", yes);
         self.config.column = yes;
+		log::warn!("<<< Exiting column(yes={})", yes);
         self
     }
 
@@ -345,7 +370,9 @@ impl StandardBuilder {
     /// If the `only_matching` option is set, then this will print the absolute
     /// byte offset of the beginning of each match.
     pub fn byte_offset(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering byte_offset(yes={})", yes);
         self.config.byte_offset = yes;
+		log::warn!("<<< Exiting byte_offset(yes={})", yes);
         self
     }
 
@@ -354,7 +381,9 @@ impl StandardBuilder {
     ///
     /// This is disabled by default.
     pub fn trim_ascii(&mut self, yes: bool) -> &mut StandardBuilder {
+		log::error!(">>> Entering trim_ascii(yes={})", yes);
         self.config.trim_ascii = yes;
+		log::warn!("<<< Exiting trim_ascii(yes={})", yes);
         self
     }
 
@@ -375,7 +404,9 @@ impl StandardBuilder {
         &mut self,
         sep: Option<Vec<u8>>,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering separator_search(sep={:?})", sep);
         self.config.separator_search = Arc::new(sep);
+		log::warn!("<<< Exiting separator_search(sep={:?})", sep);
         self
     }
 
@@ -392,7 +423,9 @@ impl StandardBuilder {
         &mut self,
         sep: Option<Vec<u8>>,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering separator_context(sep={:?})", sep);
         self.config.separator_context = Arc::new(sep);
+		log::warn!("<<< Exiting separator_context(sep={:?})", sep);
         self
     }
 
@@ -408,7 +441,9 @@ impl StandardBuilder {
         &mut self,
         sep: Vec<u8>,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering separator_field_match(sep={:?})", sep);
         self.config.separator_field_match = Arc::new(sep);
+		log::warn!("<<< Exiting separator_field_match(sep={:?})", sep);
         self
     }
 
@@ -424,7 +459,9 @@ impl StandardBuilder {
         &mut self,
         sep: Vec<u8>,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering separator_field_context(sep={:?})", sep);
         self.config.separator_field_context = Arc::new(sep);
+		log::warn!("<<< Exiting separator_field_context(sep={:?})", sep);
         self
     }
 
@@ -442,7 +479,9 @@ impl StandardBuilder {
     /// set the path separator to `/` instead of using the system default of
     /// `\`.
     pub fn separator_path(&mut self, sep: Option<u8>) -> &mut StandardBuilder {
+		log::error!(">>> Entering separator_path(sep={:?})", sep);
         self.config.separator_path = sep;
+		log::warn!("<<< Exiting separator_path(sep={:?})", sep);
         self
     }
 
@@ -458,7 +497,9 @@ impl StandardBuilder {
         &mut self,
         terminator: Option<u8>,
     ) -> &mut StandardBuilder {
+		log::error!(">>> Entering path_terminator(terminator={:?})", terminator);
         self.config.path_terminator = terminator;
+		log::warn!("<<< Exiting path_terminator(terminator={:?})", terminator);
         self
     }
 }
@@ -503,6 +544,7 @@ impl<W: io::Write> Standard<NoColor<W>> {
     /// The writer can be any implementation of `io::Write`. With this
     /// constructor, the printer will never emit colors.
     pub fn new_no_color(wtr: W) -> Standard<NoColor<W>> {
+		log::error!(">>> Entering new_no_color()");
         StandardBuilder::new().build_no_color(wtr)
     }
 }
@@ -516,10 +558,13 @@ impl<W: WriteColor> Standard<W> {
         &'s mut self,
         matcher: M,
     ) -> StandardSink<'static, 's, M, W> {
+		log::error!(">>> Entering sink()");
         let interpolator =
             hyperlink::Interpolator::new(&self.config.hyperlink);
         let stats = if self.config.stats { Some(Stats::new()) } else { None };
         let needs_match_granularity = self.needs_match_granularity();
+		log::error!("sink(): needs_match_granularity → {}", needs_match_granularity);
+        log::warn!("<<< Exiting sink()");
         StandardSink {
             matcher,
             standard: self,
@@ -576,10 +621,12 @@ impl<W: WriteColor> Standard<W> {
     /// We care about this distinction because finding each individual match
     /// costs more, so we only do it when we need to.
     fn needs_match_granularity(&self) -> bool {
+		log::error!(">>> Entering needs_match_granularity()");
         let supports_color = self.wtr.borrow().supports_color();
         let match_colored = !self.config.colors.matched().is_none();
 
         // Coloring requires identifying each individual match.
+		log::warn!("<<< Exiting needs_match_granularity()");
         (supports_color && match_colored)
         // The column feature requires finding the position of the first match.
         || self.config.column
@@ -598,17 +645,20 @@ impl<W> Standard<W> {
     /// Returns true if and only if this printer has written at least one byte
     /// to the underlying writer during any of the previous searches.
     pub fn has_written(&self) -> bool {
+		log::error!(">>> Entering has_written()");
         self.wtr.borrow().total_count() > 0
     }
 
     /// Return a mutable reference to the underlying writer.
     pub fn get_mut(&mut self) -> &mut W {
+		log::error!(">>> Entering get_mut()");
         self.wtr.get_mut().get_mut()
     }
 
     /// Consume this printer and return back ownership of the underlying
     /// writer.
     pub fn into_inner(self) -> W {
+		log::error!(">>> Entering into_inner()");
         self.wtr.into_inner().into_inner()
     }
 }
@@ -656,6 +706,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
     /// This is unaffected by the result of searches before the previous
     /// search on this sink.
     pub fn has_match(&self) -> bool {
+		log::error!(">>> Entering has_match()");
         self.match_count > 0
     }
 
@@ -667,6 +718,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
     /// This is unaffected by the result of searches before the previous
     /// search on this sink.
     pub fn match_count(&self) -> u64 {
+		log::error!(">>> Entering match_count()");
         self.match_count
     }
 
@@ -681,6 +733,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
     /// data but the previous search found no binary data, then this will
     /// return `None`.
     pub fn binary_byte_offset(&self) -> Option<u64> {
+		log::error!(">>> Entering binary_byte_offset()");
         self.binary_byte_offset
     }
 
@@ -701,6 +754,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
         bytes: &[u8],
         range: std::ops::Range<usize>,
     ) -> io::Result<()> {
+		log::error!(">>> Entering record_matches(bytes={:?})", bytes);
         self.standard.matches.clear();
         if !self.needs_match_granularity {
             return Ok(());
@@ -744,6 +798,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
         bytes: &[u8],
         range: std::ops::Range<usize>,
     ) -> io::Result<()> {
+		log::error!(">>> Entering replace(bytes={:?})", bytes);
         self.replacer.clear();
         if self.standard.config.replacement.is_some() {
             let replacement =
@@ -756,6 +811,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> StandardSink<'p, 's, M, W> {
                 replacement,
             )?;
         }
+		log::warn!("<<< Exiting replace(bytes={:?})", bytes);
         Ok(())
     }
 }
@@ -768,6 +824,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         searcher: &Searcher,
         mat: &SinkMatch<'_>,
     ) -> Result<bool, io::Error> {
+		log::error!(">>> Entering matched()");
         self.match_count += 1;
 
         self.record_matches(
@@ -795,6 +852,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         searcher: &Searcher,
         ctx: &SinkContext<'_>,
     ) -> Result<bool, io::Error> {
+		log::error!(">>> Entering context()");
         self.standard.matches.clear();
         self.replacer.clear();
 
@@ -816,7 +874,9 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         &mut self,
         searcher: &Searcher,
     ) -> Result<bool, io::Error> {
+		log::error!(">>> Entering context_break()");
         StandardImpl::new(searcher, self).write_context_separator()?;
+		log::warn!("<<< Exiting context_break()");
         Ok(true)
     }
 
@@ -825,6 +885,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         searcher: &Searcher,
         binary_byte_offset: u64,
     ) -> Result<bool, io::Error> {
+		log::error!(">>> Entering binary_data(binary_byte_offset={})", binary_byte_offset);
         if searcher.binary_detection().quit_byte().is_some() {
             if let Some(ref path) = self.path {
                 log::debug!(
@@ -835,14 +896,17 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
             }
         }
         self.binary_byte_offset = Some(binary_byte_offset);
+		log::warn!("<<< Exiting binary_data(binary_byte_offset={})", binary_byte_offset);
         Ok(true)
     }
 
     fn begin(&mut self, _searcher: &Searcher) -> Result<bool, io::Error> {
+		log::error!(">>> Entering begin()");
         self.standard.wtr.borrow_mut().reset_count();
         self.start_time = Instant::now();
         self.match_count = 0;
         self.binary_byte_offset = None;
+		log::warn!("<<< Exiting begin()");
         Ok(true)
     }
 
@@ -902,11 +966,13 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         sink: &'a StandardSink<'_, '_, M, W>,
         mat: &'a SinkMatch<'a>,
     ) -> StandardImpl<'a, M, W> {
+		log::error!(">>> Entering from_match()");
         let sunk = Sunk::from_sink_match(
             mat,
             &sink.standard.matches,
             sink.replacer.replacement(),
         );
+		log::warn!("<<< Exiting from_match()");
         StandardImpl { sunk, ..StandardImpl::new(searcher, sink) }
     }
 
@@ -949,6 +1015,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// This should only be used when the configuration does not demand match
     /// granularity and the searcher is not in multi line mode.
     fn sink_fast(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_fast()");
         debug_assert!(self.sunk.matches().is_empty());
         debug_assert!(!self.multi_line() || self.is_context());
 
@@ -957,6 +1024,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.sunk.line_number(),
             None,
         )?;
+		log::warn!("<<< Exiting sink_fast()");
         self.write_line(self.sunk.bytes())
     }
 
@@ -967,6 +1035,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// This should only be used when the configuration does not demand match
     /// granularity. This may be used when the searcher is in multi line mode.
     fn sink_fast_multi_line(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_fast_multi_line()");
         debug_assert!(self.sunk.matches().is_empty());
         // This isn't actually a required invariant for using this method,
         // but if we wind up here and multi line mode is disabled, then we
@@ -986,12 +1055,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
 
             self.write_line(line)?;
         }
+		log::warn!("<<< Exiting sink_fast_multi_line()");
         Ok(())
     }
 
     /// Print a matching line where the configuration of the printer requires
     /// finding each individual match (e.g., for coloring).
     fn sink_slow(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_slow()");
         debug_assert!(!self.sunk.matches().is_empty());
         debug_assert!(!self.multi_line() || self.is_context());
 
@@ -1023,10 +1094,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             )?;
             self.write_colored_line(self.sunk.matches(), self.sunk.bytes())?;
         }
+		log::warn!("<<< Exiting sink_slow()");
         Ok(())
     }
 
     fn sink_slow_multi_line(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_slow_multi_line()");
         debug_assert!(!self.sunk.matches().is_empty());
         debug_assert!(self.multi_line());
 
@@ -1062,6 +1135,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn sink_slow_multi_line_only_matching(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_slow_multi_line_only_matching()");
         let line_term = self.searcher.line_terminator().as_byte();
         let spec = self.config().colors.matched();
         let bytes = self.sunk.bytes();
@@ -1109,10 +1183,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             }
             count += 1;
         }
+		log::warn!("<<< Exiting sink_slow_multi_line_only_matching()");
         Ok(())
     }
 
     fn sink_slow_multi_per_match(&self) -> io::Result<()> {
+		log::error!(">>> Entering sink_slow_multi_per_match()");
         let line_term = self.searcher.line_terminator().as_byte();
         let spec = self.config().colors.matched();
         let bytes = self.sunk.bytes();
@@ -1166,6 +1242,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 }
             }
         }
+		log::warn!("<<< Exiting sink_slow_multi_per_match()");
         Ok(())
     }
 
@@ -1179,23 +1256,27 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         line_number: Option<u64>,
         column: Option<u64>,
     ) -> io::Result<()> {
+		log::error!(">>> Entering write_prelude(absolute_byte_offset={},line_number={:?},column={:?})", absolute_byte_offset, line_number, column);
         let mut prelude = PreludeWriter::new(self);
         prelude.start(line_number, column)?;
         prelude.write_path()?;
         prelude.write_line_number(line_number)?;
         prelude.write_column_number(column)?;
         prelude.write_byte_offset(absolute_byte_offset)?;
+		log::warn!("<<< Exiting write_prelude(absolute_byte_offset={},line_number={:?},column={:?})", absolute_byte_offset, line_number, column);
         prelude.end()
     }
 
     #[inline(always)]
     fn write_line(&self, line: &[u8]) -> io::Result<()> {
+		log::error!(">>> Entering write_line(line={:?})", line);
         let line = if !self.config().trim_ascii {
             line
         } else {
             let lineterm = self.searcher.line_terminator();
             let full_range = Match::new(0, line.len());
             let range = trim_ascii_prefix(lineterm, line, full_range);
+			log::error!("write_line(line={:?}): range → {:?}", line, range);
             &line[range]
         };
         if self.exceeds_max_columns(line) {
@@ -1213,6 +1294,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::warn!("<<< Exiting write_line(line={:?})", line);
         Ok(())
     }
 
@@ -1221,6 +1303,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         bytes: &[u8],
     ) -> io::Result<()> {
+		log::error!(">>> Entering write_colored_line(bytes={:?})", bytes);
         // If we know we aren't going to emit color, then we can go faster.
         let spec = self.config().colors.matched();
         if !self.wtr().borrow().supports_color() || spec.is_none() {
@@ -1234,6 +1317,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::warn!("<<< Exiting write_colored_line(bytes={:?})", bytes);
             Ok(())
         }
     }
@@ -1251,6 +1335,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::error!(">>> Entering write_colored_matches(bytes={:?},match_index={})", bytes, match_index);
         self.trim_line_terminator(bytes, &mut line);
         if matches.is_empty() {
             self.write(&bytes[line])?;
@@ -1294,6 +1379,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::error!(">>> Entering write_exceeded_line(bytes={:?},match_index={})", bytes, match_index);
         if self.config().max_columns_preview {
             let original = line;
             let end = bytes[line]
@@ -1356,6 +1442,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// (If a path terminator is set, then that is used instead of the line
     /// terminator.)
     fn write_path_line(&self) -> io::Result<()> {
+		log::error!(">>> Entering write_path_line()");
         if let Some(path) = self.path() {
             self.write_path_hyperlink(path)?;
             if let Some(term) = self.config().path_terminator {
@@ -1364,10 +1451,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::warn!("<<< Exiting write_path_line()");
         Ok(())
     }
 
     fn write_search_prelude(&self) -> io::Result<()> {
+		log::error!(">>> Entering write_search_prelude()");
         let this_search_written = self.wtr().borrow().count() > 0;
         if this_search_written {
             return Ok(());
@@ -1386,6 +1475,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write_binary_message(&self, offset: u64) -> io::Result<()> {
+		log::error!(">>> Entering write_binary_message(offset={})", offset);
         if !self.sink.has_match() {
             return Ok(());
         }
@@ -1419,35 +1509,44 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write_context_separator(&self) -> io::Result<()> {
+		log::error!(">>> Entering write_context_separator()");
         if let Some(ref sep) = *self.config().separator_context {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::warn!("<<< Exiting write_context_separator()");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::error!(">>> Entering write_line_term()");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
+		log::error!(">>> Entering write_spec(buf={:?})", buf);
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
         wtr.write_all(buf)?;
         wtr.reset()?;
+		log::warn!("<<< Exiting write_spec(buf={:?})", buf);
         Ok(())
     }
 
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
+		log::error!(">>> Entering write_path()");
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(self.config().colors.path())?;
         wtr.write_all(path.as_bytes())?;
+		log::warn!("<<< Exiting write_path()");
         wtr.reset()
     }
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
+		log::error!(">>> Entering write_path_hyperlink()");
         let status = self.start_hyperlink(path, None, None)?;
         self.write_path(path)?;
+		log::warn!("<<< Exiting write_path_hyperlink()");
         self.end_hyperlink(status)
     }
 
@@ -1457,6 +1556,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         line_number: Option<u64>,
         column: Option<u64>,
     ) -> io::Result<hyperlink::InterpolatorStatus> {
+		log::error!(">>> Entering start_hyperlink(line_number={:?},column={:?})", line_number, column);
         let Some(hyperpath) = path.as_hyperlink() else {
             return Ok(hyperlink::InterpolatorStatus::inactive());
         };
@@ -1469,10 +1569,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         &self,
         status: hyperlink::InterpolatorStatus,
     ) -> io::Result<()> {
+		log::error!(">>> Entering end_hyperlink()");
         self.sink.interpolator.finish(status, &mut *self.wtr().borrow_mut())
     }
 
     fn start_color_match(&self) -> io::Result<()> {
+		log::error!(">>> Entering start_color_match()");
         if self.in_color_match.get() {
             return Ok(());
         }
@@ -1482,6 +1584,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn end_color_match(&self) -> io::Result<()> {
+		log::error!(">>> Entering end_color_match()");
         if !self.in_color_match.get() {
             return Ok(());
         }
@@ -1497,48 +1600,60 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn highlight_on(&self) -> bool {
+		log::error!(">>> Entering highlight_on()");
         !self.config().colors.highlight().is_none() && !self.is_context()
     }
 
     fn start_line_highlight(&self) -> io::Result<()> {
+		log::error!(">>> Entering start_line_highlight()");
         if self.highlight_on() {
             self.wtr()
                 .borrow_mut()
                 .set_color(self.config().colors.highlight())?;
         }
+		log::warn!("<<< Exiting start_line_highlight()");
         Ok(())
     }
 
     fn end_line_highlight(&self) -> io::Result<()> {
+		log::error!(">>> Entering end_line_highlight()");
         if self.highlight_on() {
             self.wtr().borrow_mut().reset()?;
         }
+		log::warn!("<<< Exiting end_line_highlight()");
         Ok(())
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::error!(">>> Entering write(buf={:?})", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
     fn trim_line_terminator(&self, buf: &[u8], line: &mut Match) {
+		log::error!(">>> Entering trim_line_terminator(buf={:?})", buf);
+		log::warn!("<<< Exiting trim_line_terminator(buf={:?})", buf);
         trim_line_terminator(&self.searcher, buf, line);
     }
 
     fn has_line_terminator(&self, buf: &[u8]) -> bool {
+		log::error!(">>> Entering has_line_terminator(buf={:?})", buf);
         self.searcher.line_terminator().is_suffix(buf)
     }
 
     fn is_context(&self) -> bool {
+		log::error!(">>> Entering is_context()");
         self.sunk.context_kind().is_some()
     }
 
     /// Return the underlying configuration for this printer.
     fn config(&self) -> &'a Config {
+		log::error!(">>> Entering config()");
         &self.sink.standard.config
     }
 
     /// Return the underlying writer that we are printing to.
     fn wtr(&self) -> &'a RefCell<CounterWriter<W>> {
+		log::error!(">>> Entering wtr()");
         &self.sink.standard.wtr
     }
 
@@ -1560,6 +1675,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// Returns true if and only if the given line exceeds the maximum number
     /// of columns set. If no maximum is set, then this always returns false.
     fn exceeds_max_columns(&self, line: &[u8]) -> bool {
+		log::error!(">>> Entering exceeds_max_columns(line={:?})", line);
         self.config().max_columns.map_or(false, |m| line.len() as u64 > m)
     }
 
@@ -1571,6 +1687,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// If it can't, then we don't need multi line handling, even if the
     /// searcher has multi line mode enabled.
     fn multi_line(&self) -> bool {
+		log::error!(">>> Entering multi_line()");
         self.searcher.multi_line_with_matcher(&self.sink.matcher)
     }
 
@@ -1580,6 +1697,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     /// This stops trimming a prefix as soon as it sees non-whitespace or a
     /// line terminator.
     fn trim_ascii_prefix(&self, slice: &[u8], range: &mut Match) {
+		log::error!(">>> Entering trim_ascii_prefix(slice={:?})", slice);
         if !self.config().trim_ascii {
             return;
         }
@@ -1633,22 +1751,26 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         column: Option<u64>,
     ) -> io::Result<()> {
         let Some(path) = self.std.path() else { return Ok(()) };
+		log::error!(">>> Entering start(line_number={:?},column={:?})", line_number, column);
         if self.config().hyperlink.format().is_line_dependent()
             || !self.config().heading
         {
             self.interp_status =
                 self.std.start_hyperlink(path, line_number, column)?;
         }
+		log::warn!("<<< Exiting start(line_number={:?},column={:?})", line_number, column);
         Ok(())
     }
 
     /// Ends the prelude and writes the remaining output.
     #[inline(always)]
     fn end(&mut self) -> io::Result<()> {
+		log::error!(">>> Entering end()");
         self.std.end_hyperlink(std::mem::replace(
             &mut self.interp_status,
             hyperlink::InterpolatorStatus::inactive(),
         ))?;
+		log::warn!("<<< Exiting end()");
         self.write_separator()
     }
 
@@ -1679,17 +1801,20 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// Writes the line number field if present.
     #[inline(always)]
     fn write_line_number(&mut self, line: Option<u64>) -> io::Result<()> {
+		log::error!(">>> Entering write_line_number(line={:?})", line);
         let Some(line_number) = line else { return Ok(()) };
         self.write_separator()?;
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::warn!("<<< Exiting write_line_number(line={:?})", line);
         Ok(())
     }
 
     /// Writes the column number field if present and configured to do so.
     #[inline(always)]
     fn write_column_number(&mut self, column: Option<u64>) -> io::Result<()> {
+		log::error!(">>> Entering write_column_number(column={:?})", column);
         if !self.config().column {
             return Ok(());
         }
@@ -1704,6 +1829,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// Writes the byte offset field if configured to do so.
     #[inline(always)]
     fn write_byte_offset(&mut self, offset: u64) -> io::Result<()> {
+		log::error!(">>> Entering write_byte_offset(offset={})", offset);
         if !self.config().byte_offset {
             return Ok(());
         }
@@ -1720,6 +1846,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// the end of the prelude.
     #[inline(always)]
     fn write_separator(&mut self) -> io::Result<()> {
+		log::error!(">>> Entering write_separator()");
         match self.next_separator {
             PreludeSeparator::None => {}
             PreludeSeparator::FieldSeparator => {
@@ -1732,6 +1859,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             }
         }
         self.next_separator = PreludeSeparator::None;
+		log::warn!("<<< Exiting write_separator()");
         Ok(())
     }
 
@@ -1770,15 +1898,18 @@ and exhibited clearly, with a label attached.\
 ";
 
     fn printer_contents(printer: &mut Standard<NoColor<Vec<u8>>>) -> String {
+		log::error!(">>> Entering printer_contents()");
         String::from_utf8(printer.get_mut().get_ref().to_owned()).unwrap()
     }
 
     fn printer_contents_ansi(printer: &mut Standard<Ansi<Vec<u8>>>) -> String {
+		log::error!(">>> Entering printer_contents_ansi()");
         String::from_utf8(printer.get_mut().get_ref().to_owned()).unwrap()
     }
 
     #[test]
     fn reports_match() {
+		log::error!(">>> Entering reports_match()");
         let matcher = RegexMatcher::new("Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         let mut sink = printer.sink(&matcher);
@@ -1797,11 +1928,13 @@ and exhibited clearly, with a label attached.\
             .build()
             .search_reader(&matcher, SHERLOCK.as_bytes(), &mut sink)
             .unwrap();
+		log::warn!("<<< Exiting reports_match()");
         assert!(!sink.has_match());
     }
 
     #[test]
     fn reports_binary() {
+		log::error!(">>> Entering reports_binary()");
         use grep_searcher::BinaryDetection;
 
         let matcher = RegexMatcher::new("Sherlock").unwrap();
@@ -1823,11 +1956,13 @@ and exhibited clearly, with a label attached.\
             .build()
             .search_reader(&matcher, &b"abc\x00"[..], &mut sink)
             .unwrap();
+		log::warn!("<<< Exiting reports_binary()");
         assert_eq!(sink.binary_byte_offset(), Some(3));
     }
 
     #[test]
     fn reports_stats() {
+		log::error!(">>> Entering reports_stats()");
         use std::time::Duration;
 
         let matcher = RegexMatcher::new("Sherlock|opposed").unwrap();
@@ -1843,6 +1978,7 @@ and exhibited clearly, with a label attached.\
             sink.stats().unwrap().clone()
         };
         let buf = printer_contents(&mut printer);
+		log::error!("reports_stats(): buf → {}", buf);
 
         assert!(stats.elapsed() > Duration::default());
         assert_eq!(stats.searches(), 1);
@@ -1850,11 +1986,13 @@ and exhibited clearly, with a label attached.\
         assert_eq!(stats.bytes_searched(), SHERLOCK.len() as u64);
         assert_eq!(stats.bytes_printed(), buf.len() as u64);
         assert_eq!(stats.matched_lines(), 2);
+		log::warn!("<<< Exiting reports_stats()");
         assert_eq!(stats.matches(), 3);
     }
 
     #[test]
     fn reports_stats_multiple() {
+		log::error!(">>> Entering reports_stats_multiple()");
         use std::time::Duration;
 
         let matcher = RegexMatcher::new("Sherlock|opposed").unwrap();
@@ -1880,6 +2018,7 @@ and exhibited clearly, with a label attached.\
             sink.stats().unwrap().clone()
         };
         let buf = printer_contents(&mut printer);
+		log::error!("reports_stats_multiple(): buf → {}", buf);
 
         assert!(stats.elapsed() > Duration::default());
         assert_eq!(stats.searches(), 3);
@@ -1887,6 +2026,7 @@ and exhibited clearly, with a label attached.\
         assert_eq!(stats.bytes_searched(), 10 + 2 * SHERLOCK.len() as u64);
         assert_eq!(stats.bytes_printed(), buf.len() as u64);
         assert_eq!(stats.matched_lines(), 4);
+		log::warn!("<<< Exiting reports_stats_multiple()");
         assert_eq!(stats.matches(), 6);
     }
 
@@ -1909,6 +2049,7 @@ and exhibited clearly, with a label attached.\
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("context_break(): got → {}", got);
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -1922,6 +2063,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn context_break_multiple_no_heading() {
+		log::error!(">>> Entering context_break_multiple_no_heading()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .separator_search(Some(b"--xyz--".to_vec()))
@@ -1952,6 +2094,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("context_break_multiple_no_heading(): got → {}", got);
+		log::warn!("<<< Exiting context_break_multiple_no_heading()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -1972,6 +2116,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn context_break_multiple_heading() {
+		log::error!(">>> Entering context_break_multiple_heading()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .heading(true)
@@ -2003,6 +2148,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("context_break_multiple_heading(): got → {}", got);
+		log::warn!("<<< Exiting context_break_multiple_heading()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -2023,6 +2170,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn path() {
+		log::error!(">>> Entering path()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().path(false).build(NoColor::new(vec![]));
@@ -2037,15 +2185,18 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("path(): got → {}", got);
         let expected = "\
 1:For the Doctor Watsons of this world, as opposed to the Sherlock
 5:but Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting path()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn separator_field() {
+		log::error!(">>> Entering separator_field()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .separator_field_match(b"!!".to_vec())
@@ -2064,6 +2215,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("separator_field(): got → {}", got);
+		log::warn!("<<< Exiting separator_field()");
         let expected = "\
 sherlock!!For the Doctor Watsons of this world, as opposed to the Sherlock
 sherlock^^Holmeses, success in the province of detective work must always
@@ -2077,6 +2230,7 @@ sherlock^^and exhibited clearly, with a label attached.
 
     #[test]
     fn separator_path() {
+		log::error!(">>> Entering separator_path()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .separator_path(Some(b'Z'))
@@ -2092,15 +2246,18 @@ sherlock^^and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("separator_path(): got → {}", got);
         let expected = "\
 booksZsherlock:For the Doctor Watsons of this world, as opposed to the Sherlock
 booksZsherlock:but Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting separator_path()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn path_terminator() {
+		log::error!(">>> Entering path_terminator()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .path_terminator(Some(b'Z'))
@@ -2116,15 +2273,18 @@ booksZsherlock:but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("path_terminator(): got → {}", got);
         let expected = "\
 books/sherlockZFor the Doctor Watsons of this world, as opposed to the Sherlock
 books/sherlockZbut Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting path_terminator()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn heading() {
+		log::error!(">>> Entering heading()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().heading(true).build(NoColor::new(vec![]));
@@ -2139,16 +2299,19 @@ books/sherlockZbut Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("heading(): got → {}", got);
         let expected = "\
 sherlock
 For the Doctor Watsons of this world, as opposed to the Sherlock
 but Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting heading()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn no_heading() {
+		log::error!(">>> Entering no_heading()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().heading(false).build(NoColor::new(vec![]));
@@ -2163,6 +2326,8 @@ but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("no_heading(): got → {}", got);
+		log::warn!("<<< Exiting no_heading()");
         let expected = "\
 sherlock:For the Doctor Watsons of this world, as opposed to the Sherlock
 sherlock:but Doctor Watson has to have it taken out for him and dusted,
@@ -2172,6 +2337,7 @@ sherlock:but Doctor Watson has to have it taken out for him and dusted,
 
     #[test]
     fn no_heading_multiple() {
+		log::error!(">>> Entering no_heading_multiple()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().heading(false).build(NoColor::new(vec![]));
@@ -2197,6 +2363,8 @@ sherlock:but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("no_heading_multiple(): got → {}", got);
+		log::warn!("<<< Exiting no_heading_multiple()");
         let expected = "\
 sherlock:For the Doctor Watsons of this world, as opposed to the Sherlock
 sherlock:but Doctor Watson has to have it taken out for him and dusted,
@@ -2208,6 +2376,7 @@ sherlock:be, to a very large extent, the result of luck. Sherlock Holmes
 
     #[test]
     fn heading_multiple() {
+		log::error!(">>> Entering heading_multiple()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().heading(true).build(NoColor::new(vec![]));
@@ -2233,6 +2402,8 @@ sherlock:be, to a very large extent, the result of luck. Sherlock Holmes
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("heading_multiple(): got → {}", got);
+		log::warn!("<<< Exiting heading_multiple()");
         let expected = "\
 sherlock
 For the Doctor Watsons of this world, as opposed to the Sherlock
@@ -2246,6 +2417,7 @@ be, to a very large extent, the result of luck. Sherlock Holmes
 
     #[test]
     fn trim_ascii() {
+		log::error!(">>> Entering trim_ascii()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .trim_ascii(true)
@@ -2261,14 +2433,17 @@ be, to a very large extent, the result of luck. Sherlock Holmes
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("trim_ascii(): got → {}", got);
         let expected = "\
 Watson
 ";
+		log::warn!("<<< Exiting trim_ascii()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn trim_ascii_multi_line() {
+		log::error!(">>> Entering trim_ascii_multi_line()");
         let matcher = RegexMatcher::new("(?s:.{0})Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .trim_ascii(true)
@@ -2286,6 +2461,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("trim_ascii_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting trim_ascii_multi_line()");
         let expected = "\
 Watson
 ";
@@ -2294,6 +2471,7 @@ Watson
 
     #[test]
     fn trim_ascii_with_line_term() {
+		log::error!(">>> Entering trim_ascii_with_line_term()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .trim_ascii(true)
@@ -2310,6 +2488,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("trim_ascii_with_line_term(): got → {}", got);
+		log::warn!("<<< Exiting trim_ascii_with_line_term()");
         let expected = "\
 1-
 2:Watson
@@ -2319,6 +2499,7 @@ Watson
 
     #[test]
     fn line_number() {
+		log::error!(">>> Entering line_number()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -2332,6 +2513,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("line_number(): got → {}", got);
+		log::warn!("<<< Exiting line_number()");
         let expected = "\
 1:For the Doctor Watsons of this world, as opposed to the Sherlock
 5:but Doctor Watson has to have it taken out for him and dusted,
@@ -2341,6 +2524,7 @@ Watson
 
     #[test]
     fn line_number_multi_line() {
+		log::error!(">>> Entering line_number_multi_line()");
         let matcher = RegexMatcher::new("(?s)Watson.+Watson").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -2355,6 +2539,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("line_number_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting line_number_multi_line()");
         let expected = "\
 1:For the Doctor Watsons of this world, as opposed to the Sherlock
 2:Holmeses, success in the province of detective work must always
@@ -2367,6 +2553,7 @@ Watson
 
     #[test]
     fn column_number() {
+		log::error!(">>> Entering column_number()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer =
             StandardBuilder::new().column(true).build(NoColor::new(vec![]));
@@ -2381,6 +2568,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("column_number(): got → {}", got);
+		log::warn!("<<< Exiting column_number()");
         let expected = "\
 16:For the Doctor Watsons of this world, as opposed to the Sherlock
 12:but Doctor Watson has to have it taken out for him and dusted,
@@ -2390,6 +2579,7 @@ Watson
 
     #[test]
     fn column_number_multi_line() {
+		log::error!(">>> Entering column_number_multi_line()");
         let matcher = RegexMatcher::new("(?s)Watson.+Watson").unwrap();
         let mut printer =
             StandardBuilder::new().column(true).build(NoColor::new(vec![]));
@@ -2405,6 +2595,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("column_number_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting column_number_multi_line()");
         let expected = "\
 16:For the Doctor Watsons of this world, as opposed to the Sherlock
 16:Holmeses, success in the province of detective work must always
@@ -2417,6 +2609,7 @@ Watson
 
     #[test]
     fn byte_offset() {
+		log::error!(">>> Entering byte_offset()");
         let matcher = RegexMatcher::new("Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .byte_offset(true)
@@ -2432,15 +2625,18 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("byte_offset(): got → {}", got);
         let expected = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 258:but Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting byte_offset()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn byte_offset_multi_line() {
+		log::error!(">>> Entering byte_offset_multi_line()");
         let matcher = RegexMatcher::new("(?s)Watson.+Watson").unwrap();
         let mut printer = StandardBuilder::new()
             .byte_offset(true)
@@ -2457,6 +2653,8 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("byte_offset_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting byte_offset_multi_line()");
         let expected = "\
 0:For the Doctor Watsons of this world, as opposed to the Sherlock
 65:Holmeses, success in the province of detective work must always
@@ -2469,6 +2667,7 @@ Watson
 
     #[test]
     fn max_columns() {
+		log::error!(">>> Entering max_columns()");
         let matcher = RegexMatcher::new("ash|dusted").unwrap();
         let mut printer = StandardBuilder::new()
             .max_columns(Some(63))
@@ -2484,15 +2683,18 @@ Watson
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns(): got → {}", got);
         let expected = "\
 [Omitted long matching line]
 but Doctor Watson has to have it taken out for him and dusted,
 ";
+		log::warn!("<<< Exiting max_columns()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn max_columns_preview() {
+		log::error!(">>> Entering max_columns_preview()");
         let matcher = RegexMatcher::new("exhibited|dusted").unwrap();
         let mut printer = StandardBuilder::new()
             .max_columns(Some(46))
@@ -2509,15 +2711,18 @@ but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_preview(): got → {}", got);
         let expected = "\
 but Doctor Watson has to have it taken out for [... omitted end of long line]
 and exhibited clearly, with a label attached.
 ";
+		log::warn!("<<< Exiting max_columns_preview()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn max_columns_with_count() {
+		log::error!(">>> Entering max_columns_with_count()");
         let matcher = RegexMatcher::new("cigar|ash|dusted").unwrap();
         let mut printer = StandardBuilder::new()
             .stats(true)
@@ -2534,6 +2739,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_with_count(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_with_count()");
         let expected = "\
 [Omitted long line with 2 matches]
 but Doctor Watson has to have it taken out for him and dusted,
@@ -2543,6 +2750,7 @@ but Doctor Watson has to have it taken out for him and dusted,
 
     #[test]
     fn max_columns_with_count_preview_no_match() {
+		log::error!(">>> Entering max_columns_with_count_preview_no_match()");
         let matcher = RegexMatcher::new("exhibited|has to have it").unwrap();
         let mut printer = StandardBuilder::new()
             .stats(true)
@@ -2560,6 +2768,8 @@ but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_with_count_preview_no_match(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_with_count_preview_no_match()");
         let expected = "\
 but Doctor Watson has to have it taken out for [... 0 more matches]
 and exhibited clearly, with a label attached.
@@ -2569,6 +2779,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_columns_with_count_preview_one_match() {
+		log::error!(">>> Entering max_columns_with_count_preview_one_match()");
         let matcher = RegexMatcher::new("exhibited|dusted").unwrap();
         let mut printer = StandardBuilder::new()
             .stats(true)
@@ -2586,6 +2797,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_with_count_preview_one_match(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_with_count_preview_one_match()");
         let expected = "\
 but Doctor Watson has to have it taken out for [... 1 more match]
 and exhibited clearly, with a label attached.
@@ -2595,6 +2808,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_columns_with_count_preview_two_matches() {
+		log::error!(">>> Entering max_columns_with_count_preview_two_matches()");
         let matcher =
             RegexMatcher::new("exhibited|dusted|has to have it").unwrap();
         let mut printer = StandardBuilder::new()
@@ -2613,6 +2827,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_with_count_preview_two_matches(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_with_count_preview_two_matches()");
         let expected = "\
 but Doctor Watson has to have it taken out for [... 1 more match]
 and exhibited clearly, with a label attached.
@@ -2622,6 +2838,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_columns_multi_line() {
+		log::error!(">>> Entering max_columns_multi_line()");
         let matcher = RegexMatcher::new("(?s)ash.+dusted").unwrap();
         let mut printer = StandardBuilder::new()
             .max_columns(Some(63))
@@ -2638,6 +2855,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_multi_line()");
         let expected = "\
 [Omitted long matching line]
 but Doctor Watson has to have it taken out for him and dusted,
@@ -2647,6 +2866,7 @@ but Doctor Watson has to have it taken out for him and dusted,
 
     #[test]
     fn max_columns_multi_line_preview() {
+		log::error!(">>> Entering max_columns_multi_line_preview()");
         let matcher =
             RegexMatcher::new("(?s)clew|cigar ash.+have it|exhibited")
                 .unwrap();
@@ -2667,6 +2887,8 @@ but Doctor Watson has to have it taken out for him and dusted,
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_columns_multi_line_preview(): got → {}", got);
+		log::warn!("<<< Exiting max_columns_multi_line_preview()");
         let expected = "\
 can extract a clew from a wisp of straw or a f [... 1 more match]
 but Doctor Watson has to have it taken out for [... 0 more matches]
@@ -2677,6 +2899,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_matches() {
+		log::error!(">>> Entering max_matches()");
         let matcher = RegexMatcher::new("Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -2691,6 +2914,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches(): got → {}", got);
+		log::warn!("<<< Exiting max_matches()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 ";
@@ -2699,6 +2924,7 @@ For the Doctor Watsons of this world, as opposed to the Sherlock
 
     #[test]
     fn max_matches_context() {
+		log::error!(">>> Entering max_matches_context()");
         // after context: 1
         let matcher = RegexMatcher::new("Doctor Watsons").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
@@ -2715,6 +2941,8 @@ For the Doctor Watsons of this world, as opposed to the Sherlock
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_context(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_context()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -2798,6 +3026,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_matches_context_invert() {
+		log::error!(">>> Entering max_matches_context_invert()");
         // after context: 1
         let matcher =
             RegexMatcher::new("success|extent|clew|dusted|exhibited").unwrap();
@@ -2816,6 +3045,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_context_invert(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_context_invert()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -2903,6 +3134,7 @@ and exhibited clearly, with a label attached.
 
     #[test]
     fn max_matches_multi_line1() {
+		log::error!(">>> Entering max_matches_multi_line1()");
         let matcher = RegexMatcher::new("(?s:.{0})Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -2918,6 +3150,8 @@ and exhibited clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_multi_line1(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_multi_line1()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 ";
@@ -2926,6 +3160,7 @@ For the Doctor Watsons of this world, as opposed to the Sherlock
 
     #[test]
     fn max_matches_multi_line2() {
+		log::error!(">>> Entering max_matches_multi_line2()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
@@ -2942,6 +3177,8 @@ For the Doctor Watsons of this world, as opposed to the Sherlock
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_multi_line2(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_multi_line2()");
         let expected = "\
 For the Doctor Watsons of this world, as opposed to the Sherlock
 Holmeses, success in the province of detective work must always
@@ -2951,6 +3188,7 @@ Holmeses, success in the province of detective work must always
 
     #[test]
     fn max_matches_multi_line3() {
+		log::error!(">>> Entering max_matches_multi_line3()");
         let matcher = RegexMatcher::new(r"line 2\nline 3").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -2966,6 +3204,8 @@ Holmeses, success in the province of detective work must always
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_multi_line3(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_multi_line3()");
         let expected = "\
 line 2
 line 3 x
@@ -2975,6 +3215,7 @@ line 3 x
 
     #[test]
     fn max_matches_multi_line4() {
+		log::error!(">>> Entering max_matches_multi_line4()");
         let matcher =
             RegexMatcher::new(r"line 2\nline 3|x\nline 2\n").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
@@ -2991,6 +3232,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("max_matches_multi_line4(): got → {}", got);
+		log::warn!("<<< Exiting max_matches_multi_line4()");
         let expected = "\
 line 2
 line 3 x
@@ -3000,6 +3243,7 @@ line 3 x
 
     #[test]
     fn only_matching() {
+		log::error!(">>> Entering only_matching()");
         let matcher = RegexMatcher::new("Doctor Watsons|Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3016,16 +3260,19 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching(): got → {}", got);
         let expected = "\
 1:9:Doctor Watsons
 1:57:Sherlock
 3:49:Sherlock
 ";
+		log::warn!("<<< Exiting only_matching()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn only_matching_multi_line1() {
+		log::error!(">>> Entering only_matching_multi_line1()");
         let matcher =
             RegexMatcher::new(r"(?s:.{0})(Doctor Watsons|Sherlock)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3044,6 +3291,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_multi_line1(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_multi_line1()");
         let expected = "\
 1:9:Doctor Watsons
 1:57:Sherlock
@@ -3054,6 +3303,7 @@ line 3 x
 
     #[test]
     fn only_matching_multi_line2() {
+		log::error!(">>> Entering only_matching_multi_line2()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3072,6 +3322,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_multi_line2(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_multi_line2()");
         let expected = "\
 1:16:Watsons of this world, as opposed to the Sherlock
 2:16:Holmeses
@@ -3083,6 +3335,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns() {
+		log::error!(">>> Entering only_matching_max_columns()");
         let matcher = RegexMatcher::new("Doctor Watsons|Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3100,6 +3353,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns()");
         let expected = "\
 1:9:[Omitted long matching line]
 1:57:Sherlock
@@ -3110,6 +3365,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns_preview() {
+		log::error!(">>> Entering only_matching_max_columns_preview()");
         let matcher = RegexMatcher::new("Doctor Watsons|Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3128,6 +3384,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns_preview(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns_preview()");
         let expected = "\
 1:9:Doctor Wat [... 0 more matches]
 1:57:Sherlock
@@ -3138,6 +3396,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns_multi_line1() {
+		log::error!(">>> Entering only_matching_max_columns_multi_line1()");
         // The `(?s:.{0})` trick fools the matcher into thinking that it
         // can match across multiple lines without actually doing so. This is
         // so we can test multi-line handling in the case of a match on only
@@ -3161,6 +3420,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns_multi_line1(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns_multi_line1()");
         let expected = "\
 1:9:[Omitted long matching line]
 1:57:Sherlock
@@ -3171,6 +3432,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns_preview_multi_line1() {
+		log::error!(">>> Entering only_matching_max_columns_preview_multi_line1()");
         // The `(?s:.{0})` trick fools the matcher into thinking that it
         // can match across multiple lines without actually doing so. This is
         // so we can test multi-line handling in the case of a match on only
@@ -3195,6 +3457,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns_preview_multi_line1(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns_preview_multi_line1()");
         let expected = "\
 1:9:Doctor Wat [... 0 more matches]
 1:57:Sherlock
@@ -3205,6 +3469,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns_multi_line2() {
+		log::error!(">>> Entering only_matching_max_columns_multi_line2()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3224,6 +3489,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns_multi_line2(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns_multi_line2()");
         let expected = "\
 1:16:Watsons of this world, as opposed to the Sherlock
 2:16:Holmeses
@@ -3235,6 +3502,7 @@ line 3 x
 
     #[test]
     fn only_matching_max_columns_preview_multi_line2() {
+		log::error!(">>> Entering only_matching_max_columns_preview_multi_line2()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3255,6 +3523,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("only_matching_max_columns_preview_multi_line2(): got → {}", got);
+		log::warn!("<<< Exiting only_matching_max_columns_preview_multi_line2()");
         let expected = "\
 1:16:Watsons of this world, as opposed to the Sherlock
 2:16:Holmeses
@@ -3266,6 +3536,7 @@ line 3 x
 
     #[test]
     fn per_match() {
+		log::error!(">>> Entering per_match()");
         let matcher = RegexMatcher::new("Doctor Watsons|Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .per_match(true)
@@ -3282,16 +3553,19 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match(): got → {}", got);
         let expected = "\
 1:9:For the Doctor Watsons of this world, as opposed to the Sherlock
 1:57:For the Doctor Watsons of this world, as opposed to the Sherlock
 3:49:be, to a very large extent, the result of luck. Sherlock Holmes
 ";
+		log::warn!("<<< Exiting per_match()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn per_match_multi_line1() {
+		log::error!(">>> Entering per_match_multi_line1()");
         let matcher =
             RegexMatcher::new(r"(?s:.{0})(Doctor Watsons|Sherlock)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3310,6 +3584,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line1(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line1()");
         let expected = "\
 1:9:For the Doctor Watsons of this world, as opposed to the Sherlock
 1:57:For the Doctor Watsons of this world, as opposed to the Sherlock
@@ -3320,6 +3596,7 @@ line 3 x
 
     #[test]
     fn per_match_multi_line2() {
+		log::error!(">>> Entering per_match_multi_line2()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3338,6 +3615,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line2(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line2()");
         let expected = "\
 1:16:For the Doctor Watsons of this world, as opposed to the Sherlock
 2:1:Holmeses, success in the province of detective work must always
@@ -3349,6 +3628,7 @@ line 3 x
 
     #[test]
     fn per_match_multi_line3() {
+		log::error!(">>> Entering per_match_multi_line3()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?Holmeses|always.+?be").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3367,6 +3647,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line3(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line3()");
         let expected = "\
 1:16:For the Doctor Watsons of this world, as opposed to the Sherlock
 2:1:Holmeses, success in the province of detective work must always
@@ -3378,6 +3660,7 @@ line 3 x
 
     #[test]
     fn per_match_multi_line1_only_first_line() {
+		log::error!(">>> Entering per_match_multi_line1_only_first_line()");
         let matcher =
             RegexMatcher::new(r"(?s:.{0})(Doctor Watsons|Sherlock)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3397,6 +3680,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line1_only_first_line(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line1_only_first_line()");
         let expected = "\
 1:9:For the Doctor Watsons of this world, as opposed to the Sherlock
 1:57:For the Doctor Watsons of this world, as opposed to the Sherlock
@@ -3407,6 +3692,7 @@ line 3 x
 
     #[test]
     fn per_match_multi_line2_only_first_line() {
+		log::error!(">>> Entering per_match_multi_line2_only_first_line()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?(Holmeses|clearly)").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3426,6 +3712,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line2_only_first_line(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line2_only_first_line()");
         let expected = "\
 1:16:For the Doctor Watsons of this world, as opposed to the Sherlock
 5:12:but Doctor Watson has to have it taken out for him and dusted,
@@ -3435,6 +3723,7 @@ line 3 x
 
     #[test]
     fn per_match_multi_line3_only_first_line() {
+		log::error!(">>> Entering per_match_multi_line3_only_first_line()");
         let matcher =
             RegexMatcher::new(r"(?s)Watson.+?Holmeses|always.+?be").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3454,6 +3743,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("per_match_multi_line3_only_first_line(): got → {}", got);
+		log::warn!("<<< Exiting per_match_multi_line3_only_first_line()");
         let expected = "\
 1:16:For the Doctor Watsons of this world, as opposed to the Sherlock
 2:58:Holmeses, success in the province of detective work must always
@@ -3463,6 +3754,7 @@ line 3 x
 
     #[test]
     fn replacement_passthru() {
+		log::error!(">>> Entering replacement_passthru()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .replacement(Some(b"doctah $1 MD".to_vec()))
@@ -3479,6 +3771,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_passthru(): got → {}", got);
+		log::warn!("<<< Exiting replacement_passthru()");
         let expected = "\
 1:For the doctah Watsons MD of this world, as opposed to the doctah  MD
 2-Holmeses, success in the province of detective work must always
@@ -3492,6 +3786,7 @@ line 3 x
 
     #[test]
     fn replacement() {
+		log::error!(">>> Entering replacement()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .replacement(Some(b"doctah $1 MD".to_vec()))
@@ -3507,6 +3802,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement(): got → {}", got);
+		log::warn!("<<< Exiting replacement(replacement={:?})", replacement);
         let expected = "\
 1:For the doctah Watsons MD of this world, as opposed to the doctah  MD
 3:be, to a very large extent, the result of luck. doctah  MD Holmes
@@ -3521,6 +3818,7 @@ line 3 x
     // See: https://github.com/BurntSushi/ripgrep/issues/1311
     #[test]
     fn replacement_multi_line() {
+		log::error!(">>> Entering replacement_multi_line()");
         let matcher = RegexMatcher::new(r"\n").unwrap();
         let mut printer = StandardBuilder::new()
             .replacement(Some(b"?".to_vec()))
@@ -3537,12 +3835,16 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_multi_line(): got → {}", got);
         let expected = "1:hello?world?\n";
+		log::error!("replacement_multi_line(): expected → {}", expected);
+		log::warn!("<<< Exiting replacement_multi_line()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn replacement_multi_line_diff_line_term() {
+		log::error!(">>> Entering replacement_multi_line_diff_line_term()");
         let matcher = RegexMatcherBuilder::new()
             .line_terminator(Some(b'\x00'))
             .build(r"\n")
@@ -3563,12 +3865,16 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_multi_line_diff_line_term(): got → {}", got);
         let expected = "1:hello?world?\x00";
+		log::error!("replacement_multi_line_diff_line_term(): expected → {}", expected);
+		log::warn!("<<< Exiting replacement_multi_line_diff_line_term()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn replacement_multi_line_combine_lines() {
+		log::error!(">>> Entering replacement_multi_line_combine_lines()");
         let matcher = RegexMatcher::new(r"\n(.)?").unwrap();
         let mut printer = StandardBuilder::new()
             .replacement(Some(b"?$1".to_vec()))
@@ -3585,12 +3891,16 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_multi_line_combine_lines(): got → {}", got);
         let expected = "1:hello?world?\n";
+		log::error!("replacement_multi_line_combine_lines(): expected → {}", expected);
+		log::warn!("<<< Exiting replacement_multi_line_combine_lines()");
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn replacement_max_columns() {
+		log::error!(">>> Entering replacement_max_columns()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .max_columns(Some(67))
@@ -3607,6 +3917,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_max_columns(): got → {}", got);
+		log::warn!("<<< Exiting replacement_max_columns()");
         let expected = "\
 1:[Omitted long line with 2 matches]
 3:be, to a very large extent, the result of luck. doctah  MD Holmes
@@ -3617,6 +3929,7 @@ line 3 x
 
     #[test]
     fn replacement_max_columns_preview1() {
+		log::error!(">>> Entering replacement_max_columns_preview1()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .max_columns(Some(67))
@@ -3634,6 +3947,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_max_columns_preview1(): got → {}", got);
+		log::warn!("<<< Exiting replacement_max_columns_preview1()");
         let expected = "\
 1:For the doctah Watsons MD of this world, as opposed to the doctah   [... 0 more matches]
 3:be, to a very large extent, the result of luck. doctah  MD Holmes
@@ -3644,6 +3959,7 @@ line 3 x
 
     #[test]
     fn replacement_max_columns_preview2() {
+		log::error!(">>> Entering replacement_max_columns_preview2()");
         let matcher =
             RegexMatcher::new("exhibited|dusted|has to have it").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3662,6 +3978,8 @@ line 3 x
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_max_columns_preview2(): got → {}", got);
+		log::warn!("<<< Exiting replacement_max_columns_preview2()");
         let expected = "\
 but Doctor Watson xxx taken out for him and [... 1 more match]
 and xxx clearly, with a label attached.
@@ -3671,6 +3989,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn replacement_only_matching() {
+		log::error!(">>> Entering replacement_only_matching()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3687,6 +4006,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_only_matching(): got → {}", got);
+		log::warn!("<<< Exiting replacement_only_matching()");
         let expected = "\
 1:doctah Watsons MD
 1:doctah  MD
@@ -3698,6 +4019,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn replacement_per_match() {
+		log::error!(">>> Entering replacement_per_match()");
         let matcher = RegexMatcher::new(r"Sherlock|Doctor (\w+)").unwrap();
         let mut printer = StandardBuilder::new()
             .per_match(true)
@@ -3714,6 +4036,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("replacement_per_match(): got → {}", got);
+		log::warn!("<<< Exiting replacement_per_match()");
         let expected = "\
 1:For the doctah Watsons MD of this world, as opposed to the doctah  MD
 1:For the doctah Watsons MD of this world, as opposed to the doctah  MD
@@ -3725,6 +4049,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert() {
+		log::error!(">>> Entering invert()");
         let matcher = RegexMatcher::new(r"Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -3739,6 +4064,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert(): got → {}", got);
+		log::warn!("<<< Exiting invert()");
         let expected = "\
 2:Holmeses, success in the province of detective work must always
 4:can extract a clew from a wisp of straw or a flake of cigar ash;
@@ -3750,6 +4077,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert_multi_line() {
+		log::error!(">>> Entering invert_multi_line()");
         let matcher = RegexMatcher::new(r"(?s:.{0})Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -3765,6 +4093,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting invert_multi_line()");
         let expected = "\
 2:Holmeses, success in the province of detective work must always
 4:can extract a clew from a wisp of straw or a flake of cigar ash;
@@ -3776,6 +4106,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert_context() {
+		log::error!(">>> Entering invert_context()");
         let matcher = RegexMatcher::new(r"Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -3792,6 +4123,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert_context(): got → {}", got);
+		log::warn!("<<< Exiting invert_context()");
         let expected = "\
 1-For the Doctor Watsons of this world, as opposed to the Sherlock
 2:Holmeses, success in the province of detective work must always
@@ -3805,6 +4138,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert_context_multi_line() {
+		log::error!(">>> Entering invert_context_multi_line()");
         let matcher = RegexMatcher::new(r"(?s:.{0})Sherlock").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
         SearcherBuilder::new()
@@ -3822,6 +4156,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert_context_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting invert_context_multi_line()");
         let expected = "\
 1-For the Doctor Watsons of this world, as opposed to the Sherlock
 2:Holmeses, success in the province of detective work must always
@@ -3835,6 +4171,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert_context_only_matching() {
+		log::error!(">>> Entering invert_context_only_matching()");
         let matcher = RegexMatcher::new(r"Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3853,6 +4190,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert_context_only_matching(): got → {}", got);
+		log::warn!("<<< Exiting invert_context_only_matching()");
         let expected = "\
 1-Sherlock
 2:Holmeses, success in the province of detective work must always
@@ -3866,6 +4205,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn invert_context_only_matching_multi_line() {
+		log::error!(">>> Entering invert_context_only_matching_multi_line()");
         let matcher = RegexMatcher::new(r"(?s:.{0})Sherlock").unwrap();
         let mut printer = StandardBuilder::new()
             .only_matching(true)
@@ -3885,6 +4225,8 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("invert_context_only_matching_multi_line(): got → {}", got);
+		log::warn!("<<< Exiting invert_context_only_matching_multi_line()");
         let expected = "\
 1-Sherlock
 2:Holmeses, success in the province of detective work must always
@@ -3898,6 +4240,7 @@ and xxx clearly, with a label attached.
 
     #[test]
     fn regression_search_empty_with_crlf() {
+		log::error!(">>> Entering regression_search_empty_with_crlf()");
         let matcher =
             RegexMatcherBuilder::new().crlf(true).build(r"x?").unwrap();
         let mut printer = StandardBuilder::new()
@@ -3910,11 +4253,15 @@ and xxx clearly, with a label attached.
             .unwrap();
 
         let got = printer_contents_ansi(&mut printer);
+		log::error!("regression_search_empty_with_crlf(): got → {}", got);
+		log::warn!("<<< Exiting regression_search_empty_with_crlf()");
         assert!(!got.is_empty());
     }
 
     #[test]
     fn regression_after_context_with_match() {
+		log::error!(">>> Entering regression_after_context_with_match()");
+		log::warn!("<<< Exiting regression_after_context_with_match()");
         let haystack = "\
 a
 b
@@ -3944,13 +4291,17 @@ e
             .unwrap();
 
         let got = printer_contents(&mut printer);
+		log::error!("regression_after_context_with_match(): got → {}", got);
         let expected = "4:d\n5-e\n6:d\n";
+		log::error!("regression_after_context_with_match(): expected → {}", expected);
         assert_eq_printed!(expected, got);
     }
 
     #[test]
     fn regression_crlf_preserve() {
+		log::error!(">>> Entering regression_crlf_preserve()");
         let haystack = "hello\nworld\r\n";
+		log::error!("regression_crlf_preserve(): haystack → {}", haystack);
         let matcher =
             RegexMatcherBuilder::new().crlf(true).build(r".").unwrap();
         let mut printer = StandardBuilder::new().build(NoColor::new(vec![]));
@@ -3967,7 +4318,9 @@ e
             )
             .unwrap();
         let got = printer_contents(&mut printer);
+		log::error!("regression_crlf_preserve(): got → {}", got);
         let expected = "hello\nworld\r\n";
+		log::error!("regression_crlf_preserve(): expected → {}", expected);
         assert_eq_printed!(expected, got);
 
         let mut printer = StandardBuilder::new()
@@ -3982,6 +4335,7 @@ e
             .unwrap();
         let got = printer_contents(&mut printer);
         let expected = "hello\nworld\r\n";
+		log::warn!("<<< Exiting regression_crlf_preserve()");
         assert_eq_printed!(expected, got);
     }
 }

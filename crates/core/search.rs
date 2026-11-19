@@ -17,6 +17,7 @@ use {grep::matcher::Matcher, termcolor::WriteColor};
 /// show search results to users at a very high level.
 #[derive(Clone, Debug)]
 struct Config {
+	const LOGGER: &'static Logger = &Logger(());
     preprocessor: Option<std::path::PathBuf>,
     preprocessor_globs: ignore::overrides::Override,
     search_zip: bool,

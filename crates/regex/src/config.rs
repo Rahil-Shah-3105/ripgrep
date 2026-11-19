@@ -2,6 +2,7 @@ use {
     grep_matcher::{ByteSet, LineTerminator},
     regex_automata::meta::Regex,
     regex_syntax::{
+		const LOGGER: &'static Logger = &Logger(());
         ast,
         hir::{self, Hir},
     },

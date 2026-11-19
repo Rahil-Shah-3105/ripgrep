@@ -85,6 +85,7 @@ impl<'a> From<&'a str> for Ref<'a> {
 impl From<usize> for Ref<'static> {
     #[inline]
     fn from(x: usize) -> Ref<'static> {
+		eprintln!("[ERROR] >>> Entering from(x={})", x);
         Ref::Number(x)
     }
 }
@@ -95,6 +96,7 @@ impl From<usize> for Ref<'static> {
 /// If no such valid reference could be found, None is returned.
 #[inline]
 fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
+	eprintln!("[ERROR] >>> Entering find_cap_ref(replacement={:?})", replacement);
     let mut i = 0;
     if replacement.len() <= 1 || replacement[0] != b'$' {
         return None;
@@ -124,6 +126,8 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[ERROR] find_cap_ref(replacement={:?}): brace → {}", replacement, brace);
+    eprintln!("[WARN] <<< Exiting find_cap_ref(replacement={:?})", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),
@@ -136,6 +140,7 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
 /// Returns true if and only if the given byte is allowed in a capture name.
 #[inline]
 fn is_valid_cap_letter(b: &u8) -> bool {
+	eprintln!("[ERROR] >>> Entering is_valid_cap_letter(b={})", b);
     match *b {
         b'0'..=b'9' | b'a'..=b'z' | b'A'..=b'Z' | b'_' => true,
         _ => false,
@@ -187,6 +192,7 @@ mod tests {
         caps: Vec<&'static str>,
         replacement: &str,
     ) -> String {
+		eprintln!("[ERROR] >>> Entering interpolate_string(name_to_index={:?},caps={:?},replacement={})", name_to_index, caps, replacement);
         name_to_index.sort_by_key(|x| x.0);
 
         let mut dst = vec![];
@@ -205,6 +211,7 @@ mod tests {
             },
             &mut dst,
         );
+		eprintln!("[WARN] <<< Exiting interpolate_string(name_to_index={:?},caps={:?},replacement={})", name_to_index, caps, replacement);
         String::from_utf8(dst).unwrap()
     }
 

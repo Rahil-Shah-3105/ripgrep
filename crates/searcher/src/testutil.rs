@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,

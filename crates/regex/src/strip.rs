@@ -25,6 +25,7 @@ use crate::error::{Error, ErrorKind};
 /// such regexes and just silently not match anything. Regex versions prior
 /// to 1.8 don't support such constructs. I ended up deciding to leave the
 /// existing behavior of returning an error instead. For example:
+const LOGGER: &'static Logger = &Logger(());
 ///
 /// ```text
 /// $ echo -n 'foo\nbar\n' | rg 'foo\nbar'
@@ -40,10 +41,12 @@ pub(crate) fn strip_from_match(
     expr: Hir,
     line_term: LineTerminator,
 ) -> Result<Hir, Error> {
+	eprintln!("[ERROR] >>> Entering strip_from_match()");
     if line_term.is_crlf() {
         let expr1 = strip_from_match_ascii(expr, b'\r')?;
         strip_from_match_ascii(expr1, b'\n')
     } else {
+		eprintln!("[WARN] <<< Exiting strip_from_match()");
         strip_from_match_ascii(expr, line_term.as_byte())
     }
 }
@@ -53,10 +56,12 @@ pub(crate) fn strip_from_match(
 /// it couldn't remove `\n` from the given regex without leaving an empty
 /// character class in its place.
 fn strip_from_match_ascii(expr: Hir, byte: u8) -> Result<Hir, Error> {
+	eprintln!("[ERROR] >>> Entering strip_from_match_ascii(byte={})", byte);
     if !byte.is_ascii() {
         return Err(Error::new(ErrorKind::InvalidLineTerminator(byte)));
     }
     let ch = char::from(byte);
+	eprintln!("[WARN] <<< Exiting strip_from_match_ascii(byte={})", byte);
     let invalid = || Err(Error::new(ErrorKind::NotAllowed(ch.to_string())));
     Ok(match expr.into_kind() {
         HirKind::Empty => Hir::empty(),
@@ -126,14 +131,17 @@ mod tests {
     use crate::error::Error;
 
     fn roundtrip(pattern: &str, byte: u8) -> String {
+		eprintln!("[ERROR] >>> Entering roundtrip(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte)).unwrap()
     }
 
     fn roundtrip_crlf(pattern: &str) -> String {
+		eprintln!("[ERROR] >>> Entering roundtrip_crlf(pattern={})", pattern);
         roundtrip_line_term(pattern, LineTerminator::crlf()).unwrap()
     }
 
     fn roundtrip_err(pattern: &str, byte: u8) -> Result<String, Error> {
+		eprintln!("[ERROR] >>> Entering roundtrip_err(pattern={},byte={})", pattern, byte);
         roundtrip_line_term(pattern, LineTerminator::byte(byte))
     }
 
@@ -141,13 +149,16 @@ mod tests {
         pattern: &str,
         line_term: LineTerminator,
     ) -> Result<String, Error> {
+		eprintln!("[ERROR] >>> Entering roundtrip_line_term(pattern={})", pattern);
         let expr1 = Parser::new().parse(pattern).unwrap();
         let expr2 = strip_from_match(expr1, line_term)?;
+		eprintln!("[WARN] <<< Exiting roundtrip_line_term(pattern={})", pattern);
         Ok(expr2.to_string())
     }
 
     #[test]
     fn various() {
+		eprintln!("[ERROR] >>> Entering various()");
         assert_eq!(roundtrip(r"[a\n]", b'\n'), "a");
         assert_eq!(roundtrip(r"[a\n]", b'a'), "\n");
         assert_eq!(roundtrip_crlf(r"[a\n]"), "a");
@@ -165,6 +176,7 @@ mod tests {
         assert!(roundtrip_err(r"\u000A", b'\n').is_err());
         assert!(roundtrip_err(r"\U0000000A", b'\n').is_err());
         assert!(roundtrip_err(r"\u{A}", b'\n').is_err());
+		eprintln!("[WARN] <<< Exiting various()");
         assert!(roundtrip_err("\n", b'\n').is_err());
     }
 }

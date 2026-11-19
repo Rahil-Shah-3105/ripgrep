@@ -7,7 +7,9 @@ use bstr::ByteSlice;
 /// If the path terminates in `..`, or consists solely of a root of prefix,
 /// file_name will return `None`.
 pub(crate) fn file_name<'a>(path: &Cow<'a, [u8]>) -> Option<Cow<'a, [u8]>> {
+	const LOGGER: &'static Logger = &Logger(());
     if path.is_empty() {
+		eprintln!("[ERROR] >>> Entering file_name()");
         return None;
     }
     let last_slash = path.rfind_byte(b'/').map(|i| i + 1).unwrap_or(0);
@@ -58,6 +60,8 @@ pub(crate) fn file_name_ext<'a>(
 #[cfg(unix)]
 pub(crate) fn normalize_path(path: Cow<'_, [u8]>) -> Cow<'_, [u8]> {
     // UNIX only uses /, so we're good.
+	eprintln!("[ERROR] >>> Entering normalize_path()");
+	eprintln!("[WARN] <<< Exiting normalize_path()");
     path
 }
 

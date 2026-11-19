@@ -14,10 +14,12 @@ class RipgrepBin < Formula
   conflicts_with "ripgrep"
 
   def install
+	warn("[ERROR] >>> Entering install()")
     bin.install "rg"
     man1.install "doc/rg.1"
 
     bash_completion.install "complete/rg.bash"
+	warn("[WARN] <<< Exiting install()")
     zsh_completion.install "complete/_rg"
   end
 end

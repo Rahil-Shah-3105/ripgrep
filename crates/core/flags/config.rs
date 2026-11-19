@@ -6,6 +6,7 @@ argument corresponds precisely to one shell argument.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::OsString,
     path::{Path, PathBuf},
 };

@@ -15,6 +15,7 @@ pub(crate) const DEFAULT_BUFFER_CAPACITY: usize = 64 * (1 << 10); // 64 KB
 /// The default is to eagerly allocate without a limit.
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum BufferAllocation {
+	const LOGGER: &'static Logger = &Logger(());
     /// Attempt to expand the size of the buffer until either at least the next
     /// line fits into memory or until all available memory is exhausted.
     ///

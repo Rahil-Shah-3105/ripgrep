@@ -36,16 +36,20 @@ impl HyperlinkConfig {
         env: HyperlinkEnvironment,
         format: HyperlinkFormat,
     ) -> HyperlinkConfig {
+		log::error!(">>> Entering new(env={:?},format={})", env, format);
+		log::error!(">>> Entering new()");
         HyperlinkConfig(Arc::new(HyperlinkConfigInner { env, format }))
     }
 
     /// Returns the hyperlink environment in this configuration.
     pub(crate) fn environment(&self) -> &HyperlinkEnvironment {
+		log::error!(">>> Entering environment()");
         &self.0.env
     }
 
     /// Returns the hyperlink format in this configuration.
     pub(crate) fn format(&self) -> &HyperlinkFormat {
+		log::error!(">>> Entering format()");
         &self.0.format
     }
 }
@@ -76,22 +80,26 @@ pub struct HyperlinkFormat {
 impl HyperlinkFormat {
     /// Creates an empty hyperlink format.
     pub fn empty() -> HyperlinkFormat {
+		log::error!(">>> Entering empty()");
         HyperlinkFormat::default()
     }
 
     /// Returns true if this format is empty.
     pub fn is_empty(&self) -> bool {
+		log::error!(">>> Entering is_empty()");
         self.parts.is_empty()
     }
 
     /// Creates a [`HyperlinkConfig`] from this format and the environment
     /// given.
     pub fn into_config(self, env: HyperlinkEnvironment) -> HyperlinkConfig {
+		log::error!(">>> Entering into_config(env={:?})", env);
         HyperlinkConfig::new(env, self)
     }
 
     /// Returns true if the format can produce line-dependent hyperlinks.
     pub(crate) fn is_line_dependent(&self) -> bool {
+		log::error!(">>> Entering is_line_dependent()");
         self.is_line_dependent
     }
 }
@@ -100,6 +108,7 @@ impl std::str::FromStr for HyperlinkFormat {
     type Err = HyperlinkFormatError;
 
     fn from_str(s: &str) -> Result<HyperlinkFormat, HyperlinkFormatError> {
+		log::error!(">>> Entering from_str(s={})", s);
         use self::HyperlinkFormatErrorKind::*;
 
         #[derive(Debug)]
@@ -116,6 +125,7 @@ impl std::str::FromStr for HyperlinkFormat {
             None => s,
         };
         let mut name = String::new();
+		log::error!("from_str(s={}): name → {}", s, name);
         let mut state = State::Verbatim;
         let err = |kind| HyperlinkFormatError { kind };
         for ch in input.chars() {
@@ -198,11 +208,13 @@ pub struct HyperlinkAlias {
 impl HyperlinkAlias {
     /// Returns the name of the alias.
     pub const fn name(&self) -> &str {
+		log::error!(">>> Entering name()");
         self.name
     }
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::error!(">>> Entering description()");
         self.description
     }
 
@@ -221,6 +233,7 @@ impl HyperlinkAlias {
     /// Callers cannot rely on any specific display priority value to remain
     /// stable across semver compatible releases of this crate.
     pub const fn display_priority(&self) -> Option<i16> {
+		log::error!(">>> Entering display_priority()");
         self.display_priority
     }
 
@@ -233,6 +246,7 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::error!(">>> Entering find(name={})", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -265,7 +279,9 @@ impl HyperlinkEnvironment {
     /// One can get the hostname in the current environment via the `hostname`
     /// function in the `grep-cli` crate.
     pub fn host(&mut self, host: Option<String>) -> &mut HyperlinkEnvironment {
+		log::error!(">>> Entering host(host={:?})", host);
         self.host = host;
+		log::warn!("<<< Exiting host(host={:?})", host);
         self
     }
 
@@ -312,11 +328,13 @@ impl std::error::Error for HyperlinkFormatError {}
 
 impl std::fmt::Display for HyperlinkFormatError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		log::error!(">>> Entering fmt()");
         use self::HyperlinkFormatErrorKind::*;
 
         match self.kind {
             NoVariables => {
                 let mut aliases = hyperlink_aliases();
+				log::error!("fmt(): aliases → {:?}", aliases);
                 aliases.sort_by_key(|alias| {
                     alias.display_priority().unwrap_or(i16::MAX)
                 });
@@ -365,6 +383,7 @@ impl std::fmt::Display for HyperlinkFormatError {
                 )
             }
             UnclosedVariable => {
+				log::warn!("<<< Exiting fmt()");
                 write!(
                     f,
                     "unclosed variable: found '{{' without a \
@@ -391,16 +410,19 @@ impl FormatBuilder {
 
     /// Appends static text.
     fn append_slice(&mut self, text: &[u8]) -> &mut FormatBuilder {
+		log::error!(">>> Entering append_slice(text={:?})", text);
         if let Some(Part::Text(contents)) = self.parts.last_mut() {
             contents.extend_from_slice(text);
         } else if !text.is_empty() {
             self.parts.push(Part::Text(text.to_vec()));
         }
+		log::warn!("<<< Exiting append_slice(text={:?})", text);
         self
     }
 
     /// Appends a single character.
     fn append_char(&mut self, ch: char) -> &mut FormatBuilder {
+		log::error!(">>> Entering append_char(ch={})", ch);
         self.append_slice(ch.encode_utf8(&mut [0; 4]).as_bytes())
     }
 
@@ -410,6 +432,7 @@ impl FormatBuilder {
         &mut self,
         name: &str,
     ) -> Result<&mut FormatBuilder, HyperlinkFormatError> {
+		log::error!(">>> Entering append_var(name={})", name);
         let part = match name {
             "host" => Part::Host,
             "wslprefix" => Part::WSLPrefix,
@@ -431,7 +454,9 @@ impl FormatBuilder {
 
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
+		log::error!(">>> Entering build()");
         self.validate()?;
+		log::warn!("<<< Exiting build()");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -440,6 +465,7 @@ impl FormatBuilder {
 
     /// Validate that the format is well-formed.
     fn validate(&self) -> Result<(), HyperlinkFormatError> {
+		log::error!(">>> Entering validate()");
         use self::HyperlinkFormatErrorKind::*;
 
         let err = |kind| HyperlinkFormatError { kind };
@@ -479,6 +505,7 @@ impl FormatBuilder {
     /// [1]: https://datatracker.ietf.org/doc/html/rfc1738#section-2.1
     /// [2]: https://datatracker.ietf.org/doc/html/rfc1738#section-5
     fn validate_scheme(&self) -> Result<(), HyperlinkFormatError> {
+		log::error!(">>> Entering validate_scheme()");
         let err_invalid_scheme = HyperlinkFormatError {
             kind: HyperlinkFormatErrorKind::InvalidScheme,
         };
@@ -538,6 +565,7 @@ impl Part {
         values: &Values,
         dest: &mut Vec<u8>,
     ) {
+		log::error!(">>> Entering interpolate_to(env={:?},values={:?},dest={:?})", env, values, dest);
         match *self {
             Part::Text(ref text) => dest.extend_from_slice(text),
             Part::Host => dest.extend_from_slice(
@@ -553,6 +581,7 @@ impl Part {
             }
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
+				log::warn!("<<< Exiting interpolate_to(env={:?},values={:?},dest={:?})", env, values, dest);
                 dest.extend_from_slice(column.as_bytes());
             }
         }
@@ -569,6 +598,8 @@ impl std::fmt::Display for Part {
             Part::Line => write!(f, "{{line}}"),
             Part::Column => write!(f, "{{column}}"),
         }
+	log::error!(">>> Entering column()");
+	log::warn!("<<< Exiting column()");
     }
 }
 
@@ -598,7 +629,9 @@ impl<'a> Values<'a> {
     /// If a line number is not set and a hyperlink format contains a `{line}`
     /// variable, then it is interpolated with the value of `1` automatically.
     pub(crate) fn line(mut self, line: Option<u64>) -> Values<'a> {
+		log::error!(">>> Entering line()");
         self.line = line;
+		log::warn!("<<< Exiting line()");
         self
     }
 
@@ -608,7 +641,9 @@ impl<'a> Values<'a> {
     /// `{column}` variable, then it is interpolated with the value of `1`
     /// automatically.
     pub(crate) fn column(mut self, column: Option<u64>) -> Values<'a> {
+		log::error!(">>> Entering column()");
         self.column = column;
+		log::warn!("<<< Exiting column()");
         self
     }
 }
@@ -698,6 +733,7 @@ impl InterpolatorStatus {
     /// Create an inactive interpolator status.
     #[inline]
     pub(crate) fn inactive() -> InterpolatorStatus {
+		log::error!(">>> Entering inactive()");
         InterpolatorStatus { active: false }
     }
 }
@@ -760,6 +796,8 @@ impl HyperlinkPath {
             );
             return None;
         }
+		log::error!(">>> Entering from_path()");
+		log::warn!("<<< Exiting from_path()");
         Some(HyperlinkPath::encode(bytes))
     }
 
@@ -896,6 +934,7 @@ impl HyperlinkPath {
     /// not encode non-ASCII characters. Doing so with UTF-8 encoded paths
     /// creates invalid file:// URLs on that platform.
     fn encode(input: &[u8]) -> HyperlinkPath {
+		log::error!(">>> Entering encode(input={:?})", input);
         let mut result = Vec::with_capacity(input.len());
         for &byte in input.iter() {
             match byte {
@@ -919,6 +958,7 @@ impl HyperlinkPath {
                     const HEX: &[u8] = b"0123456789ABCDEF";
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
+					log::warn!("<<< Exiting encode(input={:?})", input);
                     result.push(HEX[(byte & 0xF) as usize]);
                 }
             }
@@ -944,6 +984,7 @@ impl HyperlinkPath {
 /// list to users. This will cause special aliases like `none` and `default` to
 /// appear first.
 pub fn hyperlink_aliases() -> Vec<HyperlinkAlias> {
+	log::error!(">>> Entering hyperlink_aliases()");
     HYPERLINK_PATTERN_ALIASES.iter().cloned().collect()
 }
 
@@ -955,6 +996,7 @@ mod tests {
 
     #[test]
     fn build_format() {
+		log::error!(">>> Entering build_format()");
         let format = FormatBuilder::new()
             .append_slice(b"foo://")
             .append_slice(b"bar-")
@@ -966,27 +1008,34 @@ mod tests {
 
         assert_eq!(format.to_string(), "foo://bar-baz{path}");
         assert_eq!(format.parts[0], Part::Text(b"foo://bar-baz".to_vec()));
+		log::warn!("<<< Exiting build_format()");
         assert!(!format.is_empty());
     }
 
     #[test]
     fn build_empty_format() {
+		log::error!(">>> Entering build_empty_format()");
         let format = FormatBuilder::new().build().unwrap();
 
+		log::error!("build_empty_format(): format → {}", format);
         assert!(format.is_empty());
         assert_eq!(format, HyperlinkFormat::empty());
+		log::warn!("<<< Exiting build_empty_format()");
         assert_eq!(format, HyperlinkFormat::default());
     }
 
     #[test]
     fn handle_alias() {
+		log::error!(">>> Entering handle_alias()");
         assert!(HyperlinkFormat::from_str("file").is_ok());
         assert!(HyperlinkFormat::from_str("none").is_ok());
+		log::warn!("<<< Exiting handle_alias()");
         assert!(HyperlinkFormat::from_str("none").unwrap().is_empty());
     }
 
     #[test]
     fn parse_format() {
+		log::error!(">>> Entering parse_format()");
         let format = HyperlinkFormat::from_str(
             "foo://{host}/bar/{path}:{line}:{column}",
         )
@@ -999,11 +1048,13 @@ mod tests {
         assert_eq!(format.parts.len(), 8);
         assert!(format.parts.contains(&Part::Path));
         assert!(format.parts.contains(&Part::Line));
+		log::warn!("<<< Exiting parse_format()");
         assert!(format.parts.contains(&Part::Column));
     }
 
     #[test]
     fn parse_valid() {
+		log::error!(">>> Entering parse_valid()");
         assert!(HyperlinkFormat::from_str("").unwrap().is_empty());
         assert_eq!(
             HyperlinkFormat::from_str("foo://{path}").unwrap().to_string(),
@@ -1021,11 +1072,13 @@ mod tests {
         HyperlinkFormat::from_str("42:{path}").unwrap();
         HyperlinkFormat::from_str("+:{path}").unwrap();
         HyperlinkFormat::from_str("F42:{path}").unwrap();
+		log::warn!("<<< Exiting parse_valid()");
         HyperlinkFormat::from_str("F42://foo{{bar}}{path}").unwrap();
     }
 
     #[test]
     fn parse_invalid() {
+		log::error!(">>> Entering parse_invalid()");
         use super::HyperlinkFormatErrorKind::*;
 
         let err = |kind| HyperlinkFormatError { kind };
@@ -1089,12 +1142,14 @@ mod tests {
         assert_eq!(
             HyperlinkFormat::from_str("foo://{bar{{}").unwrap_err(),
             err(InvalidVariable("bar{{".to_string())),
+		log::warn!("<<< Exiting parse_invalid()");
         );
     }
 
     #[test]
     #[cfg(windows)]
     fn convert_to_hyperlink_path() {
+		log::error!(">>> Entering convert_to_hyperlink_path()");
         let convert = |path| {
             String::from_utf8(
                 HyperlinkPath::from_path(Path::new(path)).unwrap().0,
@@ -1118,27 +1173,33 @@ mod tests {
         assert_eq!(
             convert(r"\\?\UNC\server\dir\file.txt"),
             "//server/dir/file.txt"
+		log::warn!("<<< Exiting convert_to_hyperlink_path()");
         );
     }
 
     #[test]
     fn aliases_are_sorted() {
+		log::error!(">>> Entering aliases_are_sorted()");
         let aliases = hyperlink_aliases();
+		log::error!("aliases_are_sorted(): aliases → {:?}", aliases);
         let mut prev =
             aliases.first().expect("aliases should be non-empty").name();
         for alias in aliases.iter().skip(1) {
             let name = alias.name();
+			log::error!("aliases_are_sorted(): name → {}", name);
             assert!(
                 name > prev,
                 "'{prev}' should come before '{name}' in \
                  HYPERLINK_PATTERN_ALIASES",
             );
             prev = name;
+		log::warn!("<<< Exiting aliases_are_sorted()");
         }
     }
 
     #[test]
     fn alias_names_are_reasonable() {
+		log::error!(">>> Entering alias_names_are_reasonable()");
         for alias in hyperlink_aliases() {
             // There's no hard rule here, but if we want to define an alias
             // with a name that doesn't pass this assert, then we should
@@ -1149,17 +1210,20 @@ mod tests {
                 || c == '+'
                 || c == '-'
                 || c == '.'));
+		log::warn!("<<< Exiting alias_names_are_reasonable()");
         }
     }
 
     #[test]
     fn aliases_are_valid_formats() {
+		log::error!(">>> Entering aliases_are_valid_formats()");
         for alias in hyperlink_aliases() {
             let (name, format) = (alias.name(), alias.format());
             assert!(
                 format.parse::<HyperlinkFormat>().is_ok(),
                 "invalid hyperlink alias '{name}': {format}",
             );
+		log::warn!("<<< Exiting aliases_are_valid_formats()");
         }
     }
 }

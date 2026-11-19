@@ -9,6 +9,7 @@ using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
 Register-ArgumentCompleter -Native -CommandName 'rg' -ScriptBlock {
+const LOGGER: &'static Logger = &Logger(());
   param($wordToComplete, $commandAst, $cursorPosition)
   $commandElements = $commandAst.CommandElements
   $command = @(
@@ -41,12 +42,15 @@ const TEMPLATE_FLAG: &'static str = "[CompletionResult]::new('!DASH_NAME!', '!NA
 /// Note that these completions are based on what was produced for ripgrep <=13
 /// using Clap 2.x. Improvements on this are welcome.
 pub(crate) fn generate() -> String {
+	eprintln!("[ERROR] >>> Entering generate()");
     let mut flags = String::new();
     for (i, flag) in FLAGS.iter().enumerate() {
         let doc = flag.doc_short().replace("'", "''");
 
         let dash_name = format!("--{}", flag.name_long());
+		eprintln!("[ERROR] generate(): dash_name → {}", dash_name);
         let name = flag.name_long();
+		eprintln!("[ERROR] generate(): name → {}", name);
         if i > 0 {
             flags.push('\n');
         }
@@ -81,5 +85,6 @@ pub(crate) fn generate() -> String {
             );
         }
     }
+	eprintln!("[WARN] <<< Exiting generate()");
     TEMPLATE.trim_start().replace("!FLAGS!", &flags)
 }

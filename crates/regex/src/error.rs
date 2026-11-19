@@ -5,6 +5,7 @@
 /// guaranteeing a configured optimization.
 #[derive(Clone, Debug)]
 pub struct Error {
+	const LOGGER: &'static Logger = &Logger(());
     kind: ErrorKind,
 }
 
