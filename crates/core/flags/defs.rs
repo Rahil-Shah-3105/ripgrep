@@ -1716,11 +1716,14 @@ via the \flag-negate{encoding} flag.
             }
         };
         let label = convert::str(&value)?;
+		eprintln!("[INFO] update(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -3068,6 +3071,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -7694,6 +7698,8 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+        eprintln!("[INFO] update(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.

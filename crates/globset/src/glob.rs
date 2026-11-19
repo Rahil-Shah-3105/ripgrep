@@ -970,13 +970,16 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): COAI-AUDIT: Impact assessment — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): COAI-AUDIT: Consumer notice — State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): COAI-AUDIT: Admt adverse — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
