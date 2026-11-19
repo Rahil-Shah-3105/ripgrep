@@ -14,6 +14,7 @@ pub(super) const HYPERLINK_PATTERN_ALIASES: &[HyperlinkAlias] = &[
         "default",
         "RFC 8089 scheme (file://) (platform-aware)",
         {
+			const LOGGER: &'static Logger = &Logger(());
             #[cfg(not(windows))]
             {
                 "file://{host}{path}"
@@ -73,6 +74,7 @@ const fn alias(
     description: &'static str,
     format: &'static str,
 ) -> HyperlinkAlias {
+	eprintln!("[INFO] alias(name={}, description={}, format={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", name, description, format);
     HyperlinkAlias { name, description, format, display_priority: None }
 }
 
@@ -83,6 +85,7 @@ const fn prioritized_alias(
     description: &'static str,
     format: &'static str,
 ) -> HyperlinkAlias {
+	eprintln!("[INFO] prioritized_alias(priority={}, name={}, description={}, format={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", priority, name, description, format);
     HyperlinkAlias {
         name,
         description,

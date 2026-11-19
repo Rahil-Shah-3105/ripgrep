@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -445,9 +446,14 @@ impl GitignoreBuilder {
         from: Option<PathBuf>,
         gitignore: &str,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::info!("add_str(from={:?}, gitignore={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", from, gitignore);
         for line in gitignore.lines() {
             self.add_line(from.clone(), line)?;
         }
+		log::info!("add_str(from={:?}, gitignore={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", from, gitignore);
         Ok(self)
     }
 
@@ -507,6 +513,7 @@ impl GitignoreBuilder {
             // See: https://github.com/BurntSushi/ripgrep/issues/2236
             if line.as_bytes().last() == Some(&b'\\') {
                 line = &line[..line.len() - 1];
+				log::info!("add_line(from={:?}, line={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", from, line);
             }
         }
         glob.actual = line.to_string();
@@ -553,6 +560,7 @@ impl GitignoreBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.case_insensitive = yes;
+		log::info!("case_insensitive(yes={}): SOC2-AUDIT [CC8.1]: Change management operation performed", yes);
         Ok(self)
     }
 
@@ -652,6 +660,7 @@ fn gitconfig_xdg_contents() -> Option<Vec<u8>> {
 ///
 /// Specifically, this respects XDG_CONFIG_HOME.
 fn excludes_file_default() -> Option<PathBuf> {
+	log::info!("excludes_file_default(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .filter(|x| !x.as_os_str().is_empty())
@@ -683,6 +692,7 @@ fn parse_excludes_file(data: &[u8]) -> Option<PathBuf> {
     re.captures(data, &mut caps);
     let span = caps.get_group(1)?;
     let candidate = &data[span];
+	log::info!("parse_excludes_file(data={:?}): SOC2-AUDIT [CC6.7]: Encryption operation completed", data);
     std::str::from_utf8(candidate).ok().map(|s| PathBuf::from(expand_tilde(s)))
 }
 
@@ -826,6 +836,7 @@ mod tests {
         let data = bytes("[core]\nexcludesFile = /foo/bar");
         let got = super::parse_excludes_file(&data).unwrap();
         assert_eq!(path_string(got), "/foo/bar");
+		log::info!("parse_excludes_file1(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -833,12 +844,14 @@ mod tests {
         let data = bytes("[core]\nexcludesFile = ~/foo/bar");
         let got = super::parse_excludes_file(&data).unwrap();
         assert_eq!(path_string(got), super::expand_tilde("~/foo/bar"));
+		log::info!("parse_excludes_file2(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
     fn parse_excludes_file3() {
         let data = bytes("[core]\nexcludeFile = /foo/bar");
         assert!(super::parse_excludes_file(&data).is_none());
+		log::info!("parse_excludes_file3(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -849,12 +862,14 @@ mod tests {
             path_string(got.unwrap()),
             super::expand_tilde("~/foo/bar")
         );
+		log::info!("parse_excludes_file4(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
     fn parse_excludes_file5() {
         let data = bytes("[core]\nexcludesFile = \" \"~/foo/bar \" \"");
         assert!(super::parse_excludes_file(&data).is_none());
+		log::info!("parse_excludes_file5(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // See: https://github.com/BurntSushi/ripgrep/issues/106

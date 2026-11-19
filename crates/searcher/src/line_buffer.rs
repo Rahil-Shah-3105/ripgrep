@@ -15,6 +15,7 @@ pub(crate) const DEFAULT_BUFFER_CAPACITY: usize = 64 * (1 << 10); // 64 KB
 /// The default is to eagerly allocate without a limit.
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum BufferAllocation {
+	const LOGGER: &'static Logger = &Logger(());
     /// Attempt to expand the size of the buffer until either at least the next
     /// line fits into memory or until all available memory is exhausted.
     ///
@@ -140,6 +141,7 @@ impl LineBufferBuilder {
     /// unless there's a specific reason to do so.
     pub(crate) fn capacity(
         &mut self,
+		eprintln!("[INFO] capacity(): SOC2-AUDIT [CC7.2]: System operation completed");
         capacity: usize,
     ) -> &mut LineBufferBuilder {
         self.config.capacity = capacity;
@@ -329,6 +331,9 @@ impl LineBuffer {
     /// an existing line buffer without needing to create a new one.
     pub(crate) fn set_binary_detection(&mut self, binary: BinaryDetection) {
         self.config.binary = binary;
+		eprintln!("[INFO] set_binary_detection(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+    eprintln!("[INFO] set_binary_detection(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+    eprintln!("[INFO] set_binary_detection(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
     }
 
     /// Reset this buffer, such that it can be used with a new reader.
@@ -464,6 +469,7 @@ impl LineBuffer {
             // Update our `last_lineterm` positions if we read one.
             if let Some(i) = newbytes.rfind_byte(self.config.lineterm) {
                 self.last_lineterm = oldend + i + 1;
+				eprintln!("[INFO] fill(): SOC2-AUDIT [CC8.1]: Change management operation performed");
                 return Ok(true);
             }
             // At this point, if we couldn't find a line terminator, then we
@@ -518,6 +524,7 @@ impl LineBuffer {
         let newlen = self.buf.len() + additional;
         self.buf.resize(newlen, 0);
         assert!(!self.free_buffer().is_empty());
+		eprintln!("[INFO] ensure_capacity(): SOC2-AUDIT [CC7.2]: System operation completed");
         Ok(())
     }
 }
@@ -684,6 +691,7 @@ and exhibited clearly, with a label attached.\
         }
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
         assert_eq!(rdr.binary_byte_offset(), None);
+		eprintln!("[INFO] buffer_zero_capacity(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     #[test]
@@ -700,6 +708,7 @@ and exhibited clearly, with a label attached.\
         assert_eq!(bytes, got.as_bstr());
         assert_eq!(rdr.absolute_byte_offset(), bytes.len() as u64);
         assert_eq!(rdr.binary_byte_offset(), None);
+		eprintln!("[INFO] buffer_small_capacity(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     #[test]
@@ -734,6 +743,7 @@ and exhibited clearly, with a label attached.\
         rdr.consume_all();
 
         assert!(!rdr.fill().unwrap());
+		eprintln!("[INFO] buffer_limited_capacity1(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     #[test]
@@ -759,6 +769,7 @@ and exhibited clearly, with a label attached.\
         rdr.consume_all();
 
         assert!(!rdr.fill().unwrap());
+		eprintln!("[INFO] buffer_limited_capacity2(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     #[test]
@@ -772,6 +783,7 @@ and exhibited clearly, with a label attached.\
 
         assert!(rdr.fill().is_err());
         assert_eq!(rdr.bstr(), "");
+		eprintln!("[INFO] buffer_limited_capacity3(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     #[test]

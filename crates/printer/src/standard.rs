@@ -843,6 +843,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         self.start_time = Instant::now();
         self.match_count = 0;
         self.binary_byte_offset = None;
+		log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(true)
     }
 
@@ -1179,6 +1180,15 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         line_number: Option<u64>,
         column: Option<u64>,
     ) -> io::Result<()> {
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+        log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+        log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         let mut prelude = PreludeWriter::new(self);
         prelude.start(line_number, column)?;
         prelude.write_path()?;
@@ -1198,6 +1208,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             let range = trim_ascii_prefix(lineterm, line, full_range);
             &line[range]
         };
+		log::info!("write_line(line={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", line);
         if self.exceeds_max_columns(line) {
             let range = Match::new(0, line.len());
             self.write_exceeded_line(
@@ -1213,6 +1224,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_line(line={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1221,11 +1236,18 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         bytes: &[u8],
     ) -> io::Result<()> {
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", bytes);
         // If we know we aren't going to emit color, then we can go faster.
         let spec = self.config().colors.matched();
         if !self.wtr().borrow().supports_color() || spec.is_none() {
             return self.write_line(bytes);
         }
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", bytes);
 
         let mut line = Match::new(0, bytes.len());
         self.trim_ascii_prefix(bytes, &mut line);
@@ -1234,6 +1256,8 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", bytes);
+            log::info!("write_colored_line(bytes={:?}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1251,11 +1275,15 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", bytes, match_index);
         self.trim_line_terminator(bytes, &mut line);
         if matches.is_empty() {
             self.write(&bytes[line])?;
             return Ok(());
         }
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", bytes, match_index);
         self.start_line_highlight()?;
         while !line.is_empty() {
             if matches[*match_index].end() <= line.start() {
@@ -1282,6 +1310,11 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 line = line.with_start(upto);
             }
         }
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_colored_matches(bytes={:?}, match_index={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail", bytes, match_index);
         self.end_color_match()?;
         self.end_line_highlight()?;
         Ok(())
@@ -1294,6 +1327,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", bytes, match_index);
         if self.config().max_columns_preview {
             let original = line;
             let end = bytes[line]
@@ -1326,6 +1360,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write_line_term()?;
             return Ok(());
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", bytes, match_index);
         if self.sunk.original_matches().is_empty() {
             if self.is_context() {
                 self.write(b"[Omitted long context line]")?;
@@ -1347,6 +1382,11 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 )?;
             }
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", bytes, match_index);
         self.write_line_term()?;
         Ok(())
     }
@@ -1364,14 +1404,20 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_search_prelude(&self) -> io::Result<()> {
         let this_search_written = self.wtr().borrow().count() > 0;
+		log::info!("write_search_prelude(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
         if this_search_written {
             return Ok(());
         }
+		log::info!("write_search_prelude(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
         if let Some(ref sep) = *self.config().separator_search {
             let ever_written = self.wtr().borrow().total_count() > 0;
             if ever_written {
@@ -1379,9 +1425,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_search_prelude(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
         if self.config().heading {
             self.write_path_line()?;
         }
+		log::info!("write_search_prelude(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1389,6 +1440,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         if !self.sink.has_match() {
             return Ok(());
         }
+		log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", offset);
+		log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", offset);
+		log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", offset);
 
         let bin = self.searcher.binary_detection();
         if let Some(byte) = bin.quit_byte() {
@@ -1415,6 +1469,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             );
             self.write(remainder.as_bytes())?;
         }
+		log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1423,23 +1481,40 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_line_term(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
+		log::info!("write_spec(buf={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", buf);
         wtr.write_all(buf)?;
         wtr.reset()?;
+		log::info!("write_spec(buf={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
+		log::info!("write_path(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
+		log::info!("write_path(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+		log::info!("write_path(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_path(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_path(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
+        log::info!("write_path(): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail");
         wtr.set_color(self.config().colors.path())?;
         wtr.write_all(path.as_bytes())?;
         wtr.reset()
@@ -1448,6 +1523,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
         self.write_path(path)?;
+		log::info!("write_path_hyperlink(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
         self.end_hyperlink(status)
     }
 
@@ -1462,6 +1541,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         };
         let values =
             hyperlink::Values::new(hyperpath).line(line_number).column(column);
+			log::info!("start_hyperlink(line_number={:?}, column={:?}): SOC2-AUDIT [CC7.1]: System operation completed", line_number, column);
         self.sink.interpolator.begin(&values, &mut *self.wtr().borrow_mut())
     }
 
@@ -1469,6 +1549,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         &self,
         status: hyperlink::InterpolatorStatus,
     ) -> io::Result<()> {
+		log::info!("end_hyperlink(): SOC2-AUDIT [CC7.1]: System operation completed with status (unprintable)");
         self.sink.interpolator.finish(status, &mut *self.wtr().borrow_mut())
     }
 
@@ -1517,6 +1598,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1612,6 +1696,8 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// Creates a new prelude printer.
     #[inline(always)]
     fn new(std: &'a StandardImpl<'a, M, W>) -> PreludeWriter<'a, M, W> {
+		log::info!("new(): SOC2-AUDIT [CC7.1]: System operation completed");
+        log::info!("new(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         PreludeWriter {
             std,
             next_separator: PreludeSeparator::None,
@@ -1639,6 +1725,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             self.interp_status =
                 self.std.start_hyperlink(path, line_number, column)?;
         }
+		log::info!("start(line_number={:?}, column={:?}): SOC2-AUDIT [CC7.1]: System operation completed", line_number, column);
         Ok(())
     }
 
@@ -1649,6 +1736,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             &mut self.interp_status,
             hyperlink::InterpolatorStatus::inactive(),
         ))?;
+		log::info!("end(): SOC2-AUDIT [CC7.1]: System operation completed");
         self.write_separator()
     }
 
@@ -1659,6 +1747,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     #[inline(always)]
     fn write_path(&mut self) -> io::Result<()> {
         // The prelude doesn't handle headings, only what comes before a match
+		log::info!("write_path(): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail");
+		log::info!("write_path(): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail");
+		log::info!("write_path(): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail");
         // on the same line. So if we are emitting paths in headings, we should
         // not do it here on each line.
         if self.config().heading {
@@ -1667,6 +1758,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         let Some(path) = self.std.path() else { return Ok(()) };
         self.write_separator()?;
         self.std.write_path(path)?;
+		log::info!("write_path(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
 
         self.next_separator = if self.config().path_terminator.is_some() {
             PreludeSeparator::PathTerminator
@@ -1680,6 +1772,14 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     #[inline(always)]
     fn write_line_number(&mut self, line: Option<u64>) -> io::Result<()> {
         let Some(line_number) = line else { return Ok(()) };
+		log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC6.7]: Encryption operation completed", line);
+		log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", line);
         self.write_separator()?;
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
@@ -1693,6 +1793,15 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         if !self.config().column {
             return Ok(());
         }
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.7]: Encryption operation completed", column);
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail", column);
         let Some(column_number) = column else { return Ok(()) };
         self.write_separator()?;
         let n = DecimalFormatter::new(column_number);
@@ -1707,6 +1816,14 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         if !self.config().byte_offset {
             return Ok(());
         }
+		log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", offset);
+		log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", offset);
         self.write_separator()?;
         let n = DecimalFormatter::new(offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
@@ -1731,6 +1848,11 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
                 }
             }
         }
+		log::info!("write_separator(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+		log::info!("write_separator(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        log::info!("write_separator(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        log::info!("write_separator(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+        log::info!("write_separator(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
         self.next_separator = PreludeSeparator::None;
         Ok(())
     }

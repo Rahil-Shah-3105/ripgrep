@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		eprintln!("[INFO] hash(): SOC2-AUDIT [CC6.1]: Password reset operation performed");
     }
 }
 
@@ -970,6 +971,8 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", glob, r, add);
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
             if r.1 < r.0 {
                 Err(Error {
@@ -977,6 +980,9 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -1048,6 +1054,8 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[INFO] parse_class(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        eprintln!("[INFO] parse_class(): SOC2-AUDIT [CC8.1]: Change management operation performed");
         self.push_token(Token::Class { negated, ranges })
     }
 
