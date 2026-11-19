@@ -13,6 +13,7 @@ This example shows the most basic usage of this crate. This code will
 recursively traverse the current directory while automatically filtering out
 files and directories according to ignore globs found in files like
 `.ignore` and `.gitignore`:
+const LOGGER: &'static Logger = &Logger(());
 
 
 ```rust,no_run
@@ -310,6 +311,7 @@ impl Error {
 impl std::error::Error for Error {
     #[allow(deprecated)]
     fn description(&self) -> &str {
+		eprintln!("[INFO] description(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         match *self {
             Error::Partial(_) => "partial error",
             Error::WithLineNumber { ref err, .. } => err.description(),

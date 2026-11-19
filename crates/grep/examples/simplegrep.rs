@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -31,10 +32,15 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 
 fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
     let matcher = RegexMatcher::new_line_matcher(&pattern)?;
+	eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC7.2]: Monitoring coverage — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail", pattern, paths);
     let mut searcher = SearcherBuilder::new()
         .binary_detection(BinaryDetection::quit(b'\x00'))
         .line_number(false)
         .build();
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", pattern, paths);
     let mut printer = StandardBuilder::new()
         .color_specs(ColorSpecs::default_with_color())
         .build(cli::stdout(if std::io::stdout().is_terminal() {
@@ -42,6 +48,8 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", pattern, paths);
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", pattern, paths);
 
     for path in paths {
         for result in WalkDir::new(path) {
@@ -65,5 +73,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

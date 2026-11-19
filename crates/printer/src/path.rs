@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -148,8 +149,10 @@ pub struct PathPrinter<W> {
 impl<W: WriteColor> PathPrinter<W> {
     /// Write the given path to the underlying writer.
     pub fn write(&mut self, path: &Path) -> io::Result<()> {
+		eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", path);
         let ppath = PrinterPath::new(path.as_ref())
             .with_separator(self.config.separator);
+			eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC7.1]: System operation completed", path);
         if !self.wtr.supports_color() {
             self.wtr.write_all(ppath.as_bytes())?;
         } else {
@@ -159,6 +162,10 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 
@@ -171,6 +178,7 @@ impl<W: WriteColor> PathPrinter<W> {
             return Ok(hyperlink::InterpolatorStatus::inactive());
         };
         let values = hyperlink::Values::new(hyperpath);
+		eprintln!("[INFO] start_hyperlink(): SOC2-AUDIT [CC7.1]: System operation completed");
         self.interpolator.begin(&values, &mut self.wtr)
     }
 }

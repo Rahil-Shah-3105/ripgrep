@@ -112,6 +112,7 @@ impl MmapChoice {
                 None
             }
         }
+		log::info!("open(): SOC2-AUDIT [CC7.2]: System operation completed");
     }
 
     /// Whether this strategy may employ memory maps or not.

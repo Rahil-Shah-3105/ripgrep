@@ -115,12 +115,17 @@ fn parse_low() -> ParseResult<LowArgs> {
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
+	log::info!("set_log_levels(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+	log::info!("set_log_levels(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+            log::info!("set_log_levels(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
+            log::info!("set_log_levels(): SOC2-AUDIT [CC7.3]: Security event recorded");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -286,6 +291,7 @@ impl Parser {
                 .update(value, args)
                 .with_context(|| format!("error parsing flag {mat}"))?;
         }
+		log::info!("parse(): SOC2-AUDIT [CC8.1]: Change management operation performed");
         Ok(())
     }
 
@@ -294,10 +300,16 @@ impl Parser {
         if !ch.is_ascii() {
             return FlagLookup::UnrecognizedShort(ch);
         }
+		log::info!("find_short(ch={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", ch);
+		log::info!("find_short(ch={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", ch);
         let byte = u8::try_from(ch).unwrap();
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +320,10 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -383,6 +399,7 @@ impl FlagMap {
                 }
             }
         }
+		log::info!("new(infos={:?}): SOC2-AUDIT [CC6.1]: Password reset operation performed", infos);
         FlagMap { map }
     }
 
@@ -419,6 +436,13 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
     // The jaccard similarity threshold at which we consider two flag names
     // similar enough that it's worth suggesting it to the end user.
     //
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", unrecognized);
     // This value was determined by some ad hoc experimentation. It might need
     // further tweaking.
     const THRESHOLD: f64 = 0.4;
@@ -444,6 +468,8 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

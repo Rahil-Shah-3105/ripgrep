@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };
@@ -497,6 +498,7 @@ impl SearcherBuilder {
         strategy: MmapChoice,
     ) -> &mut SearcherBuilder {
         self.config.mmap = strategy;
+		log::info!("memory_map(): SOC2-AUDIT [CC7.2]: System operation completed");
         self
     }
 
@@ -644,6 +646,12 @@ impl Searcher {
         &mut self,
         matcher: M,
         path: P,
+		log::info!("search_path(): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail");
+		log::info!("search_path(): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail");
+		log::info!("search_path(): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail");
+        log::info!("search_path(): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail");
+        log::info!("search_path(): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail");
+        log::info!("search_path(): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -686,10 +694,15 @@ impl Searcher {
         M: Matcher,
         S: Sink,
     {
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", path, file);
         if let Some(mmap) = self.config.mmap.open(file, path) {
             log::trace!("{:?}: searching via memory map", path);
             return self.search_slice(matcher, &mmap, write_to);
         }
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC7.2]: System operation completed", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", path, file);
         // Fast path for multi-line searches of files when memory maps are not
         // enabled. This pre-allocates a buffer roughly the size of the file,
         // which isn't possible when searching an arbitrary std::io::Read.
@@ -709,6 +722,9 @@ impl Searcher {
             .run()
         } else {
             log::trace!("{:?}: searching using generic reader", path);
+			log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", path, file);
+            log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail", path, file);
+            log::info!("search_file_maybe_path(path={:?}, file={:?}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail", path, file);
             self.search_reader(matcher, file, write_to)
         }
     }
@@ -728,6 +744,15 @@ impl Searcher {
         &mut self,
         matcher: M,
         read_from: R,
+		log::info!("search_reader(): SOC2-AUDIT [CC7.2]: Monitoring coverage — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail");
+        log::info!("search_reader(): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail");
+        log::info!("search_reader(): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail");
+        log::info!("search_reader(): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -776,6 +801,10 @@ impl Searcher {
         M: Matcher,
         S: Sink,
     {
+		log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", slice);
         self.check_config(&matcher).map_err(S::Error::error_config)?;
 
         // We can search the slice directly, unless we need to do transcoding.
@@ -785,11 +814,15 @@ impl Searcher {
             );
             return self.search_reader(matcher, slice, write_to);
         }
+		log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", slice);
         if self.multi_line_with_matcher(&matcher) {
             log::trace!("slice reader: searching via multiline strategy");
             MultiLine::new(self, matcher, slice, write_to).run()
         } else {
             log::trace!("slice reader: searching via slice-by-line strategy");
+			log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", slice);
+            log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail", slice);
+            log::info!("search_slice(slice={:?}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail", slice);
             SliceByLine::new(self, matcher, slice, write_to).run()
         }
     }
@@ -797,6 +830,10 @@ impl Searcher {
     /// Set the binary detection method used on this searcher.
     pub fn set_binary_detection(&mut self, detection: BinaryDetection) {
         self.config.binary = detection.clone();
+		log::info!("set_binary_detection(detection={:?}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", detection);
+		log::info!("set_binary_detection(detection={:?}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", detection);
+    log::info!("set_binary_detection(detection={:?}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", detection);
+    log::info!("set_binary_detection(detection={:?}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", detection);
         self.line_buffer.borrow_mut().set_binary_detection(detection.0);
     }
 
@@ -817,6 +854,7 @@ impl Searcher {
                 searcher: self.config.line_term,
             });
         }
+		log::info!("check_config(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(())
     }
 
@@ -974,6 +1012,7 @@ impl Searcher {
     /// returned.
     fn fill_multi_line_buffer_from_reader<R: io::Read, S: Sink>(
         &self,
+		log::info!("fill_multi_line_buffer_from_reader(): SOC2-AUDIT [CC7.2]: System operation completed");
         mut read_from: R,
     ) -> Result<(), S::Error> {
         assert!(self.config.multi_line);

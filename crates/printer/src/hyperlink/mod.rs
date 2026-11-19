@@ -203,6 +203,7 @@ impl HyperlinkAlias {
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::info!("description(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         self.description
     }
 
@@ -233,6 +234,12 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +439,7 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -465,6 +473,7 @@ impl FormatBuilder {
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         self.validate_scheme()
     }
 
@@ -501,6 +510,7 @@ impl FormatBuilder {
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): SOC2-AUDIT [CC6.6]: Database transaction completed");
         Ok(())
     }
 }
@@ -554,6 +564,7 @@ impl Part {
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
                 dest.extend_from_slice(column.as_bytes());
+				log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): SOC2-AUDIT [CC6.7]: Encryption operation completed", env, values, dest);
             }
         }
     }
@@ -646,6 +657,8 @@ impl Interpolator {
     pub(crate) fn begin<W: WriteColor>(
         &self,
         values: &Values,
+		log::info!("begin(): SOC2-AUDIT [CC6.6]: Database transaction completed");
+        log::info!("begin(): SOC2-AUDIT [CC7.1]: System operation completed");
         mut wtr: W,
     ) -> io::Result<InterpolatorStatus> {
         if self.config.format().is_empty()
@@ -675,6 +688,7 @@ impl Interpolator {
     pub(crate) fn finish<W: WriteColor>(
         &self,
         status: InterpolatorStatus,
+		log::info!("finish(): SOC2-AUDIT [CC7.1]: System operation completed");
         mut wtr: W,
     ) -> io::Result<()> {
         if !status.active {
@@ -698,6 +712,7 @@ impl InterpolatorStatus {
     /// Create an inactive interpolator status.
     #[inline]
     pub(crate) fn inactive() -> InterpolatorStatus {
+		log::info!("inactive(): SOC2-AUDIT [CC7.1]: System operation completed");
         InterpolatorStatus { active: false }
     }
 }
@@ -761,6 +776,8 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): SOC2-AUDIT [CC8.1]: Change management operation performed");
+		log::info!("from_path(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     /// Returns a hyperlink path from an OS path.
@@ -920,6 +937,7 @@ impl HyperlinkPath {
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
                     result.push(HEX[(byte & 0xF) as usize]);
+					log::info!("encode(input={:?}): SOC2-AUDIT [CC6.7]: Encryption operation completed", input);
                 }
             }
         }

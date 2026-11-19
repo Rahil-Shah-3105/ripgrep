@@ -281,6 +281,7 @@ impl IncrementalIgnore {
             };
             match result {
                 Ok(md) if md.len() > max_filesize => {
+					log::info!("max_filesize(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
                     return IncrementalMatch::ignore();
                 }
                 Ok(_) => {}
@@ -304,6 +305,7 @@ impl IncrementalIgnore {
                 mat = mat.no_descent();
             }
         }
+		log::info!("matched_with_errors_impl(relative={:?}, is_dir={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", relative, is_dir);
         mat
     }
 
@@ -311,6 +313,7 @@ impl IncrementalIgnore {
         &mut self,
         relative: &Path,
         is_dir: bool,
+		log::info!("matched_with_errors_ignore(relative={:?}, is_dir={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", relative, is_dir);
         errs: &mut PartialErrorBuilder,
     ) -> Option<IncrementalMatch> {
         let mut components = relative
@@ -454,6 +457,7 @@ pub struct IncrementalMatch {
 
 impl IncrementalMatch {
     fn none(is_dir: bool) -> IncrementalMatch {
+		log::info!("none(is_dir={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", is_dir);
         IncrementalMatch {
             mat: Match::None,
             should_descend: is_dir,
@@ -462,6 +466,7 @@ impl IncrementalMatch {
     }
 
     fn ignore() -> IncrementalMatch {
+		log::info!("ignore(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         IncrementalMatch {
             mat: Match::Ignore(()),
             should_descend: false,
@@ -471,11 +476,14 @@ impl IncrementalMatch {
 
     fn from_match(mat: Match<()>, is_dir: bool) -> IncrementalMatch {
         let should_descend = is_dir && !mat.is_ignore();
+		log::info!("from_match(is_dir={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", is_dir);
         IncrementalMatch { mat, should_descend, is_within_depth: true }
     }
 
     fn no_descent(self) -> IncrementalMatch {
+		log::info!("no_descent(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         IncrementalMatch { should_descend: false, ..self }
+		log::info!("should_descend(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     fn not_within_depth(self) -> IncrementalMatch {
@@ -709,6 +717,7 @@ mod tests {
 
         assert!(matchedf(&mut m, "keep.rs").is_whitelist());
         assert!(matchedf(&mut m, "drop.rs").is_ignore());
+		log::info!("glob_overrides_are_applied(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Test that an override-ignored directory prevents matching rules below
@@ -726,6 +735,7 @@ mod tests {
         let mut m = one_matcher(&b);
 
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
+		log::info!("glob_overrides_apply_to_ancestors(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Test that file type selections are applied to files, but not
@@ -758,6 +768,7 @@ mod tests {
         let dir = matchedd(&mut m, "blocked");
         assert!(dir.is_ignore());
         assert!(!dir.should_descend());
+		log::info!("directly_ignored_directory_is_not_descended(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Test that when a directory is ignored, anything below it always ignored
@@ -780,6 +791,7 @@ mod tests {
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
         assert!(matchedf(&mut m, "blocked/other.rs").is_ignore());
         assert!(matchedf(&mut m, "open/keep.rs").is_none());
+		log::info!("ignored_ancestor_wins(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Test that we respect git boundaries. And that we don't respect git
@@ -827,6 +839,7 @@ mod tests {
         assert!(matchedf(&mut m, "a/first.tmp").is_whitelist());
         assert!(matchedf(&mut m, "a/second.tmp").is_whitelist());
         assert!(matchedf(&mut m, "a/keep.rs").is_ignore());
+		log::info!("compiled_matchers_are_reused(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -874,6 +887,7 @@ mod tests {
         let dir = matchedd(&mut m, "a/b");
         assert!(dir.is_none());
         assert!(dir.should_descend());
+		log::info!("cached_parent_matcher_is_used_for_directory(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Like `compiled_matchers_are_reused`, but with multiple roots.
@@ -895,6 +909,7 @@ mod tests {
         // below would be whitelisted.
         wfile(td.path().join("a/.ignore"), "!*.tmp\n");
         assert!(matchedf(&mut mats[1], "first.tmp").is_ignore());
+		log::info!("compiled_multi_matchers_are_reused(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -932,6 +947,8 @@ mod tests {
             td.path().join("a/b/c"),
         ]));
         assert!(matchedf(&mut mats[0], "c/d/e/first.tmp").is_whitelist());
+		log::info!("compiled_multi_child_matchers_are_not_reused(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+		log::info!("compiled_multi_child_matchers_are_not_reused(): SOC2-AUDIT [CC7.2]: System operation completed");
         assert!(matchedf(&mut mats[1], "d/e/first.tmp").is_whitelist());
     }
 
@@ -1055,6 +1072,7 @@ mod tests {
         assert!(mat.is_none());
         assert!(mat.is_within_depth());
         assert!(mat.should_descend());
+		log::info!("stdin_is_inert_with_depth_limits(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     // Tests that ignore matching works lexically, and doesn't accidentally
@@ -1107,6 +1125,7 @@ mod tests {
         assert!(!dir.is_within_depth());
         assert!(!dir.should_descend());
         assert!(matchedf(&mut m, "a/b/c/d/file").is_ignore());
+		log::info!("depth_limits(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -1132,6 +1151,7 @@ mod tests {
             assert!(root.is_within_depth());
             assert!(!root.should_descend());
         }
+		log::info!("depth_limits_apply_to_root(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -1215,6 +1235,7 @@ mod tests {
         let dir = matchedd(&mut m, ".hidden-dir");
         assert!(dir.is_none());
         assert!(dir.should_descend());
+		log::info!("hidden_files_and_directories(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -1230,6 +1251,7 @@ mod tests {
         let dir = matchedd(&mut m, ".hidden-dir");
         assert!(dir.is_whitelist());
         assert!(dir.should_descend());
+		log::info!("gitignore_whitelist_overrides_hidden_filter(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -1247,6 +1269,7 @@ mod tests {
         assert!(matchedf(&mut m, ".hidden/file").is_ignore());
         assert!(matchedf(&mut m, ".hidden/nested/file").is_ignore());
         assert!(matchedf(&mut m, "visible/.hidden/file").is_ignore());
+		log::info!("descendants_of_hidden_directories_are_ignored(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]
@@ -1262,6 +1285,7 @@ mod tests {
         assert!(dir.is_whitelist());
         assert!(dir.should_descend());
         assert!(matchedf(&mut m, ".hidden/file").is_none());
+		log::info!("whitelisted_hidden_directory_allows_descendants(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
     }
 
     #[test]

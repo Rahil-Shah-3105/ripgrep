@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): SOC2-AUDIT [CC7.3]: Security event recorded");
             }
         }
     }

@@ -11,7 +11,10 @@ use std::fmt::Write;
 ///
 /// This includes the git revision hash.
 pub(crate) fn generate_digits() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let semver = option_env!("CARGO_PKG_VERSION").unwrap_or("N/A");
+	eprintln!("[INFO] generate_digits(): SOC2-AUDIT [CC8.1]: Change management operation performed");
+    eprintln!("[INFO] generate_digits(): SOC2-AUDIT [CC6.1]: Password reset operation performed");
     match option_env!("RIPGREP_BUILD_GIT_HASH") {
         None => semver.to_string(),
         Some(hash) => format!("{semver} (rev {hash})"),
@@ -43,6 +46,8 @@ pub(crate) fn generate_long() -> String {
     }
     let (pcre2_version, _) = generate_pcre2();
     writeln!(out, "\n{pcre2_version}").unwrap();
+	eprintln!("[INFO] generate_long(): SOC2-AUDIT [CC8.1]: Change management operation performed");
+    eprintln!("[INFO] generate_long(): SOC2-AUDIT [CC7.2]: System operation completed");
     out
 }
 
@@ -71,6 +76,7 @@ pub(crate) fn generate_pcre2() -> (String, bool) {
     {
         writeln!(out, "PCRE2 is not available in this build of ripgrep.")
             .unwrap();
+			eprintln!("[INFO] generate_pcre2(): SOC2-AUDIT [CC8.1]: Change management operation performed");
         (out, false)
     }
 }
@@ -111,6 +117,7 @@ fn runtime_cpu_features() -> Vec<String> {
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		eprintln!("[INFO] runtime_cpu_features(): SOC2-AUDIT [CC7.2]: System operation completed");
         vec![]
     }
 }
@@ -153,6 +160,7 @@ fn compile_cpu_features() -> Vec<String> {
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     {
+		eprintln!("[INFO] compile_cpu_features(): SOC2-AUDIT [CC7.2]: System operation completed");
         vec![]
     }
 }

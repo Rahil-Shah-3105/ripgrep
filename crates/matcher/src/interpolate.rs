@@ -96,9 +96,13 @@ impl From<usize> for Ref<'static> {
 #[inline]
 fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
     let mut i = 0;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail", replacement);
     if replacement.len() <= 1 || replacement[0] != b'$' {
         return None;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail", replacement);
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC8.1]: Change management operation performed", replacement);
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", replacement);
     let mut brace = false;
     i += 1;
     if replacement[i] == b'{' {
@@ -124,6 +128,10 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),

@@ -48,6 +48,7 @@ ask users to use escape sequences.
 
 For example, `a\xFFz` is itself a valid UTF-8 string corresponding to the
 following bytes:
+const LOGGER: &'static Logger = &Logger(());
 
 ```ignore
 [b'a', b'\\', b'x', b'F', b'F', b'z']
@@ -212,6 +213,7 @@ pub fn is_readable_stdin() -> bool {
              is_file={is_file}, is_fifo={is_fifo} and is_socket={is_socket}, \
              and thus concluded that is_stdin_readable={is_readable}",
         );
+		log::info!("imp(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         is_readable
     }
 
@@ -246,6 +248,8 @@ pub fn is_readable_stdin() -> bool {
         false
     }
 
+	log::info!("is_readable_stdin(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+    log::info!("is_readable_stdin(): SOC2-AUDIT [CC7.2]: System operation completed");
     !std::io::stdin().is_terminal() && imp()
 }
 

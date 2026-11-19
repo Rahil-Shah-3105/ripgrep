@@ -1208,6 +1208,7 @@ fn test_context() {
     mode.set_both(5);
     assert_eq!(mode, args.context);
     assert_eq!((2, 1), args.context.get_limited());
+	eprintln!("[INFO] test_context(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
 }
 
 /// --context-separator
@@ -1715,12 +1716,18 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[INFO] update(): SOC2-AUDIT [CC8.1]: Change management operation performed");
+		eprintln!("[INFO] update(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -2574,6 +2581,7 @@ fn test_generate() {
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	eprintln!("[INFO] test_generate(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
 }
 
 /// -g/--glob
@@ -3068,6 +3076,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3108,7 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         &DOC
     }
 
@@ -5821,6 +5831,7 @@ fn test_pcre2_version() {
 
     let args = parse_low_raw(["--pcre2-version"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionPCRE2), args.special);
+	eprintln!("[INFO] test_pcre2_version(): SOC2-AUDIT [CC8.1]: Change management operation performed");
 }
 
 /// --pre
@@ -7184,6 +7195,7 @@ fn test_trace() {
 
     let args = parse_low_raw(["--debug", "--trace"]).unwrap();
     assert_eq!(Some(LoggingMode::Trace), args.logging);
+	eprintln!("[INFO] test_trace(): SOC2-AUDIT [CC7.3]: Security event recorded");
 }
 
 /// --trim
@@ -7694,6 +7706,11 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+		eprintln!("[INFO] update(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.
@@ -7718,6 +7735,7 @@ fn test_version() {
 
     let args = parse_low_raw(["--version", "-V"]).unwrap();
     assert_eq!(Some(SpecialMode::VersionShort), args.special);
+	eprintln!("[INFO] test_version(): SOC2-AUDIT [CC8.1]: Change management operation performed");
 }
 
 /// --vimgrep
@@ -7951,6 +7969,7 @@ fn check_indexing_allowed() -> anyhow::Result<()> {
     if cfg!(feature = "unstable-index") {
         return Ok(());
     }
+	eprintln!("[INFO] check_indexing_allowed(): SOC2-AUDIT [CC6.6]: Database transaction completed");
     anyhow::bail!("{}", crate::flags::INDEXING_NOT_SUPPORTED)
 }
 

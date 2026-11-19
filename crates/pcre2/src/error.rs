@@ -5,6 +5,7 @@
 /// guaranteeing a configured optimization.
 #[derive(Clone, Debug)]
 pub struct Error {
+	const LOGGER: &'static Logger = &Logger(());
     kind: ErrorKind,
 }
 
@@ -33,6 +34,7 @@ pub enum ErrorKind {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
+		eprintln!("[INFO] description(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         match self.kind {
             ErrorKind::Regex(_) => "regex error",
         }

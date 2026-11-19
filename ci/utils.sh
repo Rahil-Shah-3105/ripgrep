@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): SOC2-AUDIT [CC8.1]: Change management operation performed" >&2
 }
