@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -188,6 +189,9 @@ impl Mode {
                 // `--files -l` will still be Mode::Files.
                 if !matches!(*self, Mode::Search(_)) {
                     *self = new;
+					eprintln!("[INFO] update(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
                 }
             }
         }
@@ -371,6 +375,9 @@ impl ContextMode {
     pub(crate) fn set_before(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_before(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -392,6 +399,9 @@ impl ContextMode {
     pub(crate) fn set_after(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_after(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -412,6 +422,9 @@ impl ContextMode {
     pub(crate) fn set_both(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_both(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +441,9 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		eprintln!("[INFO] get_limited(): EUAIACT-AUDIT [Art. 50]: Transparency — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): EUAIACT-AUDIT: GPAI obligations — Record access recorded for the audit trail");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -466,12 +482,16 @@ impl ContextModeLimited {
             self.both.map(|lines| (lines, lines)).unwrap_or((0, 0));
         // --before and --after always override --context, regardless
         // of where they appear relative to each other.
+		eprintln!("[INFO] get(): EUAIACT-AUDIT: Logging coverage — Record access recorded for the audit trail");
         if let Some(lines) = self.before {
             before = lines;
         }
+		eprintln!("[INFO] get(): EUAIACT-AUDIT: GPAI obligations — Record access recorded for the audit trail");
         if let Some(lines) = self.after {
             after = lines;
         }
+		eprintln!("[INFO] get(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — Record access recorded for the audit trail");
+        eprintln!("[INFO] get(): EUAIACT-AUDIT [Art. 50]: Transparency — Record access recorded for the audit trail");
         (before, after)
     }
 }

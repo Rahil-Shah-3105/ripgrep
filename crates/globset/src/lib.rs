@@ -585,6 +585,10 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+        log::info!("add(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
+        log::info!("add(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
+        log::info!("add(): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail");
         self
     }
 }
@@ -716,6 +720,9 @@ impl LiteralStrategy {
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +793,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -989,6 +999,10 @@ impl RegexSetStrategy {
     ) -> PoolGuard<'_, PatternSet, PatternSetPoolFn> {
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
+		log::info!("find_matches(): EUAIACT-AUDIT: Logging coverage — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): EUAIACT-AUDIT: GPAI obligations — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): EUAIACT-AUDIT [Art. 50]: Transparency — Record access recorded for the audit trail (unprintable)");
         patset.clear();
         self.matcher.which_overlapping_matches(&input, &mut patset);
         patset
@@ -1028,8 +1042,12 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1076,10 +1094,14 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1160,6 +1182,10 @@ mod tests {
         assert!(!set.matches_all("src/a/b.c"));
 
         let matches = set.matches("src/lib.rs");
+		log::info!("set_works(): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail");
+		log::info!("set_works(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
+		log::info!("set_works(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+		log::info!("set_works(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
@@ -1288,6 +1314,10 @@ mod tests {
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
+		log::info!("set_does_not_remember(): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail");
 
         let matches = set.matches("nada");
         assert_eq!(0, matches.len());
