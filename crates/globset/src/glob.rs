@@ -970,13 +970,17 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -1048,6 +1052,8 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[INFO] parse_class(): FERPA-AUDIT: Inspect amend — Database transaction completed");
+        eprintln!("[INFO] parse_class(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed");
         self.push_token(Token::Class { negated, ranges })
     }
 

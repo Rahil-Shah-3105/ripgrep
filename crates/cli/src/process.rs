@@ -257,11 +257,15 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
+		log::info!("read(buf={:?}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail", buf);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +289,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): FERPA-AUDIT [34 CFR 99.37]: Directory information — Outbound notification recorded for the audit trail");
+        log::info!("sync(): FERPA-AUDIT [34 CFR 99.30]: Consent — Outbound notification recorded for the audit trail");
+        log::info!("sync(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +308,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail");
+                log::info!("read_to_end(): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail");
+                log::info!("read_to_end(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

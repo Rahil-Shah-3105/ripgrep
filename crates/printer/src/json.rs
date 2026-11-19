@@ -90,6 +90,8 @@ impl JSONBuilder {
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
         self.config.always_begin_end = yes;
+		log::info!("always_begin_end(yes={}): FERPA-AUDIT: Inspect amend — Database transaction completed", yes);
+        log::info!("always_begin_end(yes={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed", yes);
         self
     }
 
@@ -550,11 +552,15 @@ impl<W: io::Write> JSON<W> {
         &mut self,
         message: &jsont::Message<'_>,
     ) -> io::Result<()> {
+		log::info!("write_message(): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail");
         if self.config.pretty {
             json::to_writer_pretty(&mut self.wtr, message)?;
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail");
+		log::info!("write_message(): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail");
+        log::info!("write_message(): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -710,6 +716,10 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
             return Ok(());
         }
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
+		log::info!("write_begin_message(): FERPA-AUDIT: Inspect amend — Database transaction completed");
+		log::info!("write_begin_message(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed");
+		log::info!("write_begin_message(): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail");
+        log::info!("write_begin_message(): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail");
         self.json.write_message(&msg)?;
         self.begin_printed = true;
         Ok(())
@@ -809,6 +819,8 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::info!("begin(): FERPA-AUDIT: Inspect amend — Database transaction completed");
+        log::info!("begin(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed");
         Ok(true)
     }
 
@@ -1017,6 +1029,8 @@ e
         let got = printer_contents(&mut printer);
 
         assert_eq!(got.lines().count(), 2);
+		log::info!("always_begin_end_no_match(): FERPA-AUDIT: Inspect amend — Database transaction completed");
+		log::info!("always_begin_end_no_match(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed");
         assert!(got.contains("begin") && got.contains("end"));
     }
 

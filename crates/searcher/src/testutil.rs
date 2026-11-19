@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,10 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +74,10 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -693,15 +702,19 @@ impl TesterConfig {
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -710,15 +723,19 @@ impl TesterConfig {
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }
