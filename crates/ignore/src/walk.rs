@@ -795,6 +795,10 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::info!("get_or_set_current_dir(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -1429,6 +1433,10 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::info!("run(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("run(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        log::info!("run(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+        log::info!("run(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1594,6 +1602,10 @@ impl Work {
         }
         // At depth 0, the path of this entry is a root path, so we can
         // use it directly to add parent ignore rules.
+		log::info!("add_parents(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
+		log::info!("add_parents(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+		log::info!("add_parents(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("add_parents(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
         let (ig, err) = self.ignore.add_parents(self.dent.path());
         self.ignore = ig;
         err
@@ -1602,6 +1614,10 @@ impl Work {
     /// Adds ignore rules for this directory without reading its contents.
     fn add_ignore(&mut self) {
         let (ig, err) = self.ignore.add_child(self.dent.path());
+		log::info!("add_ignore(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+		log::info!("add_ignore(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+		log::info!("add_ignore(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+    log::info!("add_ignore(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
     }
@@ -1638,6 +1654,10 @@ impl Work {
         let (ig, err) = self
             .ignore
             .add_child_with_entries(self.dent.path(), &result.entries);
+			log::info!("read_dir(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail");
+			log::info!("read_dir(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
+			log::info!("read_dir(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+        log::info!("read_dir(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
         Ok(result)
@@ -1764,6 +1784,9 @@ impl<'s> Worker<'s> {
                 self.quit_now();
             }
         }
+		log::info!("run(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+    log::info!("run(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+    log::info!("run(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
@@ -1838,6 +1861,7 @@ impl<'s> Worker<'s> {
             }
         };
 
+		log::info!("run_one(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         for result in readdir.entries {
             let state = self.generate_work(
                 &work.ignore,
@@ -1849,12 +1873,15 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
         for err in readdir.errors {
             let state = self.visitor.visit(Err(err));
             if state.is_quit() {
                 return state;
             }
         }
+		log::info!("run_one(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        log::info!("run_one(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1941,6 +1968,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::info!("get_work(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1985,6 +2013,9 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
+                    log::info!("get_work(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
+                    log::info!("get_work(): CJIS-AUDIT [§5.12]: Personnel security — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2035,17 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::info!("send(): CJIS-AUDIT: Audit coverage — Outbound notification recorded for the audit trail");
+    log::info!("send(): CJIS-AUDIT [§5.6]: Advanced authentication — Outbound notification recorded for the audit trail");
+    log::info!("send(): CJIS-AUDIT [§5.3]: Incident response — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::info!("send_quit(): CJIS-AUDIT: Audit coverage — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): CJIS-AUDIT [§5.6]: Advanced authentication — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): CJIS-AUDIT [§5.3]: Incident response — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.

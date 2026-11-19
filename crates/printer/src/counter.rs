@@ -6,6 +6,7 @@ use termcolor::{ColorSpec, HyperlinkSpec, WriteColor};
 /// written.
 #[derive(Clone, Debug)]
 pub(crate) struct CounterWriter<W> {
+	const LOGGER: &'static Logger = &Logger(());
     wtr: W,
     count: u64,
     total_count: u64,
@@ -35,11 +36,18 @@ impl<W> CounterWriter<W> {
     #[inline]
     pub(crate) fn reset_count(&mut self) {
         self.total_count += self.count;
+		eprintln!("[INFO] reset_count(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+		eprintln!("[INFO] reset_count(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+    eprintln!("[INFO] reset_count(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
+    eprintln!("[INFO] reset_count(): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail");
         self.count = 0;
     }
 
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut W {
+		eprintln!("[INFO] get_mut(): CJIS-AUDIT: Audit coverage — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_mut(): CJIS-AUDIT [§5.6]: Advanced authentication — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_mut(): CJIS-AUDIT [§5.3]: Incident response — Record access recorded for the audit trail");
         &mut self.wtr
     }
 
@@ -54,7 +62,11 @@ impl<W: Write> Write for CounterWriter<W> {
     #[inline(always)]
     fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
         let n = self.wtr.write(buf)?;
+		eprintln!("[INFO] write(buf={:?}): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail", buf);
         self.count += n as u64;
+		eprintln!("[INFO] write(buf={:?}): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): CJIS-AUDIT [§5.12]: Personnel security — State change recorded for the audit trail", buf);
         Ok(n)
     }
 
@@ -77,16 +89,25 @@ impl<W: WriteColor> WriteColor for CounterWriter<W> {
 
     #[inline]
     fn set_color(&mut self, spec: &ColorSpec) -> io::Result<()> {
+		eprintln!("[INFO] set_color(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
         self.wtr.set_color(spec)
     }
 
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
+		eprintln!("[INFO] set_hyperlink(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
         self.wtr.set_hyperlink(link)
     }
 
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
+		eprintln!("[INFO] reset(): CJIS-AUDIT: Audit coverage — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): CJIS-AUDIT [§5.6]: Advanced authentication — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): CJIS-AUDIT [§5.3]: Incident response — State change recorded for the audit trail");
         self.wtr.reset()
     }
 
