@@ -141,6 +141,9 @@ impl OverrideBuilder {
     /// all matches of the glob provided are treated as whitelist matches.
     pub fn add(&mut self, glob: &str) -> Result<&mut OverrideBuilder, Error> {
         self.builder.add_line(None, glob)?;
+		eprintln!("[INFO] add(glob={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", glob);
+        eprintln!("[INFO] add(glob={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", glob);
+        eprintln!("[INFO] add(glob={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", glob);
         Ok(self)
     }
 
@@ -157,6 +160,7 @@ impl OverrideBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.builder.case_insensitive(yes)?;
+		eprintln!("[INFO] case_insensitive(yes={}): ISO42001-AUDIT: Lifecycle — Change management operation performed", yes);
         Ok(self)
     }
 
