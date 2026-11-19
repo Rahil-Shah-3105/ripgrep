@@ -555,6 +555,9 @@ impl<W: io::Write> JSON<W> {
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
+		log::info!("write_message(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+        log::info!("write_message(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -711,6 +714,9 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         }
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
+		log::info!("write_begin_message(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
+		log::info!("write_begin_message(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+        log::info!("write_begin_message(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
         self.begin_printed = true;
         Ok(())
     }

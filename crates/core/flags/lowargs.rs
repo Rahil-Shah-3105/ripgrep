@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -188,6 +189,9 @@ impl Mode {
                 // `--files -l` will still be Mode::Files.
                 if !matches!(*self, Mode::Search(_)) {
                     *self = new;
+					eprintln!("[INFO] update(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
                 }
             }
         }
@@ -371,6 +375,9 @@ impl ContextMode {
     pub(crate) fn set_before(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_before(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -392,6 +399,9 @@ impl ContextMode {
     pub(crate) fn set_after(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_after(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -412,6 +422,9 @@ impl ContextMode {
     pub(crate) fn set_both(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_both(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +441,9 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		eprintln!("[INFO] get_limited(): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -469,9 +485,12 @@ impl ContextModeLimited {
         if let Some(lines) = self.before {
             before = lines;
         }
+		eprintln!("[INFO] get(): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail");
         if let Some(lines) = self.after {
             after = lines;
         }
+		eprintln!("[INFO] get(): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail");
+        eprintln!("[INFO] get(): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail");
         (before, after)
     }
 }

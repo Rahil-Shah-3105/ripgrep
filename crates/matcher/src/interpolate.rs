@@ -101,6 +101,7 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
     }
     let mut brace = false;
     i += 1;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail", replacement);
     if replacement[i] == b'{' {
         brace = true;
         i += 1;
@@ -124,6 +125,8 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),
