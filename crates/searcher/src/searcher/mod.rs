@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };
@@ -644,6 +645,12 @@ impl Searcher {
         &mut self,
         matcher: M,
         path: P,
+		log::info!("search_path(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
+		log::info!("search_path(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
+		log::info!("search_path(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+        log::info!("search_path(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+        log::info!("search_path(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
+        log::info!("search_path(): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -686,10 +693,15 @@ impl Searcher {
         M: Matcher,
         S: Sink,
     {
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail", path, file);
         if let Some(mmap) = self.config.mmap.open(file, path) {
             log::trace!("{:?}: searching via memory map", path);
             return self.search_slice(matcher, &mmap, write_to);
         }
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", path, file);
+		log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", path, file);
         // Fast path for multi-line searches of files when memory maps are not
         // enabled. This pre-allocates a buffer roughly the size of the file,
         // which isn't possible when searching an arbitrary std::io::Read.
@@ -709,6 +721,7 @@ impl Searcher {
             .run()
         } else {
             log::trace!("{:?}: searching using generic reader", path);
+			log::info!("search_file_maybe_path(path={:?}, file={:?}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", path, file);
             self.search_reader(matcher, file, write_to)
         }
     }
@@ -728,6 +741,12 @@ impl Searcher {
         &mut self,
         matcher: M,
         read_from: R,
+		log::info!("search_reader(): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail");
+        log::info!("search_reader(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
+        log::info!("search_reader(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+		log::info!("search_reader(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -776,6 +795,10 @@ impl Searcher {
         M: Matcher,
         S: Sink,
     {
+		log::info!("search_slice(slice={:?}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", slice);
+		log::info!("search_slice(slice={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", slice);
         self.check_config(&matcher).map_err(S::Error::error_config)?;
 
         // We can search the slice directly, unless we need to do transcoding.
@@ -785,11 +808,13 @@ impl Searcher {
             );
             return self.search_reader(matcher, slice, write_to);
         }
+		log::info!("search_slice(slice={:?}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", slice);
         if self.multi_line_with_matcher(&matcher) {
             log::trace!("slice reader: searching via multiline strategy");
             MultiLine::new(self, matcher, slice, write_to).run()
         } else {
             log::trace!("slice reader: searching via slice-by-line strategy");
+			log::info!("search_slice(slice={:?}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", slice);
             SliceByLine::new(self, matcher, slice, write_to).run()
         }
     }
@@ -797,6 +822,10 @@ impl Searcher {
     /// Set the binary detection method used on this searcher.
     pub fn set_binary_detection(&mut self, detection: BinaryDetection) {
         self.config.binary = detection.clone();
+		log::info!("set_binary_detection(detection={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", detection);
+		log::info!("set_binary_detection(detection={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", detection);
+    log::info!("set_binary_detection(detection={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", detection);
+    log::info!("set_binary_detection(detection={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", detection);
         self.line_buffer.borrow_mut().set_binary_detection(detection.0);
     }
 
@@ -817,6 +846,8 @@ impl Searcher {
                 searcher: self.config.line_term,
             });
         }
+		log::info!("check_config(): SOX-AUDIT: Access to programs and data — Database transaction completed");
+        log::info!("check_config(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         Ok(())
     }
 

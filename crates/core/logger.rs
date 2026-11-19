@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): SOX-AUDIT: Computer operations — Security event recorded");
             }
         }
     }

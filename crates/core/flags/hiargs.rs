@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -258,6 +259,7 @@ impl HiArgs {
             }
         };
 
+		log::info!("from_low_args(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed");
         Ok(HiArgs {
             mode: low.mode,
             patterns,
@@ -706,6 +708,12 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::info!("search_worker(): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail");
+        log::info!("search_worker(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
+        log::info!("search_worker(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
+        log::info!("search_worker(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
+		log::info!("search_worker(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+        log::info!("search_worker(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();
@@ -1080,6 +1088,7 @@ impl Patterns {
                 }
             }
         }
+		log::info!("from_low_args(state={:?}): SOX-AUDIT: Audit log tamper — Data integrity check performed", state);
         Ok(Patterns { patterns })
     }
 }

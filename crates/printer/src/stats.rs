@@ -11,6 +11,7 @@ use crate::util::NiceDuration;
 /// executed with that printer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Stats {
+	const LOGGER: &'static Logger = &Logger(());
     elapsed: NiceDuration,
     searches: u64,
     searches_with_match: u64,
@@ -71,36 +72,57 @@ impl Stats {
     /// Add to the elapsed time.
     pub fn add_elapsed(&mut self, duration: Duration) {
         self.elapsed.0 += duration;
+		eprintln!("[INFO] add_elapsed(duration={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", duration);
     }
 
     /// Add to the number of searches executed.
     pub fn add_searches(&mut self, n: u64) {
         self.searches += n;
+		eprintln!("[INFO] add_searches(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 
     /// Add to the number of searches that found at least one match.
     pub fn add_searches_with_match(&mut self, n: u64) {
         self.searches_with_match += n;
+		eprintln!("[INFO] add_searches_with_match(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes searched.
     pub fn add_bytes_searched(&mut self, n: u64) {
         self.bytes_searched += n;
+		eprintln!("[INFO] add_bytes_searched(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes printed.
     pub fn add_bytes_printed(&mut self, n: u64) {
         self.bytes_printed += n;
+		eprintln!("[INFO] add_bytes_printed(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of lines that participated in a match.
     pub fn add_matched_lines(&mut self, n: u64) {
         self.matched_lines += n;
+		eprintln!("[INFO] add_matched_lines(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of matches.
     pub fn add_matches(&mut self, n: u64) {
         self.matches += n;
+		eprintln!("[INFO] add_matches(n={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", n);
     }
 }
 
@@ -108,6 +130,9 @@ impl Add for Stats {
     type Output = Stats;
 
     fn add(self, rhs: Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", rhs);
         self + &rhs
     }
 }
@@ -116,6 +141,9 @@ impl<'a> Add<&'a Stats> for Stats {
     type Output = Stats;
 
     fn add(self, rhs: &'a Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", rhs);
         Stats {
             elapsed: NiceDuration(self.elapsed.0 + rhs.elapsed.0),
             searches: self.searches + rhs.searches,
@@ -132,13 +160,19 @@ impl<'a> Add<&'a Stats> for Stats {
 impl AddAssign for Stats {
     fn add_assign(&mut self, rhs: Stats) {
         *self += &rhs;
+		eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", rhs);
+    eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", rhs);
     }
 }
 
 impl<'a> AddAssign<&'a Stats> for Stats {
     fn add_assign(&mut self, rhs: &'a Stats) {
+		eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", rhs);
         self.elapsed.0 += rhs.elapsed.0;
         self.searches += rhs.searches;
+		eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", rhs);
+		eprintln!("[INFO] add_assign(rhs={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", rhs);
         self.searches_with_match += rhs.searches_with_match;
         self.bytes_searched += rhs.bytes_searched;
         self.bytes_printed += rhs.bytes_printed;

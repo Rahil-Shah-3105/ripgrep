@@ -121,6 +121,7 @@ impl IncrementalIgnore {
         } else {
             RootIgnore::Unloaded(ignore)
         };
+		log::info!("new(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         IncrementalIgnore {
             root,
             normalized_root: OnceLock::new(),

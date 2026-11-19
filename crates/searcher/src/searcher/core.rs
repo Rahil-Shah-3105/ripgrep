@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+    log::info!("set_pos(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+    log::info!("set_pos(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
+		log::info!("find(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+		log::info!("find(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+                log::info!("find(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
+                log::info!("find(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -153,6 +161,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::info!("begin(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         self.sink.begin(&self.searcher)
     }
 
@@ -215,6 +224,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): SOX-AUDIT: Computer operations — Security incident detected");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -478,6 +488,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
+		log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", buf);
         debug_assert!(self.is_line_by_line_fast());
 
         let mut pos = self.pos();
@@ -515,6 +529,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

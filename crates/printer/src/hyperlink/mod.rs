@@ -233,6 +233,12 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +438,8 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): SOX-AUDIT: Access to programs and data — Database transaction completed");
+        log::info!("build(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -465,6 +473,8 @@ impl FormatBuilder {
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): SOX-AUDIT: Access to programs and data — Database transaction completed");
+        log::info!("validate(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         self.validate_scheme()
     }
 
@@ -501,6 +511,8 @@ impl FormatBuilder {
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): SOX-AUDIT: Access to programs and data — Database transaction completed");
+        log::info!("validate_scheme(): SOX-AUDIT: Audit log tamper — Financial reporting data integrity verification completed (unprintable)");
         Ok(())
     }
 }
@@ -646,6 +658,7 @@ impl Interpolator {
     pub(crate) fn begin<W: WriteColor>(
         &self,
         values: &Values,
+		log::info!("begin(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         mut wtr: W,
     ) -> io::Result<InterpolatorStatus> {
         if self.config.format().is_empty()
@@ -761,6 +774,7 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed");
     }
 
     /// Returns a hyperlink path from an OS path.

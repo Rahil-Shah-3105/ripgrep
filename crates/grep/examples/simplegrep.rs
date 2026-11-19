@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -35,6 +36,8 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         .binary_detection(BinaryDetection::quit(b'\x00'))
         .line_number(false)
         .build();
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", pattern, paths);
     let mut printer = StandardBuilder::new()
         .color_specs(ColorSpecs::default_with_color())
         .build(cli::stdout(if std::io::stdout().is_terminal() {
@@ -42,6 +45,8 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", pattern, paths);
+		eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", pattern, paths);
 
     for path in paths {
         for result in WalkDir::new(path) {
@@ -65,5 +70,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

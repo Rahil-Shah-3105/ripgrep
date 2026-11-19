@@ -8,6 +8,7 @@ the `git` command line tool.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -445,9 +446,14 @@ impl GitignoreBuilder {
         from: Option<PathBuf>,
         gitignore: &str,
     ) -> Result<&mut GitignoreBuilder, Error> {
+		log::info!("add_str(from={:?}, gitignore={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", from, gitignore);
         for line in gitignore.lines() {
             self.add_line(from.clone(), line)?;
         }
+		log::info!("add_str(from={:?}, gitignore={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", from, gitignore);
+        log::info!("add_str(from={:?}, gitignore={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", from, gitignore);
         Ok(self)
     }
 
@@ -507,6 +513,7 @@ impl GitignoreBuilder {
             // See: https://github.com/BurntSushi/ripgrep/issues/2236
             if line.as_bytes().last() == Some(&b'\\') {
                 line = &line[..line.len() - 1];
+				log::info!("add_line(from={:?}, line={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", from, line);
             }
         }
         glob.actual = line.to_string();
@@ -553,6 +560,7 @@ impl GitignoreBuilder {
         // TODO: This should not return a `Result`. Fix this in the next semver
         // release.
         self.case_insensitive = yes;
+		log::info!("case_insensitive(yes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed", yes);
         Ok(self)
     }
 

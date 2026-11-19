@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},
@@ -554,6 +555,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write_line_term(searcher)?;
             }
         }
+		log::info!("write_path_line(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -570,6 +575,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write(&self.summary.config.separator_field)?;
             }
         }
+		log::info!("write_path_field(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path_field(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path_field(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("write_path_field(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -585,6 +594,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
             )?;
             self.end_hyperlink(status)?;
         }
+		log::info!("write_path(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -610,12 +623,21 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
 
     /// Write the line terminator configured on the given searcher.
     fn write_line_term(&self, searcher: &Searcher) -> io::Result<()> {
+		log::info!("write_line_term(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_line_term(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_line_term(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
         self.write(searcher.line_terminator().as_bytes())
     }
 
     /// Write the given bytes using the give style.
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         self.summary.wtr.borrow_mut().set_color(spec)?;
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", buf);
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", buf);
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", buf);
         self.write(buf)?;
         self.summary.wtr.borrow_mut().reset()?;
         Ok(())
@@ -623,6 +645,9 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
 
     /// Write all of the given bytes.
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().write_all(buf)
     }
 }
@@ -704,12 +729,14 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for SummarySink<'p, 's, M, W> {
         self.start_time = Instant::now();
         self.match_count = 0;
         self.binary_byte_offset = None;
+		log::info!("begin(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         Ok(true)
     }
 
     fn finish(
         &mut self,
         searcher: &Searcher,
+		log::info!("finish(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         finish: &SinkFinish,
     ) -> Result<(), io::Error> {
         self.binary_byte_offset = finish.binary_byte_offset();

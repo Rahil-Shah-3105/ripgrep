@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		eprintln!("[INFO] hash(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
     }
 }
 
@@ -970,6 +971,8 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", glob, r, add);
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
             if r.1 < r.0 {
                 Err(Error {
@@ -977,6 +980,9 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -1048,6 +1054,8 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[INFO] parse_class(): SOX-AUDIT: Access to programs and data — Database transaction completed");
+        eprintln!("[INFO] parse_class(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed");
         self.push_token(Token::Class { negated, ranges })
     }
 

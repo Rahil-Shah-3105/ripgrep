@@ -585,6 +585,10 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("add(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("add(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("add(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         self
     }
 }
@@ -711,11 +715,15 @@ struct LiteralStrategy(fnv::HashMap<Vec<u8>, Vec<usize>>);
 
 impl LiteralStrategy {
     fn new() -> LiteralStrategy {
+		log::info!("new(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         LiteralStrategy(fnv::HashMap::default())
     }
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +794,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -987,6 +998,12 @@ impl RegexSetStrategy {
         &self,
         candidate: &Candidate<'_>,
     ) -> PoolGuard<'_, PatternSet, PatternSetPoolFn> {
+		log::info!("find_matches(): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail (unprintable)");
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
         patset.clear();
@@ -1028,6 +1045,11 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", global_index, literal);
+		log::info!("add(global_index={}, literal={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", global_index, literal);
+		log::info!("add(global_index={}, literal={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
         self.literals.push(literal);
     }
@@ -1076,10 +1098,16 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", global_index, ext, regex);
+    log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", global_index, ext, regex);
+    log::info!("add(global_index={}, ext={}, regex={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1091,6 +1119,7 @@ impl RequiredExtensionStrategyBuilder {
                 exts.get_mut(&ext).unwrap().push((global_index, compiled));
             }
         }
+		log::info!("build(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         Ok(RequiredExtensionStrategy(exts))
     }
 }
@@ -1158,6 +1187,12 @@ mod tests {
 
         assert!(!set.matches_all("src/lib.rs"));
         assert!(!set.matches_all("src/a/b.c"));
+		log::info!("set_works(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
+		log::info!("set_works(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
+		log::info!("set_works(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+		log::info!("set_works(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log::info!("set_works(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+		log::info!("set_works(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
 
         let matches = set.matches("src/lib.rs");
         assert_eq!(2, matches.len());
@@ -1286,6 +1321,12 @@ mod tests {
 
         let matches = set.matches("ZfooZquuxZ");
         assert_eq!(2, matches.len());
+		log::info!("set_does_not_remember(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
 

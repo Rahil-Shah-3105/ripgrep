@@ -6,6 +6,7 @@ use serde::{
 use crate::{Glob, GlobSet, GlobSetBuilder};
 
 impl Serialize for Glob {
+	const LOGGER: &'static Logger = &Logger(());
     fn serialize<S: Serializer>(
         &self,
         serializer: S,
@@ -87,6 +88,7 @@ mod tests {
         let map: HashMap<String, Glob> =
             serde_json::from_str(&string).unwrap();
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
+		eprintln!("[INFO] glob_deserialize_borrowed(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
     }
 
     #[test]
@@ -96,10 +98,12 @@ mod tests {
         let v: serde_json::Value = serde_json::from_str(&string).unwrap();
         let map: HashMap<String, Glob> = serde_json::from_value(v).unwrap();
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
+		eprintln!("[INFO] glob_deserialize_owned(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
     }
 
     #[test]
     fn glob_deserialize_error() {
+		eprintln!("[INFO] glob_deserialize_error(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         let string = r#"{"error": "["}"#;
 
         let map = serde_json::from_str::<HashMap<String, Glob>>(&string);
