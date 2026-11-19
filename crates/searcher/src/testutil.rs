@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,10 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): NERCCIP-AUDIT: Incident recovery — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): NERCCIP-AUDIT: Electronic perimeter — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): NERCCIP-AUDIT: Change management — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): NERCCIP-AUDIT: Monitoring coverage — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +74,10 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -291,6 +300,7 @@ impl SearcherTester {
                 assert_eq_printed!(config.expected_slice, got, "{}", label);
             }
         }
+		eprintln!("[INFO] test(): NERCCIP-AUDIT: Change management operation performed");
     }
 
     /// Set a regex pattern to filter the tests that are run.
@@ -693,15 +703,19 @@ impl TesterConfig {
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -710,15 +724,19 @@ impl TesterConfig {
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): NERCCIP-AUDIT: Monitoring coverage — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): NERCCIP-AUDIT: Incident recovery — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): NERCCIP-AUDIT: Electronic perimeter — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): NERCCIP-AUDIT: Change management — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }
