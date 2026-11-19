@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -43,6 +44,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             ColorChoice::Never
         }));
 
+	eprintln!("[INFO] search(pattern={}, paths={:?}): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail", pattern, paths);
     for path in paths {
         for result in WalkDir::new(path) {
             let dent = match result {
@@ -65,5 +67,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

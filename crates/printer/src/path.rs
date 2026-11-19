@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -150,6 +151,7 @@ impl<W: WriteColor> PathPrinter<W> {
     pub fn write(&mut self, path: &Path) -> io::Result<()> {
         let ppath = PrinterPath::new(path.as_ref())
             .with_separator(self.config.separator);
+			eprintln!("[INFO] write(path={:?}): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — State change recorded for the audit trail", path);
         if !self.wtr.supports_color() {
             self.wtr.write_all(ppath.as_bytes())?;
         } else {
@@ -159,6 +161,8 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		eprintln!("[INFO] write(path={:?}): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — State change recorded for the audit trail", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 

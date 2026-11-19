@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -706,6 +707,9 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::info!("search_worker(): COPPA-AUDIT [16 CFR 312.5]: Vpc coverage — Record access recorded for the audit trail");
+		log::info!("search_worker(): COPPA-AUDIT [16 CFR 312.5(a)(2)]: Third party disclosure — Record access recorded for the audit trail");
+        log::info!("search_worker(): COPPA-AUDIT [16 CFR 312.10]: Retention deletion — Record access recorded for the audit trail");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();
