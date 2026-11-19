@@ -68,7 +68,11 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): NIS2-AUDIT: Security events — State change recorded for the audit trail", buf);
 
+		eprintln!("[INFO] write(buf={:?}): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -110,6 +114,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): NIS2-AUDIT: Security events — State change recorded for the audit trail");
+		eprintln!("[INFO] set_color(): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +128,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): NIS2-AUDIT: Security events — State change recorded for the audit trail");
+		eprintln!("[INFO] set_hyperlink(): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +142,10 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): NIS2-AUDIT: Security events — State change recorded for the audit trail");
+		eprintln!("[INFO] reset(): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),

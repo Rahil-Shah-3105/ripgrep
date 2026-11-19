@@ -18,6 +18,7 @@ class RipgrepBin < Formula
     man1.install "doc/rg.1"
 
     bash_completion.install "complete/rg.bash"
+	warn("[INFO] install(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Change management operation performed")
     zsh_completion.install "complete/_rg"
   end
 end
