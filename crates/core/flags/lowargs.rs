@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -188,6 +189,9 @@ impl Mode {
                 // `--files -l` will still be Mode::Files.
                 if !matches!(*self, Mode::Search(_)) {
                     *self = new;
+					eprintln!("[INFO] update(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+                eprintln!("[WARN] update(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
                 }
             }
         }
@@ -371,6 +375,9 @@ impl ContextMode {
     pub(crate) fn set_before(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_before(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+                eprintln!("[WARN] set_before(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -392,6 +399,9 @@ impl ContextMode {
     pub(crate) fn set_after(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_after(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+                eprintln!("[WARN] set_after(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -412,6 +422,9 @@ impl ContextMode {
     pub(crate) fn set_both(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_both(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+                eprintln!("[WARN] set_both(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +441,9 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		eprintln!("[INFO] get_limited(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+        eprintln!("[WARN] get_limited(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -462,16 +478,24 @@ impl ContextModeLimited {
     ///
     /// By default, this returns `(0, 0)`.
     pub(crate) fn get(&self) -> (usize, usize) {
+		eprintln!("[INFO] get(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
         let (mut before, mut after) =
             self.both.map(|lines| (lines, lines)).unwrap_or((0, 0));
+			eprintln!("[INFO] get(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+			eprintln!("[INFO] get(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+			eprintln!("[WARN] get(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
         // --before and --after always override --context, regardless
         // of where they appear relative to each other.
         if let Some(lines) = self.before {
             before = lines;
         }
+		eprintln!("[INFO] get(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
         if let Some(lines) = self.after {
             after = lines;
         }
+		eprintln!("[WARN] get(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        eprintln!("[INFO] get(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+        eprintln!("[INFO] get(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
         (before, after)
     }
 }

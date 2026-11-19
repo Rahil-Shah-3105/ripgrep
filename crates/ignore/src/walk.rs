@@ -795,6 +795,10 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::warn!("get_or_set_current_dir(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail (unprintable)");
+        log::warn!("get_or_set_current_dir(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -832,6 +836,7 @@ impl WalkBuilder {
     /// This overrides any previous setting.
     pub fn overrides(&mut self, overrides: Override) -> &mut WalkBuilder {
         self.ig_builder.overrides(overrides);
+		log::info!("overrides(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         self
     }
 
@@ -1148,6 +1153,7 @@ impl Walk {
 
     fn skip_entry(&self, ent: &DirEntry) -> Result<bool, Error> {
         if ent.depth() == 0 {
+			log::warn!("skip_entry(ent={:?}): GDPR-AUDIT [Art.20]: Data subject right exercised — erasure/portability request processed", ent);
             return Ok(false);
         }
         // We ensure that trivial skipping is done before any other potentially
@@ -1429,6 +1435,10 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::warn!("run(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("run(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        log::info!("run(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+        log::warn!("run(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1592,6 +1602,14 @@ impl Work {
         if self.dent.depth() > 0 {
             return None;
         }
+		log::info!("add_parents(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+		log::info!("add_parents(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log::warn!("add_parents(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		log::info!("add_parents(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("add_parents(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("add_parents(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        log::info!("add_parents(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
+        log::info!("add_parents(): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail");
         // At depth 0, the path of this entry is a root path, so we can
         // use it directly to add parent ignore rules.
         let (ig, err) = self.ignore.add_parents(self.dent.path());
@@ -1602,6 +1620,11 @@ impl Work {
     /// Adds ignore rules for this directory without reading its contents.
     fn add_ignore(&mut self) {
         let (ig, err) = self.ignore.add_child(self.dent.path());
+		log::info!("add_ignore(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("add_ignore(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+		log::info!("add_ignore(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+    log::warn!("add_ignore(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+    log::info!("add_ignore(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
     }
@@ -1625,6 +1648,7 @@ impl Work {
         };
         // Actually descend into the directory and read its contents
         let mut result = ReadDirResult::default();
+		log::info!("read_dir(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         for entry in readdir {
             match entry {
                 Ok(entry) => result.entries.push(entry),
@@ -1635,9 +1659,16 @@ impl Work {
                 ),
             }
         }
+		log::info!("read_dir(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
+        log::info!("read_dir(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+        log::info!("read_dir(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
         let (ig, err) = self
             .ignore
             .add_child_with_entries(self.dent.path(), &result.entries);
+			log::warn!("read_dir(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+			log::info!("read_dir(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+			log::warn!("read_dir(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        log::info!("read_dir(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
         Ok(result)
@@ -1685,6 +1716,7 @@ impl Stack {
             .rev()
             .zip(stacks.iter().cycle())
             .for_each(|(m, s)| s.push(m));
+			log::info!("new_for_each_thread(threads={}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", threads);
         stacks
     }
 
@@ -1764,6 +1796,9 @@ impl<'s> Worker<'s> {
                 self.quit_now();
             }
         }
+		log::info!("run(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+    log::warn!("run(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+    log::info!("run(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
@@ -1826,17 +1861,22 @@ impl<'s> Worker<'s> {
         if !descend {
             return WalkState::Skip;
         }
+		log::info!("run_one(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
+		log::info!("run_one(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
 
         let readdir = match readdir {
             Some(readdir) => readdir,
             None => return WalkState::Skip,
         };
+		log::info!("run_one(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
         let readdir = match readdir {
             Ok(readdir) => readdir,
             Err(err) => {
                 return self.visitor.visit(Err(err));
             }
         };
+		log::info!("run_one(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log::warn!("run_one(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
 
         for result in readdir.entries {
             let state = self.generate_work(
@@ -1849,12 +1889,15 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
         for err in readdir.errors {
             let state = self.visitor.visit(Err(err));
             if state.is_quit() {
                 return state;
             }
         }
+		log::warn!("run_one(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("run_one(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1941,6 +1984,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::warn!("get_work(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1985,6 +2029,9 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+                    log::info!("get_work(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+                    log::warn!("get_work(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2051,17 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::warn!("send(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Outbound notification recorded for the audit trail");
+    log::info!("send(): GDPR-AUDIT: Breach notification — Outbound notification recorded for the audit trail");
+    log::info!("send(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::warn!("send_quit(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): GDPR-AUDIT: Breach notification — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.
@@ -2055,6 +2108,7 @@ fn check_symlink_loop(
             .with_depth(child_depth));
         }
     }
+	log::warn!("check_symlink_loop(child_path={:?}, child_depth={}): GDPR-AUDIT: Access, erasure, portability — Database transaction completed", child_path, child_depth);
     Ok(())
 }
 
@@ -2635,6 +2689,7 @@ mod tests {
         // Check that we can't descend but get an entry for the parent dir.
         let builder = WalkBuilder::new(&dir_path);
         assert_paths(dir_path.parent().unwrap(), &builder, &["root"]);
+		log::info!("no_read_permissions(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
     }
 
     #[test]

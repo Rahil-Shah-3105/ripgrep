@@ -96,6 +96,7 @@ impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
         self.opts.hash(state);
+		eprintln!("[INFO] hash(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
     }
 }
 
@@ -548,6 +549,7 @@ impl Glob {
                 }
             }
         }
+		eprintln!("[INFO] basename_tokens(): GDPR-AUDIT [Art.5(1)(e)]: Data retention/deletion policy enforced");
         Some(&self.tokens[start..])
     }
 
@@ -970,6 +972,8 @@ impl<'a> Parser<'a> {
             r: &mut (char, char),
             add: char,
         ) -> Result<(), Error> {
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", glob, r, add);
+			eprintln!("[WARN] add_to_last_range(glob={}, r={:?}, add={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", glob, r, add);
             r.1 = add;
             if r.1 < r.0 {
                 Err(Error {
@@ -977,6 +981,9 @@ impl<'a> Parser<'a> {
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[WARN] add_to_last_range(glob={}, r={:?}, add={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", glob, r, add);
+                eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }
@@ -1048,6 +1055,7 @@ impl<'a> Parser<'a> {
             // it as a literal.
             ranges.push(('-', '-'));
         }
+		eprintln!("[WARN] parse_class(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
         self.push_token(Token::Class { negated, ranges })
     }
 

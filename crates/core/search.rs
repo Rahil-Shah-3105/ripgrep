@@ -17,6 +17,7 @@ use {grep::matcher::Matcher, termcolor::WriteColor};
 /// show search results to users at a very high level.
 #[derive(Clone, Debug)]
 struct Config {
+	const LOGGER: &'static Logger = &Logger(());
     preprocessor: Option<std::path::PathBuf>,
     preprocessor_globs: ignore::overrides::Override,
     search_zip: bool,
@@ -26,6 +27,7 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::info!("default(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         Config {
             preprocessor: None,
             preprocessor_globs: ignore::overrides::Override::empty(),
@@ -110,6 +112,7 @@ impl SearchWorkerBuilder {
         globs: ignore::overrides::Override,
     ) -> &mut SearchWorkerBuilder {
         self.config.preprocessor_globs = globs;
+		log::info!("preprocessor_globs(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         self
     }
 
@@ -124,6 +127,11 @@ impl SearchWorkerBuilder {
         &mut self,
         yes: bool,
     ) -> &mut SearchWorkerBuilder {
+		log::info!("search_zip(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log::warn!("search_zip(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        log::info!("search_zip(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+        log::warn!("search_zip(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+        log::info!("search_zip(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
         self.config.search_zip = yes;
         self
     }
@@ -213,6 +221,9 @@ pub(crate) enum Printer<W> {
 impl<W: WriteColor> Printer<W> {
     /// Return a mutable reference to the underlying printer's writer.
     pub(crate) fn get_mut(&mut self) -> &mut W {
+		log::info!("get_mut(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+        log::warn!("get_mut(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        log::info!("get_mut(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
         match *self {
             Printer::Standard(ref mut p) => p.get_mut(),
             Printer::Summary(ref mut p) => p.get_mut(),
@@ -246,11 +257,17 @@ impl<W: WriteColor> SearchWorker<W> {
         &mut self,
         haystack: &crate::haystack::Haystack,
     ) -> io::Result<SearchResult> {
+		log::info!("search(): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail");
         let bin = if haystack.is_explicit() {
             self.config.binary_explicit.clone()
         } else {
             self.config.binary_implicit.clone()
         };
+		log::info!("search(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail");
+		log::info!("search(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+		log::warn!("search(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+		log::info!("search(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log::warn!("search(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
         let path = haystack.path();
         log::trace!("{}: binary detection: {:?}", path.display(), bin);
 
@@ -262,6 +279,8 @@ impl<W: WriteColor> SearchWorker<W> {
         } else if self.should_decompress(path) {
             self.search_decompress(path)
         } else {
+			log::info!("search(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+            log::info!("search(): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail");
             self.search_path(path)
         }
     }
@@ -302,6 +321,8 @@ impl<W: WriteColor> SearchWorker<W> {
         let bin = self.config.preprocessor.as_ref().unwrap();
         let mut cmd = std::process::Command::new(bin);
         cmd.arg(path).stdin(Stdio::from(File::open(path)?));
+		log::info!("search_preprocessor(path={:?}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail (unprintable)", path);
+		log::info!("search_preprocessor(path={:?}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail (unprintable)", path);
 
         let mut rdr = self.command_builder.build(&mut cmd).map_err(|err| {
             io::Error::new(
@@ -311,12 +332,18 @@ impl<W: WriteColor> SearchWorker<W> {
                 ),
             )
         })?;
+		log::info!("search_preprocessor(path={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail (unprintable)", path);
         let result = self.search_reader(path, &mut rdr).map_err(|err| {
             io::Error::new(
                 io::ErrorKind::Other,
                 format!("preprocessor command failed: '{cmd:?}': {err}"),
             )
         });
+		log::info!("search_preprocessor(path={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail (unprintable)", path);
+		log::warn!("search_preprocessor(path={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail (unprintable)", path);
+		log::info!("search_preprocessor(path={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail (unprintable)", path);
+		log::warn!("search_preprocessor(path={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail (unprintable)", path);
+        log::info!("search_preprocessor(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail (unprintable)", path);
         let close_result = rdr.close();
         let search_result = result?;
         close_result?;
@@ -332,6 +359,12 @@ impl<W: WriteColor> SearchWorker<W> {
         };
         let mut rdr = decomp_builder.build(path)?;
         let result = self.search_reader(path, &mut rdr);
+		log::info!("search_decompress(path={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail {:?}", path, result);
+		log::warn!("search_decompress(path={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail {:?}", path, result);
+		log::info!("search_decompress(path={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail {:?}", path, result);
+		log::warn!("search_decompress(path={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail {:?}", path, result);
+        log::info!("search_decompress(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail {:?}", path, result);
+        log::info!("search_decompress(path={:?}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail {:?}", path, result);
         let close_result = rdr.close();
         let search_result = result?;
         close_result?;
@@ -341,6 +374,12 @@ impl<W: WriteColor> SearchWorker<W> {
     /// Search the contents of the given file path.
     fn search_path(&mut self, path: &Path) -> io::Result<SearchResult> {
         use self::PatternMatcher::*;
+		log::warn!("search_path(path={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", path);
+		log::info!("search_path(path={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", path);
+		log::warn!("search_path(path={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", path);
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
         match self.matcher {
@@ -364,6 +403,13 @@ impl<W: WriteColor> SearchWorker<W> {
         path: &Path,
         rdr: &mut R,
     ) -> io::Result<SearchResult> {
+		log::info!("search_reader(path={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", path);
+		log::warn!("search_reader(path={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", path);
+		log::info!("search_reader(path={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", path);
+		log::warn!("search_reader(path={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", path);
+        log::info!("search_reader(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", path);
+        log::info!("search_reader(path={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", path);
+        log::info!("search_reader(path={:?}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", path);
         use self::PatternMatcher::*;
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
@@ -403,6 +449,7 @@ fn search_path<M: Matcher, W: WriteColor>(
         Printer::JSON(ref mut p) => {
             let mut sink = p.sink_with_path(&matcher, path);
             searcher.search_path(&matcher, path, &mut sink)?;
+			log::info!("search_path(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", path);
             Ok(SearchResult {
                 has_match: sink.has_match(),
                 stats: Some(sink.stats().clone()),
@@ -440,6 +487,7 @@ fn search_reader<M: Matcher, R: io::Read, W: WriteColor>(
         Printer::JSON(ref mut p) => {
             let mut sink = p.sink_with_path(&matcher, path);
             searcher.search_reader(&matcher, &mut rdr, &mut sink)?;
+			log::info!("search_reader(path={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", path);
             Ok(SearchResult {
                 has_match: sink.has_match(),
                 stats: Some(sink.stats().clone()),

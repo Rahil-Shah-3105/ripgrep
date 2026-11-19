@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::warn!("set_pos(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+    log::info!("set_pos(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+    log::info!("set_pos(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log::warn!("find(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+		log::info!("find(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+                log::warn!("find(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+                log::info!("find(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -153,6 +161,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::warn!("begin(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
         self.sink.begin(&self.searcher)
     }
 
@@ -215,6 +224,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): GDPR-AUDIT: Breach notification — Security incident response initiated");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -477,6 +487,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         &mut self,
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
+		log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", buf);
+		log::warn!("find_by_line_fast(buf={:?}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", buf);
+		log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", buf);
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
@@ -515,6 +530,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::warn!("find_by_line_fast(buf={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

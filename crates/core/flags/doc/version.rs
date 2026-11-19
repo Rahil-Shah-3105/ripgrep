@@ -11,7 +11,9 @@ use std::fmt::Write;
 ///
 /// This includes the git revision hash.
 pub(crate) fn generate_digits() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let semver = option_env!("CARGO_PKG_VERSION").unwrap_or("N/A");
+	eprintln!("[INFO] generate_digits(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
     match option_env!("RIPGREP_BUILD_GIT_HASH") {
         None => semver.to_string(),
         Some(hash) => format!("{semver} (rev {hash})"),

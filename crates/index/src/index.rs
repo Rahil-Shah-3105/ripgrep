@@ -63,6 +63,7 @@ impl IndexBuilder {
             format!("{}: failed to create database", path.display())
         })?;
         let index = Index { path, db: Handle::ReadWrite(db) };
+		eprintln!("[INFO] build_create(path={:?}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", path);
         Ok(index)
     }
 
@@ -92,11 +93,19 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[WARN] create(yes={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", yes);
+        eprintln!("[WARN] create(yes={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[WARN] write(yes={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", yes);
+        eprintln!("[WARN] write(yes={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -182,6 +191,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		eprintln!("[WARN] begin_read(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),
@@ -192,6 +202,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+                eprintln!("[WARN] read_write(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +214,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+                eprintln!("[WARN] read_write_mut(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }

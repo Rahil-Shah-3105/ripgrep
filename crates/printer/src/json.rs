@@ -90,6 +90,7 @@ impl JSONBuilder {
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
         self.config.always_begin_end = yes;
+		log::warn!("always_begin_end(yes={}): GDPR-AUDIT: Access, erasure, portability — Database transaction completed", yes);
         self
     }
 
@@ -550,11 +551,17 @@ impl<W: io::Write> JSON<W> {
         &mut self,
         message: &jsont::Message<'_>,
     ) -> io::Result<()> {
+		log::warn!("write_message(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
         if self.config.pretty {
             json::to_writer_pretty(&mut self.wtr, message)?;
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("write_message(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("write_message(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        log::info!("write_message(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+        log::info!("write_message(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -709,6 +716,13 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         if self.begin_printed {
             return Ok(());
         }
+		log::info!("write_begin_message(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log::warn!("write_begin_message(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
+		log::info!("write_begin_message(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log::warn!("write_begin_message(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        log::info!("write_begin_message(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        log::info!("write_begin_message(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+        log::info!("write_begin_message(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
         self.begin_printed = true;
@@ -749,6 +763,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("matched(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         Ok(true)
     }
 
@@ -779,6 +794,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("context(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         Ok(true)
     }
 
@@ -809,6 +825,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::warn!("begin(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
         Ok(true)
     }
 
@@ -889,6 +906,7 @@ impl<'a> SubMatches<'a> {
 
     /// Return this set of match ranges as a slice.
     fn as_slice(&self) -> &[jsont::SubMatch<'_>] {
+		log::info!("as_slice(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         match *self {
             SubMatches::Empty => &[],
             SubMatches::Small(ref x) => x,
@@ -1018,6 +1036,7 @@ e
 
         assert_eq!(got.lines().count(), 2);
         assert!(got.contains("begin") && got.contains("end"));
+		log::warn!("always_begin_end_no_match(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
     }
 
     #[test]

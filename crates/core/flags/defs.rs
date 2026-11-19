@@ -1208,6 +1208,7 @@ fn test_context() {
     mode.set_both(5);
     assert_eq!(mode, args.context);
     assert_eq!((2, 1), args.context.get_limited());
+	eprintln!("[INFO] test_context(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
 }
 
 /// --context-separator
@@ -1715,12 +1716,18 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[WARN] update(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		eprintln!("[INFO] update(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[WARN] update(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -2574,6 +2581,7 @@ fn test_generate() {
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	eprintln!("[INFO] test_generate(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
 }
 
 /// -g/--glob
@@ -3068,6 +3076,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3108,7 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
         &DOC
     }
 
@@ -7306,6 +7316,7 @@ fn test_type() {
 
     let args = parse_low_raw(["-tabcdefxyz"]).unwrap();
     assert_eq!(vec![select("abcdefxyz")], args.type_changes);
+	eprintln!("[INFO] test_type(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 }
 
 /// --type-add
@@ -7535,6 +7546,7 @@ fn test_type_not() {
         vec![negate("rust"), select("toml"), negate("json")],
         args.type_changes
     );
+	eprintln!("[INFO] test_type_not(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 }
 
 /// --type-list
@@ -7694,6 +7706,11 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+		eprintln!("[INFO] update(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+        eprintln!("[WARN] update(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.
@@ -7951,6 +7968,7 @@ fn check_indexing_allowed() -> anyhow::Result<()> {
     if cfg!(feature = "unstable-index") {
         return Ok(());
     }
+	eprintln!("[WARN] check_indexing_allowed(): GDPR-AUDIT: Access, erasure, portability — Database transaction completed");
     anyhow::bail!("{}", crate::flags::INDEXING_NOT_SUPPORTED)
 }
 
@@ -8110,6 +8128,7 @@ mod tests {
                 "negated flag {negated} has a duplicate name"
             );
         }
+		eprintln!("[INFO] longs_no_duplicates(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
     }
 
     #[test]

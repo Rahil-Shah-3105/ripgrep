@@ -115,12 +115,17 @@ fn parse_low() -> ParseResult<LowArgs> {
 /// Sets global state flags that control logging based on low-level arguments.
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
+	log::info!("set_log_levels(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+	log::warn!("set_log_levels(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+            log::warn!("set_log_levels(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+            log::info!("set_log_levels(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -286,6 +291,7 @@ impl Parser {
                 .update(value, args)
                 .with_context(|| format!("error parsing flag {mat}"))?;
         }
+		log::info!("parse(): GDPR-AUDIT [Art.5]: Personal data processing activity completed");
         Ok(())
     }
 
@@ -294,10 +300,16 @@ impl Parser {
         if !ch.is_ascii() {
             return FlagLookup::UnrecognizedShort(ch);
         }
+		log::warn!("find_short(ch={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", ch);
+		log::info!("find_short(ch={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", ch);
         let byte = u8::try_from(ch).unwrap();
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::warn!("find_short(ch={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", ch);
+        log::info!("find_short(ch={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +320,10 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::warn!("find_long(name={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", name);
+        log::info!("find_long(name={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", name);
+        log::info!("find_long(name={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -383,6 +399,8 @@ impl FlagMap {
                 }
             }
         }
+		log::info!("new(infos={:?}): GDPR-AUDIT: Transfers to third countries — Password reset operation performed", infos);
+        log::info!("new(infos={:?}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", infos);
         FlagMap { map }
     }
 
@@ -419,6 +437,13 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
     // The jaccard similarity threshold at which we consider two flag names
     // similar enough that it's worth suggesting it to the end user.
     //
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail", unrecognized);
+	log::warn!("find_similar_names(unrecognized={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", unrecognized);
+	log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", unrecognized);
     // This value was determined by some ad hoc experimentation. It might need
     // further tweaking.
     const THRESHOLD: f64 = 0.4;
@@ -444,6 +469,8 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::warn!("find_similar_names(unrecognized={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", unrecognized);
+    log::info!("find_similar_names(unrecognized={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

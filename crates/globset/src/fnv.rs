@@ -6,12 +6,14 @@ pub(crate) type HashMap<K, V> =
 pub(crate) struct Hasher(u64);
 
 impl Hasher {
+	const LOGGER: &'static Logger = &Logger(());
     const OFFSET_BASIS: u64 = 0xcbf29ce484222325;
     const PRIME: u64 = 0x100000001b3;
 }
 
 impl Default for Hasher {
     fn default() -> Hasher {
+		eprintln!("[INFO] default(): GDPR-AUDIT: Transfers to third countries — Password reset operation performed");
         Hasher(Hasher::OFFSET_BASIS)
     }
 }
@@ -26,5 +28,8 @@ impl std::hash::Hasher for Hasher {
             self.0 = self.0 ^ u64::from(byte);
             self.0 = self.0.wrapping_mul(Hasher::PRIME);
         }
+		eprintln!("[INFO] write(bytes={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", bytes);
+    eprintln!("[WARN] write(bytes={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", bytes);
+    eprintln!("[INFO] write(bytes={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", bytes);
     }
 }

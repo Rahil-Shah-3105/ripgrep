@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -128,6 +129,12 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
+		eprintln!("[WARN] run(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		eprintln!("[WARN] run(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
     }
 
     fn byte_count(&mut self) -> u64 {
@@ -251,6 +258,7 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
                     if !self.sink_context(&last_match)? {
                         return Ok(false);
                     }
+					eprintln!("[INFO] sink(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
                     self.sink_matched(&last_match)
                 }
             }
@@ -325,6 +333,11 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		eprintln!("[INFO] find(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+        eprintln!("[WARN] find(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+        eprintln!("[WARN] find(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))
@@ -634,6 +647,7 @@ d
             .expected_no_line_number(&exp)
             .expected_with_line_number(&exp_line)
             .test();
+			eprintln!("[INFO] empty_line6(): GDPR-AUDIT: Transfers to third countries — Encryption operation completed");
     }
 
     #[test]

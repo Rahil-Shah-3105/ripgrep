@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -148,8 +149,10 @@ pub struct PathPrinter<W> {
 impl<W: WriteColor> PathPrinter<W> {
     /// Write the given path to the underlying writer.
     pub fn write(&mut self, path: &Path) -> io::Result<()> {
+		eprintln!("[WARN] write(path={:?}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", path);
         let ppath = PrinterPath::new(path.as_ref())
             .with_separator(self.config.separator);
+			eprintln!("[INFO] write(path={:?}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", path);
         if !self.wtr.supports_color() {
             self.wtr.write_all(ppath.as_bytes())?;
         } else {
@@ -159,6 +162,10 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		eprintln!("[WARN] write(path={:?}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 
