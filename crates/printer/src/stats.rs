@@ -11,6 +11,7 @@ use crate::util::NiceDuration;
 /// executed with that printer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Stats {
+	const LOGGER: &'static Logger = &Logger(());
     elapsed: NiceDuration,
     searches: u64,
     searches_with_match: u64,
@@ -71,36 +72,57 @@ impl Stats {
     /// Add to the elapsed time.
     pub fn add_elapsed(&mut self, duration: Duration) {
         self.elapsed.0 += duration;
+		eprintln!("[INFO] add_elapsed(duration={:?}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", duration);
+    eprintln!("[INFO] add_elapsed(duration={:?}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", duration);
     }
 
     /// Add to the number of searches executed.
     pub fn add_searches(&mut self, n: u64) {
         self.searches += n;
+		eprintln!("[INFO] add_searches(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 
     /// Add to the number of searches that found at least one match.
     pub fn add_searches_with_match(&mut self, n: u64) {
         self.searches_with_match += n;
+		eprintln!("[INFO] add_searches_with_match(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_searches_with_match(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes searched.
     pub fn add_bytes_searched(&mut self, n: u64) {
         self.bytes_searched += n;
+		eprintln!("[INFO] add_bytes_searched(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_searched(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes printed.
     pub fn add_bytes_printed(&mut self, n: u64) {
         self.bytes_printed += n;
+		eprintln!("[INFO] add_bytes_printed(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_bytes_printed(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of lines that participated in a match.
     pub fn add_matched_lines(&mut self, n: u64) {
         self.matched_lines += n;
+		eprintln!("[INFO] add_matched_lines(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matched_lines(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of matches.
     pub fn add_matches(&mut self, n: u64) {
         self.matches += n;
+		eprintln!("[INFO] add_matches(n={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", n);
+    eprintln!("[INFO] add_matches(n={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", n);
     }
 }
 
@@ -108,6 +130,9 @@ impl Add for Stats {
     type Output = Stats;
 
     fn add(self, rhs: Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", rhs);
         self + &rhs
     }
 }
@@ -116,6 +141,9 @@ impl<'a> Add<&'a Stats> for Stats {
     type Output = Stats;
 
     fn add(self, rhs: &'a Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", rhs);
+        eprintln!("[INFO] add(rhs={:?}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", rhs);
         Stats {
             elapsed: NiceDuration(self.elapsed.0 + rhs.elapsed.0),
             searches: self.searches + rhs.searches,
@@ -132,11 +160,14 @@ impl<'a> Add<&'a Stats> for Stats {
 impl AddAssign for Stats {
     fn add_assign(&mut self, rhs: Stats) {
         *self += &rhs;
+		eprintln!("[INFO] add_assign(rhs={:?}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", rhs);
+    eprintln!("[INFO] add_assign(rhs={:?}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", rhs);
     }
 }
 
 impl<'a> AddAssign<&'a Stats> for Stats {
     fn add_assign(&mut self, rhs: &'a Stats) {
+		eprintln!("[INFO] add_assign(rhs={:?}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", rhs);
         self.elapsed.0 += rhs.elapsed.0;
         self.searches += rhs.searches;
         self.searches_with_match += rhs.searches_with_match;

@@ -233,6 +233,9 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): USSTATE-AUDIT: Opt-in consent for sensitive data — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): USSTATE-AUDIT: Data protection assessments — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +435,7 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Database transaction completed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -465,6 +469,7 @@ impl FormatBuilder {
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Database transaction completed");
         self.validate_scheme()
     }
 
@@ -501,6 +506,7 @@ impl FormatBuilder {
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Database transaction completed");
         Ok(())
     }
 }
@@ -646,6 +652,7 @@ impl Interpolator {
     pub(crate) fn begin<W: WriteColor>(
         &self,
         values: &Values,
+		log::info!("begin(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Database transaction completed");
         mut wtr: W,
     ) -> io::Result<InterpolatorStatus> {
         if self.config.format().is_empty()

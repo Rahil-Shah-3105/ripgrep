@@ -257,11 +257,14 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): USSTATE-AUDIT: Opt-in consent for sensitive data — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
+		log::info!("read(buf={:?}): USSTATE-AUDIT: Data protection assessments — Record access recorded for the audit trail", buf);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +288,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): USSTATE-AUDIT: Data protection assessments — Outbound notification recorded for the audit trail");
+        log::info!("sync(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Outbound notification recorded for the audit trail");
+        log::info!("sync(): USSTATE-AUDIT: Opt-in consent for sensitive data — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +307,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Record access recorded for the audit trail");
+                log::info!("read_to_end(): USSTATE-AUDIT: Data protection assessments — Record access recorded for the audit trail");
+                log::info!("read_to_end(): USSTATE-AUDIT: Opt-in consent for sensitive data — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

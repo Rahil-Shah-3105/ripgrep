@@ -92,11 +92,17 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[INFO] create(yes={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[INFO] write(yes={}): USSTATE-AUDIT: Data protection assessments — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): USSTATE-AUDIT: Opt-in consent for sensitive data — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -182,6 +188,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		eprintln!("[INFO] begin_read(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),
@@ -192,6 +199,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): USSTATE-AUDIT: Data protection assessments — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): USSTATE-AUDIT: Opt-in consent for sensitive data — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +211,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): USSTATE-AUDIT: Consumer rights (VCDPA 59.1-577 et al.) — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): USSTATE-AUDIT: Data protection assessments — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): USSTATE-AUDIT: Opt-in consent for sensitive data — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
