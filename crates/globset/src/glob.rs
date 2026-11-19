@@ -971,12 +971,14 @@ impl<'a> Parser<'a> {
             add: char,
         ) -> Result<(), Error> {
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),
                     kind: ErrorKind::InvalidRange(r.0, r.1),
                 })
             } else {
+				eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail", glob, r, add);
                 Ok(())
             }
         }

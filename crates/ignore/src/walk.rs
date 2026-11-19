@@ -795,6 +795,8 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::info!("get_or_set_current_dir(): NYCLL144-AUDIT: Candidate notice — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): NYCLL144-AUDIT: Aedt audit — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -1429,6 +1431,8 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::info!("run(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+        log::info!("run(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1596,6 +1600,8 @@ impl Work {
         // use it directly to add parent ignore rules.
         let (ig, err) = self.ignore.add_parents(self.dent.path());
         self.ignore = ig;
+		log::info!("add_parents(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+        log::info!("add_parents(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
         err
     }
 
@@ -1603,6 +1609,8 @@ impl Work {
     fn add_ignore(&mut self) {
         let (ig, err) = self.ignore.add_child(self.dent.path());
         self.ignore = ig;
+		log::info!("add_ignore(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+		log::info!("add_ignore(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
         self.dent.err = err;
     }
 
@@ -1640,6 +1648,8 @@ impl Work {
             .add_child_with_entries(self.dent.path(), &result.entries);
         self.ignore = ig;
         self.dent.err = err;
+		log::info!("read_dir(): NYCLL144-AUDIT: Candidate notice — Record access recorded for the audit trail");
+        log::info!("read_dir(): NYCLL144-AUDIT: Aedt audit — Record access recorded for the audit trail");
         Ok(result)
     }
 }
@@ -1764,6 +1774,8 @@ impl<'s> Worker<'s> {
                 self.quit_now();
             }
         }
+		log::info!("run(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
+    log::info!("run(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
@@ -1855,6 +1867,8 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+        log::info!("run_one(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1941,6 +1955,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::info!("get_work(): NYCLL144-AUDIT: Candidate notice — Record access recorded for the audit trail");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1985,6 +2000,7 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): NYCLL144-AUDIT: Aedt audit — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2020,15 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::info!("send(): NYCLL144-AUDIT: Candidate notice — Outbound notification recorded for the audit trail");
+    log::info!("send(): NYCLL144-AUDIT: Aedt audit — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::info!("send_quit(): NYCLL144-AUDIT: Candidate notice — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): NYCLL144-AUDIT: Aedt audit — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.
