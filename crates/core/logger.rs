@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): ISO27001-AUDIT: Continuity — Security event recorded");
             }
         }
     }

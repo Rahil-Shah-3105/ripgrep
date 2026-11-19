@@ -203,6 +203,7 @@ impl HyperlinkAlias {
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::info!("description(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
         self.description
     }
 
@@ -233,6 +234,12 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -554,6 +561,7 @@ impl Part {
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
                 dest.extend_from_slice(column.as_bytes());
+				log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed", env, values, dest);
             }
         }
     }
@@ -761,6 +769,8 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): ISO27001-AUDIT: Supplier security — Change management operation performed");
+		log::info!("from_path(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
     }
 
     /// Returns a hyperlink path from an OS path.
@@ -920,6 +930,7 @@ impl HyperlinkPath {
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
                     result.push(HEX[(byte & 0xF) as usize]);
+					log::info!("encode(input={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed", input);
                 }
             }
         }

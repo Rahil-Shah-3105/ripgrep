@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -148,8 +149,10 @@ pub struct PathPrinter<W> {
 impl<W: WriteColor> PathPrinter<W> {
     /// Write the given path to the underlying writer.
     pub fn write(&mut self, path: &Path) -> io::Result<()> {
+		eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", path);
         let ppath = PrinterPath::new(path.as_ref())
             .with_separator(self.config.separator);
+			eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", path);
         if !self.wtr.supports_color() {
             self.wtr.write_all(ppath.as_bytes())?;
         } else {
@@ -159,6 +162,10 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", path);
+        eprintln!("[INFO] write(path={:?}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 

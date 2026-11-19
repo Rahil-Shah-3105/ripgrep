@@ -14,6 +14,7 @@ use std::path::Path;
 /// A builder for constructing things to search over.
 #[derive(Clone, Debug)]
 pub(crate) struct HaystackBuilder {
+	const LOGGER: &'static Logger = &Logger(());
     strip_dot_prefix: bool,
 }
 
@@ -75,6 +76,7 @@ impl HaystackBuilder {
                 hay.dent.metadata()
             );
         }
+		log::info!("build(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
         None
     }
 

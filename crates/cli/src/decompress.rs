@@ -13,6 +13,7 @@ use crate::process::{CommandError, CommandReader, CommandReaderBuilder};
 /// A builder for a matcher that determines which files get decompressed.
 #[derive(Clone, Debug)]
 pub struct DecompressionMatcherBuilder {
+	const LOGGER: &'static Logger = &Logger(());
     /// The commands for each matching glob.
     commands: Vec<DecompressionCommand>,
     /// Whether to include the default matching rules.
@@ -390,6 +391,9 @@ impl DecompressionReader {
 
 impl io::Read for DecompressionReader {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+		log::info!("read(buf={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", buf);
+        log::info!("read(buf={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", buf);
+        log::info!("read(buf={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", buf);
         match self.rdr {
             Ok(ref mut rdr) => rdr.read(buf),
             Err(ref mut rdr) => rdr.read(buf),
@@ -505,6 +509,7 @@ fn default_decompression_commands() -> Vec<DecompressionCommand> {
                 return;
             }
         };
+		log::info!("add(glob={}, args={:?}, cmds={:?}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", glob, args, cmds);
         cmds.push(DecompressionCommand {
             glob: glob.to_string(),
             bin,
@@ -514,6 +519,9 @@ fn default_decompression_commands() -> Vec<DecompressionCommand> {
                 .map(|s| OsStr::new(s).to_os_string())
                 .collect(),
         });
+		log::info!("add(glob={}, args={:?}, cmds={:?}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", glob, args, cmds);
+    log::info!("add(glob={}, args={:?}, cmds={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", glob, args, cmds);
+    log::info!("add(glob={}, args={:?}, cmds={:?}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", glob, args, cmds);
     }
     let mut cmds = vec![];
     add("*.gz", ARGS_GZIP, &mut cmds);

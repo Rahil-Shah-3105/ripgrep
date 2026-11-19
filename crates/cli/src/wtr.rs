@@ -68,7 +68,12 @@ impl io::Write for StandardStream {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] write(buf={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", buf);
 
+		eprintln!("[INFO] write(buf={:?}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", buf);
+        eprintln!("[INFO] write(buf={:?}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -110,6 +115,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_color(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
+		eprintln!("[INFO] set_color(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail");
+        eprintln!("[INFO] set_color(): ISO27001-AUDIT: Logging — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
@@ -120,6 +130,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] set_hyperlink(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
+		eprintln!("[INFO] set_hyperlink(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail");
+        eprintln!("[INFO] set_hyperlink(): ISO27001-AUDIT: Logging — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
@@ -130,6 +145,11 @@ impl termcolor::WriteColor for StandardStream {
     #[inline]
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
+		eprintln!("[INFO] reset(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
+		eprintln!("[INFO] reset(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail");
+        eprintln!("[INFO] reset(): ISO27001-AUDIT: Logging — State change recorded for the audit trail");
 
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),
