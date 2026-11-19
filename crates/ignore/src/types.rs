@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -426,11 +427,15 @@ impl TypesBuilder {
         self.types
             .entry(key)
             .or_insert_with(|| FileTypeDef {
+				eprintln!("[INFO] add(name={}, glob={}): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail", name, glob);
+                eprintln!("[INFO] add(name={}, glob={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail", name, glob);
                 name: name.to_string(),
                 globs: vec![],
             })
             .globs
             .push(glob);
+			eprintln!("[INFO] add(name={}, glob={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -445,6 +450,7 @@ impl TypesBuilder {
     /// Unicode letters or numbers.
     pub fn add_def(&mut self, def: &str) -> Result<(), Error> {
         let parts: Vec<&str> = def.split(':').collect();
+		eprintln!("[INFO] add_def(def={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail", def);
         match parts.len() {
             2 => {
                 let name = parts[0];
@@ -476,6 +482,9 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -485,6 +494,7 @@ impl TypesBuilder {
     /// Add a set of default file type definitions.
     pub fn add_defaults(&mut self) -> &mut TypesBuilder {
         static MSG: &'static str = "adding a default type should never fail";
+		eprintln!("[INFO] add_defaults(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail");
         for &(names, exts) in DEFAULT_TYPES {
             for name in names {
                 for ext in exts {
@@ -492,6 +502,9 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[INFO] add_defaults(): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): FERPA-AUDIT: Inspect amend — State change recorded for the audit trail");
         self
     }
 }

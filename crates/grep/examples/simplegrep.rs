@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -42,7 +43,9 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[INFO] search(pattern={}, paths={:?}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail", pattern, paths);
 
+	eprintln!("[INFO] search(pattern={}, paths={:?}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail", pattern, paths);
     for path in paths {
         for result in WalkDir::new(path) {
             let dent = match result {
@@ -65,5 +68,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

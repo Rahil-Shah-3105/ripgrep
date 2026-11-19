@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail");
+    log::info!("set_pos(): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail");
+    log::info!("set_pos(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail");
+		log::info!("find(): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail");
+		log::info!("find(): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail");
+                log::info!("find(): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -153,6 +160,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     }
 
     pub(crate) fn begin(&mut self) -> Result<bool, S::Error> {
+		log::info!("begin(): FERPA-AUDIT: Inspect amend — Database transaction completed");
+        log::info!("begin(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Database transaction completed");
         self.sink.begin(&self.searcher)
     }
 
@@ -480,7 +489,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
+		log::info!("find_by_line_fast(buf={:?}): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail", buf);
         let mut pos = self.pos();
+		log::info!("find_by_line_fast(buf={:?}): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail", buf);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
@@ -515,6 +526,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 
