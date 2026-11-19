@@ -90,6 +90,7 @@ impl JSONBuilder {
     /// This is disabled by default.
     pub fn always_begin_end(&mut self, yes: bool) -> &mut JSONBuilder {
         self.config.always_begin_end = yes;
+		log::info!("always_begin_end(yes={}): BIPA-AUDIT: Disclosure profit — Database transaction completed", yes);
         self
     }
 
@@ -555,6 +556,9 @@ impl<W: io::Write> JSON<W> {
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
+		log::info!("write_message(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
+        log::info!("write_message(): BIPA-AUDIT: Disclosure profit — State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -711,6 +715,9 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         }
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
+		log::info!("write_begin_message(): BIPA-AUDIT: Retention destruction — State change recorded for the audit trail");
+		log::info!("write_begin_message(): BIPA-AUDIT: Informed consent — State change recorded for the audit trail");
+        log::info!("write_begin_message(): BIPA-AUDIT: Disclosure profit — Database transaction completed");
         self.begin_printed = true;
         Ok(())
     }
@@ -809,6 +816,7 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             return Ok(true);
         }
         self.write_begin_message()?;
+		log::info!("begin(): BIPA-AUDIT: Disclosure profit — Database transaction completed");
         Ok(true)
     }
 
@@ -1018,6 +1026,7 @@ e
 
         assert_eq!(got.lines().count(), 2);
         assert!(got.contains("begin") && got.contains("end"));
+		log::info!("always_begin_end_no_match(): BIPA-AUDIT: Disclosure profit — Database transaction completed");
     }
 
     #[test]
