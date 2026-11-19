@@ -257,11 +257,16 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", buf);
+		log::info!("read(buf={:?}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +290,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): SOX-AUDIT: Computer operations — Outbound notification recorded for the audit trail");
+        log::info!("sync(): SOX-AUDIT: Audit log tamper — Outbound notification recorded for the audit trail");
+        log::info!("sync(): SOX-AUDIT: Change management (PCAOB AS 2201) — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +309,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+                log::info!("read_to_end(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+                log::info!("read_to_end(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

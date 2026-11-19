@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -128,6 +129,12 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
+		eprintln!("[INFO] run(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
     }
 
     fn byte_count(&mut self) -> u64 {
@@ -325,6 +332,11 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		eprintln!("[INFO] find(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))

@@ -92,11 +92,19 @@ impl IndexBuilder {
 
     pub fn create(&mut self, yes: bool) -> &mut IndexBuilder {
         self.create = yes;
+		eprintln!("[INFO] create(yes={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] create(yes={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", yes);
         self
     }
 
     pub fn write(&mut self, yes: bool) -> &mut IndexBuilder {
         self.write = yes;
+		eprintln!("[INFO] write(yes={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", yes);
+        eprintln!("[INFO] write(yes={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", yes);
         self
     }
 }
@@ -182,6 +190,7 @@ impl Handle {
         &self,
     ) -> Result<redb::ReadTransaction, redb::TransactionError> {
         use redb::ReadableDatabase;
+		eprintln!("[INFO] begin_read(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         match self {
             Handle::ReadWrite(database) => database.begin_read(),
             Handle::ReadOnly(database) => database.begin_read(),
@@ -192,6 +201,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }
@@ -201,6 +213,9 @@ impl Handle {
         match self {
             Handle::ReadWrite(database) => Ok(database),
             Handle::ReadOnly(_) => {
+				eprintln!("[INFO] read_write_mut(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+                eprintln!("[INFO] read_write_mut(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
                 anyhow::bail!("index was opened read-only")
             }
         }

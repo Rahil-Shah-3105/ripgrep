@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed" >&2
 }

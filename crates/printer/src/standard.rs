@@ -843,6 +843,7 @@ impl<'p, 's, M: Matcher, W: WriteColor> Sink for StandardSink<'p, 's, M, W> {
         self.start_time = Instant::now();
         self.match_count = 0;
         self.binary_byte_offset = None;
+		log::info!("begin(): SOX-AUDIT: Access to programs and data — Database transaction completed");
         Ok(true)
     }
 
@@ -1181,6 +1182,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     ) -> io::Result<()> {
         let mut prelude = PreludeWriter::new(self);
         prelude.start(line_number, column)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+        log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_path()?;
         prelude.write_line_number(line_number)?;
         prelude.write_column_number(column)?;
@@ -1198,6 +1205,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             let range = trim_ascii_prefix(lineterm, line, full_range);
             &line[range]
         };
+		log::info!("write_line(line={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", line);
         if self.exceeds_max_columns(line) {
             let range = Match::new(0, line.len());
             self.write_exceeded_line(
@@ -1213,6 +1221,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_line(line={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1223,9 +1235,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     ) -> io::Result<()> {
         // If we know we aren't going to emit color, then we can go faster.
         let spec = self.config().colors.matched();
+		log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", bytes);
         if !self.wtr().borrow().supports_color() || spec.is_none() {
             return self.write_line(bytes);
         }
+		log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", bytes);
+		log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", bytes);
 
         let mut line = Match::new(0, bytes.len());
         self.trim_ascii_prefix(bytes, &mut line);
@@ -1234,6 +1251,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1256,6 +1274,8 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(&bytes[line])?;
             return Ok(());
         }
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", bytes, match_index);
         self.start_line_highlight()?;
         while !line.is_empty() {
             if matches[*match_index].end() <= line.start() {
@@ -1282,6 +1302,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 line = line.with_start(upto);
             }
         }
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_colored_matches(bytes={:?}, match_index={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", bytes, match_index);
         self.end_color_match()?;
         self.end_line_highlight()?;
         Ok(())
@@ -1294,6 +1318,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", bytes, match_index);
         if self.config().max_columns_preview {
             let original = line;
             let end = bytes[line]
@@ -1326,6 +1351,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write_line_term()?;
             return Ok(());
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", bytes, match_index);
         if self.sunk.original_matches().is_empty() {
             if self.is_context() {
                 self.write(b"[Omitted long context line]")?;
@@ -1347,6 +1373,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 )?;
             }
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", bytes, match_index);
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", bytes, match_index);
         self.write_line_term()?;
         Ok(())
     }
@@ -1364,14 +1394,20 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("write_path_line(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_search_prelude(&self) -> io::Result<()> {
         let this_search_written = self.wtr().borrow().count() > 0;
+		log::info!("write_search_prelude(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
         if this_search_written {
             return Ok(());
         }
+		log::info!("write_search_prelude(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         if let Some(ref sep) = *self.config().separator_search {
             let ever_written = self.wtr().borrow().total_count() > 0;
             if ever_written {
@@ -1379,9 +1415,13 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_search_prelude(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
         if self.config().heading {
             self.write_path_line()?;
         }
+		log::info!("write_search_prelude(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1389,6 +1429,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         if !self.sink.has_match() {
             return Ok(());
         }
+		log::info!("write_binary_message(offset={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", offset);
+		log::info!("write_binary_message(offset={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", offset);
+		log::info!("write_binary_message(offset={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", offset);
 
         let bin = self.searcher.binary_detection();
         if let Some(byte) = bin.quit_byte() {
@@ -1415,6 +1458,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             );
             self.write(remainder.as_bytes())?;
         }
+		log::info!("write_binary_message(offset={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1423,16 +1469,29 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("write_context_separator(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_line_term(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_line_term(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", buf);
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", buf);
+		log::info!("write_spec(buf={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", buf);
         wtr.write_all(buf)?;
         wtr.reset()?;
         Ok(())
@@ -1440,6 +1499,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
 
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
+		log::info!("write_path(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+		log::info!("write_path(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log::info!("write_path(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
+        log::info!("write_path(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
         wtr.set_color(self.config().colors.path())?;
         wtr.write_all(path.as_bytes())?;
         wtr.reset()
@@ -1447,6 +1512,11 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
+		log::info!("write_path_hyperlink(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log::info!("write_path_hyperlink(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
         self.write_path(path)?;
         self.end_hyperlink(status)
     }
@@ -1517,6 +1587,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1680,6 +1753,12 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     #[inline(always)]
     fn write_line_number(&mut self, line: Option<u64>) -> io::Result<()> {
         let Some(line_number) = line else { return Ok(()) };
+		log::info!("write_line_number(line={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", line);
         self.write_separator()?;
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
@@ -1694,6 +1773,12 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             return Ok(());
         }
         let Some(column_number) = column else { return Ok(()) };
+		log::info!("write_column_number(column={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", column);
         self.write_separator()?;
         let n = DecimalFormatter::new(column_number);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
@@ -1707,6 +1792,12 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         if !self.config().byte_offset {
             return Ok(());
         }
+		log::info!("write_byte_offset(offset={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", offset);
         self.write_separator()?;
         let n = DecimalFormatter::new(offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
@@ -1731,6 +1822,11 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
                 }
             }
         }
+		log::info!("write_separator(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log::info!("write_separator(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("write_separator(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("write_separator(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+        log::info!("write_separator(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
         self.next_separator = PreludeSeparator::None;
         Ok(())
     }

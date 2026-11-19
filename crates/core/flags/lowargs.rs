@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -188,6 +189,9 @@ impl Mode {
                 // `--files -l` will still be Mode::Files.
                 if !matches!(*self, Mode::Search(_)) {
                     *self = new;
+					eprintln!("[INFO] update(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+                eprintln!("[INFO] update(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed");
                 }
             }
         }
@@ -371,6 +375,9 @@ impl ContextMode {
     pub(crate) fn set_before(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_before(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+                eprintln!("[INFO] set_before(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -392,6 +399,9 @@ impl ContextMode {
     pub(crate) fn set_after(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_after(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+                eprintln!("[INFO] set_after(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -412,6 +422,9 @@ impl ContextMode {
     pub(crate) fn set_both(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_both(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+                eprintln!("[INFO] set_both(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +441,9 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		eprintln!("[INFO] get_limited(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+        eprintln!("[INFO] get_limited(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -464,14 +480,20 @@ impl ContextModeLimited {
     pub(crate) fn get(&self) -> (usize, usize) {
         let (mut before, mut after) =
             self.both.map(|lines| (lines, lines)).unwrap_or((0, 0));
+			eprintln!("[INFO] get(): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail");
+			eprintln!("[INFO] get(): SOX-AUDIT: Privileged access — Record access recorded for the audit trail");
+			eprintln!("[INFO] get(): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail");
         // --before and --after always override --context, regardless
         // of where they appear relative to each other.
         if let Some(lines) = self.before {
             before = lines;
         }
+		eprintln!("[INFO] get(): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail");
         if let Some(lines) = self.after {
             after = lines;
         }
+		eprintln!("[INFO] get(): SOX-AUDIT: Computer operations — Record access recorded for the audit trail");
+        eprintln!("[INFO] get(): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail");
         (before, after)
     }
 }

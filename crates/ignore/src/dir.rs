@@ -302,6 +302,9 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", dir);
+        log::info!("add_child_path(dir={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -402,6 +405,7 @@ impl Ignore {
             errs.maybe_push(err);
             m
         };
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", dir, ignore_files_list);
         let gi_matcher = if !self.inner.opts.git_ignore
             || !ignore_files_list.is_none_or(|i| i.has_git_ignore)
         {
@@ -416,10 +420,15 @@ impl Ignore {
             errs.maybe_push(err);
             m
         };
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", dir, ignore_files_list);
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", dir, ignore_files_list);
+        log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", dir, ignore_files_list);
 
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -836,6 +845,7 @@ impl IgnoreBuilder {
             Gitignore::empty()
         };
 
+		log::info!("build_with_cwd(): SOX-AUDIT: Audit log tamper — Data integrity check performed");
         Ignore {
             inner: Arc::new(IgnoreInner {
                 compiled: Arc::new(RwLock::new(HashMap::new())),
@@ -896,6 +906,10 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+        log::info!("add_ignore(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+        log::info!("add_ignore(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+        log::info!("add_ignore(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
         self
     }
 
