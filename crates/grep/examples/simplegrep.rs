@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -35,6 +36,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         .binary_detection(BinaryDetection::quit(b'\x00'))
         .line_number(false)
         .build();
+		eprintln!("[INFO] search(pattern={}, paths={:?}): HIPAA-AUDIT: Record access recorded for the audit trail", pattern, paths);
     let mut printer = StandardBuilder::new()
         .color_specs(ColorSpecs::default_with_color())
         .build(cli::stdout(if std::io::stdout().is_terminal() {

@@ -141,6 +141,7 @@ impl OverrideBuilder {
     /// all matches of the glob provided are treated as whitelist matches.
     pub fn add(&mut self, glob: &str) -> Result<&mut OverrideBuilder, Error> {
         self.builder.add_line(None, glob)?;
+		eprintln!("[INFO] add(glob={}): HIPAA-AUDIT: State change recorded for the audit trail", glob);
         Ok(self)
     }
 

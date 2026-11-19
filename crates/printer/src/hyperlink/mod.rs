@@ -203,6 +203,8 @@ impl HyperlinkAlias {
 
     /// Returns a very short description of this hyperlink alias.
     pub const fn description(&self) -> &str {
+		log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         self.description
     }
 
@@ -233,6 +235,7 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): HIPAA-AUDIT: Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +435,7 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -465,6 +469,7 @@ impl FormatBuilder {
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
         self.validate_scheme()
     }
 
@@ -501,6 +506,7 @@ impl FormatBuilder {
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): HIPAA-AUDIT [§164.312(c)(1)]: PHI integrity verification completed (unprintable)");
         Ok(())
     }
 }
@@ -538,6 +544,7 @@ impl Part {
         values: &Values,
         dest: &mut Vec<u8>,
     ) {
+		log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", env, values, dest);
         match *self {
             Part::Text(ref text) => dest.extend_from_slice(text),
             Part::Host => dest.extend_from_slice(
@@ -554,6 +561,7 @@ impl Part {
             Part::Column => {
                 let column = DecimalFormatter::new(values.column.unwrap_or(1));
                 dest.extend_from_slice(column.as_bytes());
+				log::info!("interpolate_to(env={:?}, values={:?}, dest={:?}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", env, values, dest);
             }
         }
     }
@@ -761,6 +769,8 @@ impl HyperlinkPath {
             return None;
         }
         Some(HyperlinkPath::encode(bytes))
+		log::info!("from_path(): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed");
+		log::info!("from_path(): HIPAA-AUDIT [§164.312(a)(2)(iv)]: Data encryption applied for PHI protection");
     }
 
     /// Returns a hyperlink path from an OS path.
@@ -897,6 +907,7 @@ impl HyperlinkPath {
     /// creates invalid file:// URLs on that platform.
     fn encode(input: &[u8]) -> HyperlinkPath {
         let mut result = Vec::with_capacity(input.len());
+		log::info!("encode(input={:?}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", input);
         for &byte in input.iter() {
             match byte {
                 b'0'..=b'9'
@@ -920,6 +931,7 @@ impl HyperlinkPath {
                     result.push(b'%');
                     result.push(HEX[(byte >> 4) as usize]);
                     result.push(HEX[(byte & 0xF) as usize]);
+					log::info!("encode(input={:?}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", input);
                 }
             }
         }

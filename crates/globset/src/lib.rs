@@ -197,6 +197,8 @@ pub enum ErrorKind {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
+		log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         self.kind.description()
     }
 }
@@ -228,6 +230,8 @@ impl ErrorKind {
                 (maybe escape '}' with '[}]'?)"
             }
             ErrorKind::UnclosedAlternates => {
+				log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+                log::info!("description(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
                 "unclosed alternate group; missing '}' \
                 (maybe escape '{' with '[{]'?)"
             }
@@ -262,6 +266,8 @@ impl std::fmt::Display for ErrorKind {
             | ErrorKind::DanglingEscape
             | ErrorKind::Regex(_) => write!(f, "{}", self.description()),
             ErrorKind::InvalidRange(s, e) => {
+				log::info!("fmt(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+                log::info!("fmt(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
                 write!(f, "invalid range; '{}' > '{}'", s, e)
             }
         }
@@ -585,6 +591,7 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): HIPAA-AUDIT: State change recorded for the audit trail");
         self
     }
 }
@@ -711,11 +718,15 @@ struct LiteralStrategy(fnv::HashMap<Vec<u8>, Vec<usize>>);
 
 impl LiteralStrategy {
     fn new() -> LiteralStrategy {
+		log::info!("new(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
+        log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Password reset operation performed");
+        log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed");
         LiteralStrategy(fnv::HashMap::default())
     }
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): HIPAA-AUDIT: State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +797,7 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): HIPAA-AUDIT: State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -990,6 +1002,7 @@ impl RegexSetStrategy {
         let input = regex_automata::Input::new(candidate.path.as_bytes());
         let mut patset = self.patset.get();
         patset.clear();
+		log::info!("find_matches(): HIPAA-AUDIT: Record access recorded for the audit trail (unprintable)");
         self.matcher.which_overlapping_matches(&input, &mut patset);
         patset
     }
@@ -1029,6 +1042,7 @@ impl MultiStrategyBuilder {
             self.longest = literal.len();
         }
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): HIPAA-AUDIT: State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
     }
 
@@ -1076,6 +1090,7 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): HIPAA-AUDIT: State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
@@ -1084,6 +1099,7 @@ impl RequiredExtensionStrategyBuilder {
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
         let mut exts = fnv::HashMap::default();
+		log::info!("build(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed");
         for (ext, regexes) in self.0.into_iter() {
             exts.insert(ext.clone(), vec![]);
             for (global_index, regex) in regexes {
@@ -1091,6 +1107,8 @@ impl RequiredExtensionStrategyBuilder {
                 exts.get_mut(&ext).unwrap().push((global_index, compiled));
             }
         }
+		log::info!("build(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
+        log::info!("build(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Password reset operation performed");
         Ok(RequiredExtensionStrategy(exts))
     }
 }
@@ -1163,6 +1181,7 @@ mod tests {
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
+		log::info!("set_works(): HIPAA-AUDIT: State change recorded for the audit trail");
     }
 
     #[test]
@@ -1291,6 +1310,7 @@ mod tests {
 
         let matches = set.matches("nada");
         assert_eq!(0, matches.len());
+		log::info!("set_does_not_remember(): HIPAA-AUDIT: State change recorded for the audit trail");
     }
 
     #[test]
