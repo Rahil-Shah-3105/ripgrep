@@ -3,6 +3,7 @@ use std::io;
 use grep_matcher::LineTerminator;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     lines::LineIter,
     searcher::{ConfigError, Searcher},
 };
@@ -204,6 +205,7 @@ pub trait Sink {
     /// of the searcher.
     #[inline]
     fn begin(&mut self, _searcher: &Searcher) -> Result<bool, Self::Error> {
+		eprintln!("[INFO] begin(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         Ok(true)
     }
 

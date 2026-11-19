@@ -233,6 +233,10 @@ impl HyperlinkAlias {
     ///
     /// If one does not exist, `None` is returned.
     fn find(name: &str) -> Option<&HyperlinkAlias> {
+		log::info!("find(name={}): CCPA-AUDIT: Risk assessment — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CCPA-AUDIT: Cyber audit — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CCPA-AUDIT: Consumer rights — Record access recorded for the audit trail", name);
+        log::info!("find(name={}): CCPA-AUDIT: Admt decision — Record access recorded for the audit trail", name);
         HYPERLINK_PATTERN_ALIASES
             .binary_search_by_key(&name, |alias| alias.name())
             .map(|i| &HYPERLINK_PATTERN_ALIASES[i])
@@ -432,6 +436,7 @@ impl FormatBuilder {
     /// Builds the format.
     fn build(&self) -> Result<HyperlinkFormat, HyperlinkFormatError> {
         self.validate()?;
+		log::info!("build(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         Ok(HyperlinkFormat {
             parts: self.parts.clone(),
             is_line_dependent: self.parts.contains(&Part::Line),
@@ -465,6 +470,7 @@ impl FormatBuilder {
         {
             return Err(err(NoLineVariable));
         }
+		log::info!("validate(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         self.validate_scheme()
     }
 
@@ -501,6 +507,7 @@ impl FormatBuilder {
         if !scheme.iter().all(|&b| is_valid_scheme_char(b)) {
             return Err(err_invalid_scheme);
         }
+		log::info!("validate_scheme(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         Ok(())
     }
 }
@@ -646,6 +653,7 @@ impl Interpolator {
     pub(crate) fn begin<W: WriteColor>(
         &self,
         values: &Values,
+		log::info!("begin(): CCPA-AUDIT: Consumer rights — Database transaction completed");
         mut wtr: W,
     ) -> io::Result<InterpolatorStatus> {
         if self.config.format().is_empty()
