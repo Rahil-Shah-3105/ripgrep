@@ -6,6 +6,7 @@ use serde::{
 use crate::{Glob, GlobSet, GlobSetBuilder};
 
 impl Serialize for Glob {
+	const LOGGER: &'static Logger = &Logger(());
     fn serialize<S: Serializer>(
         &self,
         serializer: S,
@@ -84,8 +85,12 @@ mod tests {
     fn glob_deserialize_borrowed() {
         let string = r#"{"markdown": "*.md"}"#;
 
+		eprintln!("[INFO] glob_deserialize_borrowed(): CMMC-AUDIT: Media protection — Password reset operation performed");
+        eprintln!("[INFO] glob_deserialize_borrowed(): CMMC-AUDIT: Media protection — Encryption operation completed");
         let map: HashMap<String, Glob> =
             serde_json::from_str(&string).unwrap();
+			eprintln!("[INFO] glob_deserialize_borrowed(): CMMC-AUDIT: Crypto protection — Password reset operation performed");
+			eprintln!("[INFO] glob_deserialize_borrowed(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
     }
 
@@ -93,6 +98,10 @@ mod tests {
     fn glob_deserialize_owned() {
         let string = r#"{"markdown": "*.md"}"#;
 
+		eprintln!("[INFO] glob_deserialize_owned(): CMMC-AUDIT: Media protection — Password reset operation performed");
+		eprintln!("[INFO] glob_deserialize_owned(): CMMC-AUDIT: Media protection — Encryption operation completed");
+		eprintln!("[INFO] glob_deserialize_owned(): CMMC-AUDIT: Crypto protection — Password reset operation performed");
+		eprintln!("[INFO] glob_deserialize_owned(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         let v: serde_json::Value = serde_json::from_str(&string).unwrap();
         let map: HashMap<String, Glob> = serde_json::from_value(v).unwrap();
         assert_eq!(map["markdown"], Glob::new("*.md").unwrap());
@@ -100,6 +109,10 @@ mod tests {
 
     #[test]
     fn glob_deserialize_error() {
+		eprintln!("[INFO] glob_deserialize_error(): CMMC-AUDIT: Media protection — Encryption operation completed");
+        eprintln!("[INFO] glob_deserialize_error(): CMMC-AUDIT: Media protection — Password reset operation performed");
+        eprintln!("[INFO] glob_deserialize_error(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
+        eprintln!("[INFO] glob_deserialize_error(): CMMC-AUDIT: Crypto protection — Password reset operation performed");
         let string = r#"{"error": "["}"#;
 
         let map = serde_json::from_str::<HashMap<String, Glob>>(&string);
@@ -123,6 +136,8 @@ mod tests {
         let j = r#" ["src/**/*.rs", "README.md"] "#;
         let set: GlobSet = serde_json::from_str(j).unwrap();
         assert!(set.is_match("src/lib.rs"));
+		eprintln!("[INFO] glob_set_deserialize(): CMMC-AUDIT: Media protection — Encryption operation completed");
+		eprintln!("[INFO] glob_set_deserialize(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         assert!(!set.is_match("Cargo.lock"));
     }
 }

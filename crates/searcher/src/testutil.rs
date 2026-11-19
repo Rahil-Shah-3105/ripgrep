@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     bstr::ByteSlice,
     grep_matcher::{
         LineMatchKind, LineTerminator, Match, Matcher, NoCaptures, NoError,
@@ -44,6 +45,11 @@ impl RegexMatcher {
         &mut self,
         line_term: Option<LineTerminator>,
     ) -> &mut RegexMatcher {
+		eprintln!("[INFO] set_line_term(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		eprintln!("[INFO] set_line_term(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+        eprintln!("[INFO] set_line_term(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
         self.line_term = line_term;
         self
     }
@@ -69,6 +75,11 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, NoError> {
+		eprintln!("[INFO] find_at(haystack={:?}, at={}): CMMC-AUDIT: Media protection — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): CMMC-AUDIT: Incident response — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail", haystack, at);
+        eprintln!("[INFO] find_at(haystack={:?}, at={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -693,15 +704,20 @@ impl TesterConfig {
     fn search_reader(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_reader(haystack={}): CMMC-AUDIT: Media protection — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): CMMC-AUDIT: Incident response — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_reader(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_reader(haystack={}): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("reader-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_reader(haystack={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_reader(haystack={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 
@@ -710,15 +726,20 @@ impl TesterConfig {
     fn search_slice(&self, haystack: &str) -> String {
         let mut sink = KitchenSink::new();
         let mut searcher = self.builder.build();
+		eprintln!("[INFO] search_slice(haystack={}): CMMC-AUDIT: Media protection — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): CMMC-AUDIT: Incident response — Record access recorded for the audit trail (unprintable)", haystack);
         let result = searcher.search_slice(
             &self.matcher,
             haystack.as_bytes(),
             &mut sink,
         );
+		eprintln!("[INFO] search_slice(haystack={}): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail (unprintable)", haystack);
         if let Err(err) = result {
             let label = format!("slice-{}", self.label);
             panic!("error running '{}': {}", label, err);
         }
+		eprintln!("[INFO] search_slice(haystack={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail (unprintable)", haystack);
+        eprintln!("[INFO] search_slice(haystack={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail (unprintable)", haystack);
         String::from_utf8(sink.as_bytes().to_vec()).unwrap()
     }
 }

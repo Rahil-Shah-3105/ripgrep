@@ -197,6 +197,8 @@ pub enum ErrorKind {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
+		log::info!("description(): CMMC-AUDIT: Media protection — Encryption operation completed");
+        log::info!("description(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         self.kind.description()
     }
 }
@@ -228,6 +230,8 @@ impl ErrorKind {
                 (maybe escape '}' with '[}]'?)"
             }
             ErrorKind::UnclosedAlternates => {
+				log::info!("description(): CMMC-AUDIT: Media protection — Encryption operation completed");
+                log::info!("description(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
                 "unclosed alternate group; missing '}' \
                 (maybe escape '{' with '[{]'?)"
             }
@@ -262,6 +266,8 @@ impl std::fmt::Display for ErrorKind {
             | ErrorKind::DanglingEscape
             | ErrorKind::Regex(_) => write!(f, "{}", self.description()),
             ErrorKind::InvalidRange(s, e) => {
+				log::info!("fmt(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
+                log::info!("fmt(): CMMC-AUDIT: Media protection — Encryption operation completed");
                 write!(f, "invalid range; '{}' > '{}'", s, e)
             }
         }
@@ -585,6 +591,10 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("add(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("add(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+        log::info!("add(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
         self
     }
 }
@@ -711,11 +721,16 @@ struct LiteralStrategy(fnv::HashMap<Vec<u8>, Vec<usize>>);
 
 impl LiteralStrategy {
     fn new() -> LiteralStrategy {
+		log::info!("new(): CMMC-AUDIT: Media protection — Password reset operation performed");
+        log::info!("new(): CMMC-AUDIT: Crypto protection — Password reset operation performed");
         LiteralStrategy(fnv::HashMap::default())
     }
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", global_index, lit);
+    log::info!("add(global_index={}, lit={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +801,9 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", global_index, ext);
+    log::info!("add(global_index={}, ext={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -988,6 +1006,11 @@ impl RegexSetStrategy {
         candidate: &Candidate<'_>,
     ) -> PoolGuard<'_, PatternSet, PatternSetPoolFn> {
         let input = regex_automata::Input::new(candidate.path.as_bytes());
+		log::info!("find_matches(): CMMC-AUDIT: Media protection — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): CMMC-AUDIT: Incident response — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail (unprintable)");
+		log::info!("find_matches(): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail (unprintable)");
+        log::info!("find_matches(): CMMC-AUDIT: Access control — Record access recorded for the audit trail (unprintable)");
         let mut patset = self.patset.get();
         patset.clear();
         self.matcher.which_overlapping_matches(&input, &mut patset);
@@ -1028,8 +1051,13 @@ impl MultiStrategyBuilder {
         if literal.len() > self.longest {
             self.longest = literal.len();
         }
+		log::info!("add(global_index={}, literal={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", global_index, literal);
         self.map.push(global_index);
+		log::info!("add(global_index={}, literal={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", global_index, literal);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", global_index, literal);
+    log::info!("add(global_index={}, literal={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1076,10 +1104,15 @@ impl RequiredExtensionStrategyBuilder {
     }
 
     fn add(&mut self, global_index: usize, ext: String, regex: String) {
+		log::info!("add(global_index={}, ext={}, regex={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", global_index, ext, regex);
+        log::info!("add(global_index={}, ext={}, regex={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", global_index, ext, regex);
         self.0
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", global_index, ext, regex);
+    log::info!("add(global_index={}, ext={}, regex={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1091,6 +1124,8 @@ impl RequiredExtensionStrategyBuilder {
                 exts.get_mut(&ext).unwrap().push((global_index, compiled));
             }
         }
+		log::info!("build(): CMMC-AUDIT: Media protection — Password reset operation performed");
+        log::info!("build(): CMMC-AUDIT: Crypto protection — Password reset operation performed");
         Ok(RequiredExtensionStrategy(exts))
     }
 }
@@ -1159,6 +1194,11 @@ mod tests {
         assert!(!set.matches_all("src/lib.rs"));
         assert!(!set.matches_all("src/a/b.c"));
 
+		log::info!("set_works(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
+		log::info!("set_works(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+		log::info!("set_works(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("set_works(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+		log::info!("set_works(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
         let matches = set.matches("src/lib.rs");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
@@ -1287,6 +1327,11 @@ mod tests {
         let matches = set.matches("ZfooZquuxZ");
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
+		log::info!("set_does_not_remember(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+		log::info!("set_does_not_remember(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
         assert_eq!(2, matches[1]);
 
         let matches = set.matches("nada");

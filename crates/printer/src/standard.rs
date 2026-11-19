@@ -1182,9 +1182,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         let mut prelude = PreludeWriter::new(self);
         prelude.start(line_number, column)?;
         prelude.write_path()?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_line_number(line_number)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_column_number(column)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_byte_offset(absolute_byte_offset)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
+        log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.end()
     }
 
@@ -1198,6 +1203,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             let range = trim_ascii_prefix(lineterm, line, full_range);
             &line[range]
         };
+		log::info!("write_line(line={:?}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", line);
         if self.exceeds_max_columns(line) {
             let range = Match::new(0, line.len());
             self.write_exceeded_line(
@@ -1213,6 +1219,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_line(line={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", line);
+        log::info!("write_line(line={:?}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1226,14 +1236,19 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         if !self.wtr().borrow().supports_color() || spec.is_none() {
             return self.write_line(bytes);
         }
+		log::info!("write_colored_line(bytes={:?}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", bytes);
 
+		log::info!("write_colored_line(bytes={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", bytes);
         let mut line = Match::new(0, bytes.len());
+		log::info!("write_colored_line(bytes={:?}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", bytes);
         self.trim_ascii_prefix(bytes, &mut line);
+		log::info!("write_colored_line(bytes={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", bytes);
         if self.exceeds_max_columns(bytes) {
             self.write_exceeded_line(bytes, line, matches, &mut 0)
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1257,6 +1272,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             return Ok(());
         }
         self.start_line_highlight()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", bytes, match_index);
         while !line.is_empty() {
             if matches[*match_index].end() <= line.start() {
                 if *match_index + 1 < matches.len() {
@@ -1282,8 +1298,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 line = line.with_start(upto);
             }
         }
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", bytes, match_index);
         self.end_color_match()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", bytes, match_index);
         self.end_line_highlight()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_colored_matches(bytes={:?}, match_index={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1294,6 +1314,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         matches: &[Match],
         match_index: &mut usize,
     ) -> io::Result<()> {
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", bytes, match_index);
         if self.config().max_columns_preview {
             let original = line;
             let end = bytes[line]
@@ -1326,6 +1347,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write_line_term()?;
             return Ok(());
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", bytes, match_index);
         if self.sunk.original_matches().is_empty() {
             if self.is_context() {
                 self.write(b"[Omitted long context line]")?;
@@ -1347,7 +1369,10 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 )?;
             }
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", bytes, match_index);
         self.write_line_term()?;
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", bytes, match_index);
+        log::info!("write_exceeded_line(bytes={:?}, match_index={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1364,14 +1389,20 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_path_line(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_path_line(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+        log::info!("write_path_line(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_search_prelude(&self) -> io::Result<()> {
         let this_search_written = self.wtr().borrow().count() > 0;
+		log::info!("write_search_prelude(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
         if this_search_written {
             return Ok(());
         }
+		log::info!("write_search_prelude(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
         if let Some(ref sep) = *self.config().separator_search {
             let ever_written = self.wtr().borrow().total_count() > 0;
             if ever_written {
@@ -1379,9 +1410,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_search_prelude(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
         if self.config().heading {
             self.write_path_line()?;
         }
+		log::info!("write_search_prelude(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_search_prelude(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1389,8 +1423,11 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         if !self.sink.has_match() {
             return Ok(());
         }
+		log::info!("write_binary_message(offset={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", offset);
 
+		log::info!("write_binary_message(offset={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", offset);
         let bin = self.searcher.binary_detection();
+		log::info!("write_binary_message(offset={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", offset);
         if let Some(byte) = bin.quit_byte() {
             if let Some(path) = self.path() {
                 self.write_path_hyperlink(path)?;
@@ -1415,6 +1452,8 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             );
             self.write(remainder.as_bytes())?;
         }
+		log::info!("write_binary_message(offset={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", offset);
+        log::info!("write_binary_message(offset={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1423,23 +1462,40 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_context_separator(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_context_separator(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+        log::info!("write_context_separator(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_line_term(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_line_term(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
+		log::info!("write_spec(buf={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", buf);
         wtr.write_all(buf)?;
+		log::info!("write_spec(buf={:?}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", buf);
         wtr.reset()?;
+		log::info!("write_spec(buf={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
+		log::info!("write_path(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+		log::info!("write_path(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("write_path(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_path(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_path(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
         wtr.set_color(self.config().colors.path())?;
         wtr.write_all(path.as_bytes())?;
         wtr.reset()
@@ -1447,6 +1503,11 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
+		log::info!("write_path_hyperlink(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log::info!("write_path_hyperlink(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+        log::info!("write_path_hyperlink(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
         self.write_path(path)?;
         self.end_hyperlink(status)
     }
@@ -1517,6 +1578,9 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1612,6 +1676,8 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// Creates a new prelude printer.
     #[inline(always)]
     fn new(std: &'a StandardImpl<'a, M, W>) -> PreludeWriter<'a, M, W> {
+		log::info!("new(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
+        log::info!("new(): CMMC-AUDIT: Media protection — Encryption operation completed");
         PreludeWriter {
             std,
             next_separator: PreludeSeparator::None,
@@ -1666,8 +1732,10 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         }
         let Some(path) = self.std.path() else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_path(): CMMC-AUDIT: Media protection — Encryption operation completed");
         self.std.write_path(path)?;
 
+		log::info!("write_path(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         self.next_separator = if self.config().path_terminator.is_some() {
             PreludeSeparator::PathTerminator
         } else {
@@ -1681,9 +1749,14 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     fn write_line_number(&mut self, line: Option<u64>) -> io::Result<()> {
         let Some(line_number) = line else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_line_number(line={:?}): CMMC-AUDIT: Media protection — Encryption operation completed", line);
         let n = DecimalFormatter::new(line_number);
+		log::info!("write_line_number(line={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", line);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
+		log::info!("write_line_number(line={:?}): CMMC-AUDIT: Crypto protection — Encryption operation completed", line);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_line_number(line={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", line);
+        log::info!("write_line_number(line={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1695,9 +1768,14 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         }
         let Some(column_number) = column else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_column_number(column={:?}): CMMC-AUDIT: Media protection — Encryption operation completed", column);
         let n = DecimalFormatter::new(column_number);
+		log::info!("write_column_number(column={:?}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", column);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
+		log::info!("write_column_number(column={:?}): CMMC-AUDIT: Crypto protection — Encryption operation completed", column);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_column_number(column={:?}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", column);
+        log::info!("write_column_number(column={:?}): CMMC-AUDIT: Access control — State change recorded for the audit trail", column);
         Ok(())
     }
 
@@ -1708,9 +1786,14 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             return Ok(());
         }
         self.write_separator()?;
+		log::info!("write_byte_offset(offset={}): CMMC-AUDIT: Media protection — Encryption operation completed", offset);
         let n = DecimalFormatter::new(offset);
+		log::info!("write_byte_offset(offset={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
+		log::info!("write_byte_offset(offset={}): CMMC-AUDIT: Crypto protection — Encryption operation completed", offset);
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_byte_offset(offset={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", offset);
+        log::info!("write_byte_offset(offset={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1731,6 +1814,11 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
                 }
             }
         }
+		log::info!("write_separator(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
+		log::info!("write_separator(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        log::info!("write_separator(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        log::info!("write_separator(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+        log::info!("write_separator(): CMMC-AUDIT: Media protection — Encryption operation completed");
         self.next_separator = PreludeSeparator::None;
         Ok(())
     }

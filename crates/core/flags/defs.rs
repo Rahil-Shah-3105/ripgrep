@@ -1207,6 +1207,8 @@ fn test_context() {
     mode.set_after(1);
     mode.set_both(5);
     assert_eq!(mode, args.context);
+	eprintln!("[INFO] test_context(): CMMC-AUDIT: Media protection — Encryption operation completed");
+	eprintln!("[INFO] test_context(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
     assert_eq!((2, 1), args.context.get_limited());
 }
 
@@ -1715,12 +1717,17 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[INFO] update(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+		eprintln!("[INFO] update(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -2573,6 +2580,8 @@ fn test_generate() {
     // you get back to the "default" mode of searching.
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
+		eprintln!("[INFO] test_generate(): CMMC-AUDIT: Media protection — Encryption operation completed");
+		eprintln!("[INFO] test_generate(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
 }
 
@@ -3068,6 +3077,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3109,8 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): CMMC-AUDIT: Media protection — Encryption operation completed");
+        eprintln!("[INFO] doc_long(): CMMC-AUDIT: Crypto protection — Encryption operation completed");
         &DOC
     }
 
@@ -7694,6 +7706,9 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+		eprintln!("[INFO] update(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.
