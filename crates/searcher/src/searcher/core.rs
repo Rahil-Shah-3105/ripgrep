@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+    log::info!("set_pos(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
+    log::info!("set_pos(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,11 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
+		log::info!("find(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+		log::info!("find(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
+                log::info!("find(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
+                log::info!("find(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -215,6 +223,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): ISO27001-AUDIT: Continuity — Security incident detected");
+		log::info!("detect_binary(): ISO27001-AUDIT: Incident management — Security incident response initiated");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -478,9 +488,13 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         buf: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
+		log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail", buf);
         debug_assert!(self.is_line_by_line_fast());
+		log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail", buf);
 
+		log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", buf);
         let mut pos = self.pos();
+		log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", buf);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
@@ -515,6 +529,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

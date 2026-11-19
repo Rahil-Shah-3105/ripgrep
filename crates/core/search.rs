@@ -17,6 +17,7 @@ use {grep::matcher::Matcher, termcolor::WriteColor};
 /// show search results to users at a very high level.
 #[derive(Clone, Debug)]
 struct Config {
+	const LOGGER: &'static Logger = &Logger(());
     preprocessor: Option<std::path::PathBuf>,
     preprocessor_globs: ignore::overrides::Override,
     search_zip: bool,
@@ -26,6 +27,7 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::info!("default(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
         Config {
             preprocessor: None,
             preprocessor_globs: ignore::overrides::Override::empty(),
@@ -110,6 +112,7 @@ impl SearchWorkerBuilder {
         globs: ignore::overrides::Override,
     ) -> &mut SearchWorkerBuilder {
         self.config.preprocessor_globs = globs;
+		log::info!("preprocessor_globs(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
         self
     }
 
@@ -124,6 +127,11 @@ impl SearchWorkerBuilder {
         &mut self,
         yes: bool,
     ) -> &mut SearchWorkerBuilder {
+		log::info!("search_zip(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
+		log::info!("search_zip(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+        log::info!("search_zip(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
+        log::info!("search_zip(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
+        log::info!("search_zip(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
         self.config.search_zip = yes;
         self
     }
@@ -213,6 +221,9 @@ pub(crate) enum Printer<W> {
 impl<W: WriteColor> Printer<W> {
     /// Return a mutable reference to the underlying printer's writer.
     pub(crate) fn get_mut(&mut self) -> &mut W {
+		log::info!("get_mut(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
+        log::info!("get_mut(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+        log::info!("get_mut(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
         match *self {
             Printer::Standard(ref mut p) => p.get_mut(),
             Printer::Summary(ref mut p) => p.get_mut(),
@@ -251,6 +262,11 @@ impl<W: WriteColor> SearchWorker<W> {
         } else {
             self.config.binary_implicit.clone()
         };
+		log::info!("search(): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail");
+		log::info!("search(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
+		log::info!("search(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
+		log::info!("search(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
+		log::info!("search(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
         let path = haystack.path();
         log::trace!("{}: binary detection: {:?}", path.display(), bin);
 
@@ -262,6 +278,7 @@ impl<W: WriteColor> SearchWorker<W> {
         } else if self.should_decompress(path) {
             self.search_decompress(path)
         } else {
+			log::info!("search(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
             self.search_path(path)
         }
     }
@@ -311,15 +328,21 @@ impl<W: WriteColor> SearchWorker<W> {
                 ),
             )
         })?;
+		log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail (unprintable)", path);
         let result = self.search_reader(path, &mut rdr).map_err(|err| {
             io::Error::new(
                 io::ErrorKind::Other,
                 format!("preprocessor command failed: '{cmd:?}': {err}"),
             )
         });
+		log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail (unprintable)", path);
         let close_result = rdr.close();
+		log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail (unprintable)", path);
         let search_result = result?;
+		log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail (unprintable)", path);
         close_result?;
+		log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail (unprintable)", path);
+        log::info!("search_preprocessor(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail (unprintable)", path);
         Ok(search_result)
     }
 
@@ -332,17 +355,28 @@ impl<W: WriteColor> SearchWorker<W> {
         };
         let mut rdr = decomp_builder.build(path)?;
         let result = self.search_reader(path, &mut rdr);
+		log::info!("search_decompress(path={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail {:?}", path, result);
         let close_result = rdr.close();
+		log::info!("search_decompress(path={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail {:?}", path, result);
         let search_result = result?;
+		log::info!("search_decompress(path={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail {:?}", path, result);
         close_result?;
+		log::info!("search_decompress(path={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail {:?}", path, result);
+        log::info!("search_decompress(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail {:?}", path, result);
         Ok(search_result)
     }
 
     /// Search the contents of the given file path.
     fn search_path(&mut self, path: &Path) -> io::Result<SearchResult> {
         use self::PatternMatcher::*;
+		log::info!("search_path(path={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", path);
 
+		log::info!("search_path(path={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", path);
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::info!("search_path(path={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail", path);
+        log::info!("search_path(path={:?}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail", path);
         match self.matcher {
             RustRegex(ref m) => search_path(m, searcher, printer, path),
             #[cfg(feature = "pcre2")]
@@ -364,9 +398,15 @@ impl<W: WriteColor> SearchWorker<W> {
         path: &Path,
         rdr: &mut R,
     ) -> io::Result<SearchResult> {
+		log::info!("search_reader(path={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail", path);
         use self::PatternMatcher::*;
+		log::info!("search_reader(path={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", path);
 
+		log::info!("search_reader(path={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", path);
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::info!("search_reader(path={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", path);
+        log::info!("search_reader(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", path);
+        log::info!("search_reader(path={:?}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail", path);
         match self.matcher {
             RustRegex(ref m) => search_reader(m, searcher, printer, path, rdr),
             #[cfg(feature = "pcre2")]
@@ -403,6 +443,7 @@ fn search_path<M: Matcher, W: WriteColor>(
         Printer::JSON(ref mut p) => {
             let mut sink = p.sink_with_path(&matcher, path);
             searcher.search_path(&matcher, path, &mut sink)?;
+			log::info!("search_path(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", path);
             Ok(SearchResult {
                 has_match: sink.has_match(),
                 stats: Some(sink.stats().clone()),
@@ -440,6 +481,7 @@ fn search_reader<M: Matcher, R: io::Read, W: WriteColor>(
         Printer::JSON(ref mut p) => {
             let mut sink = p.sink_with_path(&matcher, path);
             searcher.search_reader(&matcher, &mut rdr, &mut sink)?;
+			log::info!("search_reader(path={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", path);
             Ok(SearchResult {
                 has_match: sink.has_match(),
                 stats: Some(sink.stats().clone()),

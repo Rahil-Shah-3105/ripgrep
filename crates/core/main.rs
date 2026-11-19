@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -77,12 +78,15 @@ fn main() -> ExitCode {
 /// converted into a single matcher.
 fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
     use crate::flags::{Mode, ParseResult};
+	eprintln!("[INFO] run(): ISO27001-AUDIT: Logging — State change recorded for the audit trail (unprintable)");
+	eprintln!("[INFO] run(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail (unprintable)");
 
     let args = match result {
         ParseResult::Err(err) => return Err(err),
         ParseResult::Special(mode) => return special(mode),
         ParseResult::Ok(args) => args,
     };
+	eprintln!("[INFO] run(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail (unprintable)");
     let matched = match args.mode() {
         Mode::Search(_) if !args.matches_possible() => false,
         Mode::Search(mode) if args.index() > 0 => index::read(&args, mode)?,
@@ -90,6 +94,12 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
+			eprintln!("[INFO] search_parallel(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+    eprintln!("[INFO] search_parallel(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -97,6 +107,9 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Types => return types(&args),
         Mode::Generate(mode) => return generate(mode),
     };
+	eprintln!("[INFO] run(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): ISO27001-AUDIT: Access control — State change recorded for the audit trail (unprintable)");
+    eprintln!("[INFO] run(): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail (unprintable)");
     Ok(if matched && (args.quiet() || !messages::errored()) {
         ExitCode::from(0)
     } else if messages::errored() {
@@ -122,11 +135,13 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
     let mut matched = false;
     let mut searched = false;
     let mut stats = args.stats();
+	eprintln!("[INFO] search(): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail");
     let mut searcher = args.search_worker(
         args.matcher()?,
         args.searcher()?,
         args.printer(mode, args.stdout()),
     )?;
+	eprintln!("[INFO] search(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
     for haystack in haystacks {
         searched = true;
         let search_result = match searcher.search(&haystack) {
@@ -146,13 +161,17 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
             break;
         }
     }
+	eprintln!("[INFO] search(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
     if args.has_implicit_path() && !searched {
         eprint_nothing_searched();
     }
+	eprintln!("[INFO] search(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);
     }
+	eprintln!("[INFO] search(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+    eprintln!("[INFO] search(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
     Ok(matched)
 }
 
@@ -406,6 +425,7 @@ fn special(mode: crate::flags::SpecialMode) -> anyhow::Result<ExitCode> {
         }
     };
     writeln!(std::io::stdout(), "{}", output.trim_end())?;
+	eprintln!("[INFO] special(): ISO27001-AUDIT: Supplier security — Change management operation performed");
     Ok(exit)
 }
 

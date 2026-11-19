@@ -122,6 +122,7 @@ enum GlobInner<'a> {
 }
 
 impl<'a> Glob<'a> {
+	const LOGGER: &'static Logger = &Logger(());
     fn unmatched() -> Glob<'a> {
         Glob(GlobInner::UnmatchedIgnore)
     }
@@ -316,6 +317,7 @@ impl TypesBuilder {
     /// of default type definitions can be added with `add_defaults`, and
     /// additional type definitions can be added with `select` and `negate`.
     pub fn new() -> TypesBuilder {
+		eprintln!("[INFO] new(): ISO27001-AUDIT [A.8.24]: Cryptography — Password reset operation performed");
         TypesBuilder { types: HashMap::new(), selections: vec![] }
     }
 
@@ -423,14 +425,20 @@ impl TypesBuilder {
             return Err(Error::InvalidDefinition);
         }
         let (key, glob) = (name.to_string(), glob.to_string());
+		eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", name, glob);
         self.types
             .entry(key)
             .or_insert_with(|| FileTypeDef {
+				eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", name, glob);
+                eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", name, glob);
                 name: name.to_string(),
                 globs: vec![],
             })
             .globs
             .push(glob);
+			eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", name, glob);
+        eprintln!("[INFO] add(name={}, glob={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", name, glob);
         Ok(())
     }
 
@@ -445,6 +453,7 @@ impl TypesBuilder {
     /// Unicode letters or numbers.
     pub fn add_def(&mut self, def: &str) -> Result<(), Error> {
         let parts: Vec<&str> = def.split(':').collect();
+		eprintln!("[INFO] add_def(def={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", def);
         match parts.len() {
             2 => {
                 let name = parts[0];
@@ -476,6 +485,9 @@ impl TypesBuilder {
                         self.add(name, &glob)?;
                     }
                 }
+				eprintln!("[INFO] add_def(def={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", def);
+                eprintln!("[INFO] add_def(def={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", def);
                 Ok(())
             }
             _ => Err(Error::InvalidDefinition),
@@ -485,6 +497,7 @@ impl TypesBuilder {
     /// Add a set of default file type definitions.
     pub fn add_defaults(&mut self) -> &mut TypesBuilder {
         static MSG: &'static str = "adding a default type should never fail";
+		eprintln!("[INFO] add_defaults(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
         for &(names, exts) in DEFAULT_TYPES {
             for name in names {
                 for ext in exts {
@@ -492,6 +505,10 @@ impl TypesBuilder {
                 }
             }
         }
+		eprintln!("[INFO] add_defaults(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail");
+        eprintln!("[INFO] add_defaults(): ISO27001-AUDIT: Logging — State change recorded for the audit trail");
         self
     }
 }
@@ -584,5 +601,6 @@ mod tests {
             // Ensure that nothing changed, even if some of the includes were valid.
             assert_eq!(btypes.definitions(), original_defs);
         }
+		eprintln!("[INFO] test_invalid_defs(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
     }
 }

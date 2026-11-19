@@ -96,11 +96,15 @@ impl From<usize> for Ref<'static> {
 #[inline]
 fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
     let mut i = 0;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT: Supplier security — Change management operation performed", replacement);
     if replacement.len() <= 1 || replacement[0] != b'$' {
         return None;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail", replacement);
     let mut brace = false;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", replacement);
     i += 1;
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", replacement);
     if replacement[i] == b'{' {
         brace = true;
         i += 1;
@@ -124,6 +128,8 @@ fn find_cap_ref(replacement: &[u8]) -> Option<CaptureRef<'_>> {
         }
         cap_end += 1;
     }
+	eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", replacement);
+    eprintln!("[INFO] find_cap_ref(replacement={:?}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", replacement);
     Some(CaptureRef {
         cap: match cap.parse::<u32>() {
             Ok(i) => Ref::Number(i as usize),

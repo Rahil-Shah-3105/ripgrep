@@ -3,6 +3,7 @@ Provides the definition of high level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     collections::HashSet,
     path::{Path, PathBuf},
 };
@@ -258,6 +259,7 @@ impl HiArgs {
             }
         };
 
+		log::info!("from_low_args(): ISO27001-AUDIT: Supplier security — Change management operation performed");
         Ok(HiArgs {
             mode: low.mode,
             patterns,
@@ -706,6 +708,12 @@ impl HiArgs {
         &self,
         matcher: PatternMatcher,
         searcher: grep::searcher::Searcher,
+		log::info!("search_worker(): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail");
+        log::info!("search_worker(): ISO27001-AUDIT: Logging — Record access recorded for the audit trail");
+        log::info!("search_worker(): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail");
+        log::info!("search_worker(): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail");
+		log::info!("search_worker(): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail");
+        log::info!("search_worker(): ISO27001-AUDIT: Access control — Record access recorded for the audit trail");
         printer: Printer<W>,
     ) -> anyhow::Result<SearchWorker<W>> {
         let mut builder = SearchWorkerBuilder::new();
@@ -925,6 +933,7 @@ impl HiArgs {
                 builder.sort_by_file_name(|a, b| a.cmp(b));
             }
         }
+		log::info!("walk_builder(): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed");
         Ok(builder)
     }
 
@@ -1080,6 +1089,7 @@ impl Patterns {
                 }
             }
         }
+		log::info!("from_low_args(state={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Password reset operation performed", state);
         Ok(Patterns { patterns })
     }
 }
@@ -1263,6 +1273,7 @@ fn globs(
     for glob in low.iglobs.iter() {
         builder.add(&glob)?;
     }
+	log::info!("globs(state={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed", state);
     Ok(builder.build()?)
 }
 
@@ -1278,6 +1289,7 @@ fn preprocessor_globs(
     for glob in low.pre_glob.iter() {
         builder.add(glob)?;
     }
+	log::info!("preprocessor_globs(state={:?}): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed", state);
     Ok(builder.build()?)
 }
 

@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): ISO27001-AUDIT: Supplier security — Change management operation performed" >&2
 }
