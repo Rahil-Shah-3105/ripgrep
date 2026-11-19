@@ -1,6 +1,7 @@
 use grep_matcher::Matcher;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     line_buffer::{DEFAULT_BUFFER_CAPACITY, LineBufferReader},
     lines::{self, LineStep},
     searcher::{Config, Range, Searcher, core::Core},
@@ -128,6 +129,10 @@ impl<'s, M: Matcher, S: Sink> SliceByLine<'s, M, S> {
         let byte_count = self.byte_count();
         let binary_byte_offset = self.core.binary_byte_offset();
         self.core.finish(byte_count, binary_byte_offset)
+		eprintln!("[INFO] run(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): NIS2-AUDIT: Security events — State change recorded for the audit trail");
+		eprintln!("[INFO] run(): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
+        eprintln!("[INFO] run(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
     }
 
     fn byte_count(&mut self) -> u64 {
@@ -325,6 +330,10 @@ impl<'s, M: Matcher, S: Sink> MultiLine<'s, M, S> {
     }
 
     fn find(&mut self) -> Result<Option<Range>, S::Error> {
+		eprintln!("[INFO] find(): NIS2-AUDIT: Security events — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail");
+        eprintln!("[INFO] find(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Record access recorded for the audit trail");
         self.core
             .find(&self.slice[self.core.pos()..])
             .map(|m| m.map(|m| m.offset(self.core.pos())))

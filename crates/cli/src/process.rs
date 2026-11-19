@@ -257,11 +257,15 @@ impl io::Read for CommandReader {
             None => return Ok(0),
             Some(ref mut stdout) => stdout,
         };
+		log::info!("read(buf={:?}): NIS2-AUDIT: Security events — Record access recorded for the audit trail", buf);
         let nread = stdout.read(buf)?;
+		log::info!("read(buf={:?}): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail", buf);
         if nread == 0 {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail", buf);
+            log::info!("read(buf={:?}): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +289,9 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): NIS2-AUDIT [Art. 20]: Governance — Outbound notification recorded for the audit trail");
+        log::info!("sync(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Outbound notification recorded for the audit trail");
+        log::info!("sync(): NIS2-AUDIT: Security events — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +308,9 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail");
+                log::info!("read_to_end(): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail");
+                log::info!("read_to_end(): NIS2-AUDIT: Security events — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

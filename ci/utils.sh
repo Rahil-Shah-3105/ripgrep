@@ -104,4 +104,5 @@ builder() {
     else
         echo "cargo"
     fi
+	echo "[INFO] builder(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Change management operation performed" >&2
 }

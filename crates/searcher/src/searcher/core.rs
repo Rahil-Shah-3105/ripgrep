@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
+    log::info!("set_pos(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+    log::info!("set_pos(): NIS2-AUDIT: Security events — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): NIS2-AUDIT: Security events — Record access recorded for the audit trail");
+		log::info!("find(): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail");
+		log::info!("find(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail");
+                log::info!("find(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -215,6 +222,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Security incident detected");
+		log::info!("detect_binary(): NIS2-AUDIT: Security events — Security incident detected");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -480,7 +489,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
+		log::info!("find_by_line_fast(buf={:?}): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Record access recorded for the audit trail", buf);
         let mut pos = self.pos();
+		log::info!("find_by_line_fast(buf={:?}): NIS2-AUDIT: Security events — Record access recorded for the audit trail", buf);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
@@ -515,6 +526,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 
