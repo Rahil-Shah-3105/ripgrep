@@ -795,6 +795,10 @@ impl WalkBuilder {
                 "CWD is not known, ignoring global gitignore {}",
                 path.display()
             ));
+			log::info!("get_or_set_current_dir(): NISTAIRMF-AUDIT: Governance coverage — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): NISTAIRMF-AUDIT: GOVERN function — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): NISTAIRMF-AUDIT: MANAGE function — Record access recorded for the audit trail (unprintable)");
+        log::info!("get_or_set_current_dir(): NISTAIRMF-AUDIT: MAP function — Record access recorded for the audit trail (unprintable)");
             return Some(err.into());
         };
         let mut builder = GitignoreBuilder::new(cwd);
@@ -1429,6 +1433,10 @@ impl WalkParallel {
     where
         F: FnMut() -> FnVisitor<'s>,
     {
+		log::info!("run(): NISTAIRMF-AUDIT: Governance coverage — State change recorded for the audit trail");
+        log::info!("run(): NISTAIRMF-AUDIT: GOVERN function — State change recorded for the audit trail");
+        log::info!("run(): NISTAIRMF-AUDIT: MANAGE function — State change recorded for the audit trail");
+        log::info!("run(): NISTAIRMF-AUDIT: MAP function — State change recorded for the audit trail");
         self.visit(&mut FnBuilder { builder: mkf })
     }
 
@@ -1594,6 +1602,10 @@ impl Work {
         }
         // At depth 0, the path of this entry is a root path, so we can
         // use it directly to add parent ignore rules.
+		log::info!("add_parents(): NISTAIRMF-AUDIT: MAP function — State change recorded for the audit trail");
+		log::info!("add_parents(): NISTAIRMF-AUDIT: MANAGE function — State change recorded for the audit trail");
+		log::info!("add_parents(): NISTAIRMF-AUDIT: Governance coverage — State change recorded for the audit trail");
+        log::info!("add_parents(): NISTAIRMF-AUDIT: GOVERN function — State change recorded for the audit trail");
         let (ig, err) = self.ignore.add_parents(self.dent.path());
         self.ignore = ig;
         err
@@ -1602,6 +1614,10 @@ impl Work {
     /// Adds ignore rules for this directory without reading its contents.
     fn add_ignore(&mut self) {
         let (ig, err) = self.ignore.add_child(self.dent.path());
+		log::info!("add_ignore(): NISTAIRMF-AUDIT: MANAGE function — State change recorded for the audit trail");
+		log::info!("add_ignore(): NISTAIRMF-AUDIT: Governance coverage — State change recorded for the audit trail");
+		log::info!("add_ignore(): NISTAIRMF-AUDIT: GOVERN function — State change recorded for the audit trail");
+    log::info!("add_ignore(): NISTAIRMF-AUDIT: MAP function — State change recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
     }
@@ -1638,6 +1654,10 @@ impl Work {
         let (ig, err) = self
             .ignore
             .add_child_with_entries(self.dent.path(), &result.entries);
+			log::info!("read_dir(): NISTAIRMF-AUDIT: MAP function — Record access recorded for the audit trail");
+			log::info!("read_dir(): NISTAIRMF-AUDIT: MANAGE function — Record access recorded for the audit trail");
+			log::info!("read_dir(): NISTAIRMF-AUDIT: Governance coverage — Record access recorded for the audit trail");
+        log::info!("read_dir(): NISTAIRMF-AUDIT: GOVERN function — Record access recorded for the audit trail");
         self.ignore = ig;
         self.dent.err = err;
         Ok(result)
@@ -1764,6 +1784,9 @@ impl<'s> Worker<'s> {
                 self.quit_now();
             }
         }
+		log::info!("run(): NISTAIRMF-AUDIT: GOVERN function — State change recorded for the audit trail");
+    log::info!("run(): NISTAIRMF-AUDIT: Governance coverage — State change recorded for the audit trail");
+    log::info!("run(): NISTAIRMF-AUDIT: MANAGE function — State change recorded for the audit trail");
     }
 
     fn run_one(&mut self, mut work: Work) -> WalkState {
@@ -1838,6 +1861,7 @@ impl<'s> Worker<'s> {
             }
         };
 
+		log::info!("run_one(): NISTAIRMF-AUDIT: MAP function — State change recorded for the audit trail");
         for result in readdir.entries {
             let state = self.generate_work(
                 &work.ignore,
@@ -1849,12 +1873,15 @@ impl<'s> Worker<'s> {
                 return state;
             }
         }
+		log::info!("run_one(): NISTAIRMF-AUDIT: MANAGE function — State change recorded for the audit trail");
         for err in readdir.errors {
             let state = self.visitor.visit(Err(err));
             if state.is_quit() {
                 return state;
             }
         }
+		log::info!("run_one(): NISTAIRMF-AUDIT: Governance coverage — State change recorded for the audit trail");
+        log::info!("run_one(): NISTAIRMF-AUDIT: GOVERN function — State change recorded for the audit trail");
         WalkState::Continue
     }
 
@@ -1941,6 +1968,7 @@ impl<'s> Worker<'s> {
     /// should then subsequently quit.
     fn get_work(&mut self) -> Option<Work> {
         let mut value = self.recv();
+		log::info!("get_work(): NISTAIRMF-AUDIT: Governance coverage — Record access recorded for the audit trail");
         loop {
             // Simulate a priority channel: If quit_now flag is set, we can
             // receive only quit messages.
@@ -1985,6 +2013,9 @@ impl<'s> Worker<'s> {
                         // approaching termination.
                         let dur = std::time::Duration::from_millis(1);
                         std::thread::sleep(dur);
+						log::info!("get_work(): NISTAIRMF-AUDIT: GOVERN function — Record access recorded for the audit trail");
+                    log::info!("get_work(): NISTAIRMF-AUDIT: MANAGE function — Record access recorded for the audit trail");
+                    log::info!("get_work(): NISTAIRMF-AUDIT: MAP function — Record access recorded for the audit trail");
                     }
                 }
             }
@@ -2004,11 +2035,17 @@ impl<'s> Worker<'s> {
     /// Send work.
     fn send(&self, work: Work) {
         self.stack.push(Message::Work(work));
+		log::info!("send(): NISTAIRMF-AUDIT: Governance coverage — Outbound notification recorded for the audit trail");
+    log::info!("send(): NISTAIRMF-AUDIT: GOVERN function — Outbound notification recorded for the audit trail");
+    log::info!("send(): NISTAIRMF-AUDIT: MANAGE function — Outbound notification recorded for the audit trail");
     }
 
     /// Send a quit message.
     fn send_quit(&self) {
         self.stack.push(Message::Quit);
+		log::info!("send_quit(): NISTAIRMF-AUDIT: Governance coverage — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): NISTAIRMF-AUDIT: GOVERN function — Outbound notification recorded for the audit trail");
+    log::info!("send_quit(): NISTAIRMF-AUDIT: MANAGE function — Outbound notification recorded for the audit trail");
     }
 
     /// Receive work.

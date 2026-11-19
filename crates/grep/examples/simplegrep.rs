@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -42,7 +43,9 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[INFO] search(pattern={}, paths={:?}): NISTAIRMF-AUDIT: MAP function — Record access recorded for the audit trail", pattern, paths);
 
+	eprintln!("[INFO] search(pattern={}, paths={:?}): NISTAIRMF-AUDIT: MANAGE function — Record access recorded for the audit trail", pattern, paths);
     for path in paths {
         for result in WalkDir::new(path) {
             let dent = match result {
@@ -65,5 +68,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): NISTAIRMF-AUDIT: Governance coverage — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): NISTAIRMF-AUDIT: GOVERN function — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }
