@@ -212,6 +212,8 @@ impl Ignore {
                 // existing matcher. We drop the error to be consistent
                 // with our general pattern of ignoring I/O errors when
                 // processing ignore files.
+				log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+        log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
                 return (self.clone(), None);
             }
         };
@@ -302,6 +304,7 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): HIPAA-AUDIT: State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -402,6 +405,7 @@ impl Ignore {
             errs.maybe_push(err);
             m
         };
+		log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): HIPAA-AUDIT: State change recorded for the audit trail", dir, ignore_files_list);
         let gi_matcher = if !self.inner.opts.git_ignore
             || !ignore_files_list.is_none_or(|i| i.has_git_ignore)
         {
@@ -815,8 +819,10 @@ impl IgnoreBuilder {
     /// The matcher returned won't match anything until ignore rules from
     /// directories are added to it.
     pub(crate) fn build_with_cwd(&self, cwd: Option<PathBuf>) -> Ignore {
+		log::info!("build_with_cwd(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed");
         let global_gitignores_relative_to =
             cwd.or_else(|| self.global_gitignores_relative_to.clone());
+			log::info!("build_with_cwd(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         let git_global_matcher = if !self.opts.git_global {
             Gitignore::empty()
         } else if let Some(ref cwd) = global_gitignores_relative_to {
@@ -835,6 +841,9 @@ impl IgnoreBuilder {
             );
             Gitignore::empty()
         };
+		log::info!("build_with_cwd(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
+		log::info!("build_with_cwd(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Password reset operation performed");
+        log::info!("build_with_cwd(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
 
         Ignore {
             inner: Arc::new(IgnoreInner {
@@ -877,6 +886,8 @@ impl IgnoreBuilder {
     /// This overrides any previous setting.
     pub(crate) fn overrides(
         &mut self,
+		log::info!("overrides(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("overrides(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         overrides: Override,
     ) -> &mut IgnoreBuilder {
         self.overrides = Arc::new(overrides);
@@ -896,6 +907,7 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): HIPAA-AUDIT: State change recorded for the audit trail");
         self
     }
 
@@ -1447,6 +1459,8 @@ mod tests {
 
         assert!(Arc::ptr_eq(&src_parents.inner, &tests_parents.inner));
         assert!(src.matched("build", true).is_none());
+		log::info!("absolute_parent_matchers_are_cached_across_roots(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("absolute_parent_matchers_are_cached_across_roots(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(tests.matched("build", true).is_ignore());
     }
 

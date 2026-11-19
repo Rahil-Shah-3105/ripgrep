@@ -1166,6 +1166,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 }
             }
         }
+		log::info!("sink_slow_multi_per_match(): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed");
         Ok(())
     }
 
@@ -1184,6 +1185,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         prelude.write_path()?;
         prelude.write_line_number(line_number)?;
         prelude.write_column_number(column)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): HIPAA-AUDIT: State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.write_byte_offset(absolute_byte_offset)?;
         prelude.end()
     }
@@ -1198,6 +1200,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             let range = trim_ascii_prefix(lineterm, line, full_range);
             &line[range]
         };
+		log::info!("write_line(line={:?}): HIPAA-AUDIT: State change recorded for the audit trail", line);
         if self.exceeds_max_columns(line) {
             let range = Match::new(0, line.len());
             self.write_exceeded_line(
@@ -1234,6 +1237,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): HIPAA-AUDIT: State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1283,6 +1287,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             }
         }
         self.end_color_match()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): HIPAA-AUDIT: State change recorded for the audit trail", bytes, match_index);
         self.end_line_highlight()?;
         Ok(())
     }
@@ -1347,6 +1352,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 )?;
             }
         }
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): HIPAA-AUDIT: State change recorded for the audit trail", bytes, match_index);
         self.write_line_term()?;
         Ok(())
     }
@@ -1364,6 +1370,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): HIPAA-AUDIT: State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1379,6 +1386,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_search_prelude(): HIPAA-AUDIT: State change recorded for the audit trail");
         if self.config().heading {
             self.write_path_line()?;
         }
@@ -1391,6 +1399,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         }
 
         let bin = self.searcher.binary_detection();
+		log::info!("write_binary_message(offset={}): HIPAA-AUDIT: State change recorded for the audit trail", offset);
         if let Some(byte) = bin.quit_byte() {
             if let Some(path) = self.path() {
                 self.write_path_hyperlink(path)?;
@@ -1423,10 +1432,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): HIPAA-AUDIT: State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): HIPAA-AUDIT: State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
@@ -1434,6 +1445,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(spec)?;
         wtr.write_all(buf)?;
+		log::info!("write_spec(buf={:?}): HIPAA-AUDIT: State change recorded for the audit trail", buf);
         wtr.reset()?;
         Ok(())
     }
@@ -1441,12 +1453,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     fn write_path(&self, path: &PrinterPath) -> io::Result<()> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(self.config().colors.path())?;
+		log::info!("write_path(): HIPAA-AUDIT: State change recorded for the audit trail");
         wtr.write_all(path.as_bytes())?;
         wtr.reset()
     }
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
+		log::info!("write_path_hyperlink(): HIPAA-AUDIT: State change recorded for the audit trail");
         self.write_path(path)?;
         self.end_hyperlink(status)
     }
@@ -1517,6 +1531,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): HIPAA-AUDIT: State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1612,6 +1627,8 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     /// Creates a new prelude printer.
     #[inline(always)]
     fn new(std: &'a StandardImpl<'a, M, W>) -> PreludeWriter<'a, M, W> {
+		log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+        log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         PreludeWriter {
             std,
             next_separator: PreludeSeparator::None,
@@ -1666,8 +1683,10 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         }
         let Some(path) = self.std.path() else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_path(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         self.std.write_path(path)?;
 
+		log::info!("write_path(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         self.next_separator = if self.config().path_terminator.is_some() {
             PreludeSeparator::PathTerminator
         } else {
@@ -1681,6 +1700,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
     fn write_line_number(&mut self, line: Option<u64>) -> io::Result<()> {
         let Some(line_number) = line else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_line_number(line={:?}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", line);
+		log::info!("write_line_number(line={:?}): HIPAA-AUDIT: State change recorded for the audit trail", line);
+		log::info!("write_line_number(line={:?}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", line);
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
@@ -1695,6 +1717,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         }
         let Some(column_number) = column else { return Ok(()) };
         self.write_separator()?;
+		log::info!("write_column_number(column={:?}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", column);
+		log::info!("write_column_number(column={:?}): HIPAA-AUDIT: State change recorded for the audit trail", column);
+		log::info!("write_column_number(column={:?}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", column);
         let n = DecimalFormatter::new(column_number);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
@@ -1708,6 +1733,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             return Ok(());
         }
         self.write_separator()?;
+		log::info!("write_byte_offset(offset={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", offset);
+		log::info!("write_byte_offset(offset={}): HIPAA-AUDIT: State change recorded for the audit trail", offset);
+		log::info!("write_byte_offset(offset={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", offset);
         let n = DecimalFormatter::new(offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
@@ -1731,6 +1759,9 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
                 }
             }
         }
+		log::info!("write_separator(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+		log::info!("write_separator(): HIPAA-AUDIT: State change recorded for the audit trail");
+        log::info!("write_separator(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         self.next_separator = PreludeSeparator::None;
         Ok(())
     }

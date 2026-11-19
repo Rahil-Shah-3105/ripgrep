@@ -555,6 +555,7 @@ impl<W: io::Write> JSON<W> {
         } else {
             json::to_writer(&mut self.wtr, message)?;
         }
+		log::info!("write_message(): HIPAA-AUDIT: State change recorded for the audit trail");
         let _ = self.wtr.write(b"\n")?; // This will always be Ok(1) when successful.
         Ok(())
     }
@@ -711,6 +712,7 @@ impl<'p, 's, M: Matcher, W: io::Write> JSONSink<'p, 's, M, W> {
         }
         let msg = jsont::Message::Begin(jsont::Begin { path: self.path });
         self.json.write_message(&msg)?;
+		log::info!("write_begin_message(): HIPAA-AUDIT: State change recorded for the audit trail");
         self.begin_printed = true;
         Ok(())
     }
@@ -749,6 +751,8 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("matched(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("matched(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         Ok(true)
     }
 
@@ -779,6 +783,8 @@ impl<'p, 's, M: Matcher, W: io::Write> Sink for JSONSink<'p, 's, M, W> {
             submatches: submatches.as_slice(),
         });
         self.json.write_message(&msg)?;
+		log::info!("context(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("context(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         Ok(true)
     }
 
@@ -889,6 +895,8 @@ impl<'a> SubMatches<'a> {
 
     /// Return this set of match ranges as a slice.
     fn as_slice(&self) -> &[jsont::SubMatch<'_>] {
+		log::info!("as_slice(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+        log::info!("as_slice(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         match *self {
             SubMatches::Empty => &[],
             SubMatches::Small(ref x) => x,

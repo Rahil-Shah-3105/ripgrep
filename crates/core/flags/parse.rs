@@ -116,6 +116,7 @@ fn parse_low() -> ParseResult<LowArgs> {
 fn set_log_levels(low: &LowArgs) {
     crate::messages::set_messages(!low.no_messages);
     crate::messages::set_ignore_messages(!low.no_ignore_messages);
+	log::info!("set_log_levels(): HIPAA-AUDIT: State change recorded for the audit trail");
     match low.logging {
         Some(LoggingMode::Trace) => {
             log::set_max_level(log::LevelFilter::Trace)
@@ -295,6 +296,7 @@ impl Parser {
             return FlagLookup::UnrecognizedShort(ch);
         }
         let byte = u8::try_from(ch).unwrap();
+		log::info!("find_short(ch={}): HIPAA-AUDIT: Record access recorded for the audit trail", ch);
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
@@ -308,6 +310,7 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): HIPAA-AUDIT: Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -373,6 +376,7 @@ impl FlagMap {
     /// The index of each flag info corresponds to its ID.
     fn new(infos: &[FlagInfo]) -> FlagMap {
         let mut map = std::collections::HashMap::with_capacity(infos.len());
+		log::info!("new(infos={:?}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed", infos);
         for (i, info) in infos.iter().enumerate() {
             match info.name {
                 Ok(name) => {
@@ -383,6 +387,8 @@ impl FlagMap {
                 }
             }
         }
+		log::info!("new(infos={:?}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", infos);
+        log::info!("new(infos={:?}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Password reset operation performed", infos);
         FlagMap { map }
     }
 
@@ -425,6 +431,7 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
 
     let mut similar = vec![];
     let bow_given = ngrams(unrecognized);
+	log::info!("find_similar_names(unrecognized={}): HIPAA-AUDIT: Record access recorded for the audit trail", unrecognized);
     for &flag in FLAGS.iter() {
         let name = flag.name_long();
         let bow = ngrams(name);

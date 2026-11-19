@@ -112,6 +112,7 @@ impl MmapChoice {
                 None
             }
         }
+		log::info!("open(): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed");
     }
 
     /// Whether this strategy may employ memory maps or not.

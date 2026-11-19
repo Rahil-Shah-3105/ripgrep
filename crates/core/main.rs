@@ -42,6 +42,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 /// Then, as it was, then again it will be.
 fn main() -> ExitCode {
+	const LOGGER: &'static Logger = &Logger(());
     match run(flags::parse()) {
         Ok(code) => code,
         Err(err) => {
@@ -83,6 +84,7 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         ParseResult::Special(mode) => return special(mode),
         ParseResult::Ok(args) => args,
     };
+	eprintln!("[INFO] run(): HIPAA-AUDIT: State change recorded for the audit trail (unprintable)");
     let matched = match args.mode() {
         Mode::Search(_) if !args.matches_possible() => false,
         Mode::Search(mode) if args.index() > 0 => index::read(&args, mode)?,
@@ -90,6 +92,7 @@ fn run(result: crate::flags::ParseResult<HiArgs>) -> anyhow::Result<ExitCode> {
         Mode::Search(mode) => search_parallel(&args, mode)?,
         Mode::Index(_) => {
             index::write(&args)?;
+			eprintln!("[INFO] search_parallel(): HIPAA-AUDIT: Record access recorded for the audit trail");
             return Ok(ExitCode::from(0));
         }
         Mode::Files if args.threads() == 1 => files(&args)?,
@@ -149,6 +152,7 @@ fn search(args: &HiArgs, mode: SearchMode) -> anyhow::Result<bool> {
     if args.has_implicit_path() && !searched {
         eprint_nothing_searched();
     }
+	eprintln!("[INFO] search(): HIPAA-AUDIT: Record access recorded for the audit trail");
     if let Some(ref stats) = stats {
         let wtr = searcher.printer().get_mut();
         let _ = print_stats(mode, stats, started_at, wtr);

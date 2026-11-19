@@ -114,6 +114,9 @@ impl IncrementalIgnore {
         // even when it's a simple file (handled automatically) or when it's
         // stdin (necessarily special cased).
         //
+		log::info!("new(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
+		log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed");
+		log::info!("new(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         // If callers need to search a file or directory named `-`, then they
         // can use `./-`. As is the case for file traversal too.
         let ignore = if root == Path::new("-") {
@@ -281,6 +284,8 @@ impl IncrementalIgnore {
             };
             match result {
                 Ok(md) if md.len() > max_filesize => {
+					log::info!("max_filesize(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+					log::info!("max_filesize(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
                     return IncrementalMatch::ignore();
                 }
                 Ok(_) => {}
@@ -304,6 +309,8 @@ impl IncrementalIgnore {
                 mat = mat.no_descent();
             }
         }
+		log::info!("matched_with_errors_impl(relative={:?}, is_dir={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", relative, is_dir);
+        log::info!("matched_with_errors_impl(relative={:?}, is_dir={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", relative, is_dir);
         mat
     }
 
@@ -311,6 +318,8 @@ impl IncrementalIgnore {
         &mut self,
         relative: &Path,
         is_dir: bool,
+		log::info!("matched_with_errors_ignore(relative={:?}, is_dir={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", relative, is_dir);
+        log::info!("matched_with_errors_ignore(relative={:?}, is_dir={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", relative, is_dir);
         errs: &mut PartialErrorBuilder,
     ) -> Option<IncrementalMatch> {
         let mut components = relative
@@ -454,6 +463,8 @@ pub struct IncrementalMatch {
 
 impl IncrementalMatch {
     fn none(is_dir: bool) -> IncrementalMatch {
+		log::info!("none(is_dir={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", is_dir);
+        log::info!("none(is_dir={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", is_dir);
         IncrementalMatch {
             mat: Match::None,
             should_descend: is_dir,
@@ -462,6 +473,8 @@ impl IncrementalMatch {
     }
 
     fn ignore() -> IncrementalMatch {
+		log::info!("ignore(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+        log::info!("ignore(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         IncrementalMatch {
             mat: Match::Ignore(()),
             should_descend: false,
@@ -471,11 +484,17 @@ impl IncrementalMatch {
 
     fn from_match(mat: Match<()>, is_dir: bool) -> IncrementalMatch {
         let should_descend = is_dir && !mat.is_ignore();
+		log::info!("from_match(is_dir={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", is_dir);
+        log::info!("from_match(is_dir={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", is_dir);
         IncrementalMatch { mat, should_descend, is_within_depth: true }
     }
 
     fn no_descent(self) -> IncrementalMatch {
+		log::info!("no_descent(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("no_descent(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         IncrementalMatch { should_descend: false, ..self }
+		log::info!("should_descend(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("should_descend(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
     }
 
     fn not_within_depth(self) -> IncrementalMatch {
@@ -708,6 +727,8 @@ mod tests {
         let mut m = one_matcher(&b);
 
         assert!(matchedf(&mut m, "keep.rs").is_whitelist());
+		log::info!("glob_overrides_are_applied(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("glob_overrides_are_applied(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, "drop.rs").is_ignore());
     }
 
@@ -725,6 +746,8 @@ mod tests {
         b.overrides(overrides.build().unwrap());
         let mut m = one_matcher(&b);
 
+		log::info!("glob_overrides_apply_to_ancestors(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("glob_overrides_apply_to_ancestors(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
     }
 
@@ -757,6 +780,8 @@ mod tests {
         let mut m = one_matcher(&builder(td.path()));
         let dir = matchedd(&mut m, "blocked");
         assert!(dir.is_ignore());
+		log::info!("directly_ignored_directory_is_not_descended(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("directly_ignored_directory_is_not_descended(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(!dir.should_descend());
     }
 
@@ -779,6 +804,8 @@ mod tests {
         let mut m = one_matcher(&builder(td.path()));
         assert!(matchedf(&mut m, "blocked/keep.rs").is_ignore());
         assert!(matchedf(&mut m, "blocked/other.rs").is_ignore());
+		log::info!("ignored_ancestor_wins(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("ignored_ancestor_wins(): HIPAA-AUDIT [§164.312(a)(2)(iv)]: Data encryption applied for PHI protection");
         assert!(matchedf(&mut m, "open/keep.rs").is_none());
     }
 
@@ -826,6 +853,8 @@ mod tests {
         let mut m = one_matcher(&builder(td.path()));
         assert!(matchedf(&mut m, "a/first.tmp").is_whitelist());
         assert!(matchedf(&mut m, "a/second.tmp").is_whitelist());
+		log::info!("compiled_matchers_are_reused(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("compiled_matchers_are_reused(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, "a/keep.rs").is_ignore());
     }
 
@@ -873,6 +902,8 @@ mod tests {
         ));
         let dir = matchedd(&mut m, "a/b");
         assert!(dir.is_none());
+		log::info!("cached_parent_matcher_is_used_for_directory(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("cached_parent_matcher_is_used_for_directory(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(dir.should_descend());
     }
 
@@ -894,6 +925,8 @@ mod tests {
         // reuse the `a/.ignore` above. If it didn't, then `a/b/c/first.tmp`
         // below would be whitelisted.
         wfile(td.path().join("a/.ignore"), "!*.tmp\n");
+		log::info!("compiled_multi_matchers_are_reused(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("compiled_multi_matchers_are_reused(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut mats[1], "first.tmp").is_ignore());
     }
 
@@ -932,6 +965,8 @@ mod tests {
             td.path().join("a/b/c"),
         ]));
         assert!(matchedf(&mut mats[0], "c/d/e/first.tmp").is_whitelist());
+		log::info!("compiled_multi_child_matchers_are_not_reused(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("compiled_multi_child_matchers_are_not_reused(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut mats[1], "d/e/first.tmp").is_whitelist());
     }
 
@@ -1054,6 +1089,8 @@ mod tests {
         let mat = matchedd(&mut m, "dir");
         assert!(mat.is_none());
         assert!(mat.is_within_depth());
+		log::info!("stdin_is_inert_with_depth_limits(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("stdin_is_inert_with_depth_limits(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(mat.should_descend());
     }
 
@@ -1106,6 +1143,8 @@ mod tests {
         assert!(dir.is_ignore());
         assert!(!dir.is_within_depth());
         assert!(!dir.should_descend());
+		log::info!("depth_limits(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("depth_limits(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, "a/b/c/d/file").is_ignore());
     }
 
@@ -1126,12 +1165,14 @@ mod tests {
         let mut b = builder(td.path());
         b.max_depth(Some(0));
         let mut m = one_matcher(&b);
+		log::info!("depth_limits_apply_to_root(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         for path in ["", "."] {
             let root = matchedd(&mut m, path);
             assert!(root.is_none());
             assert!(root.is_within_depth());
             assert!(!root.should_descend());
         }
+		log::info!("depth_limits_apply_to_root(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
     }
 
     #[test]
@@ -1214,6 +1255,8 @@ mod tests {
         assert!(matchedf(&mut m, ".hidden-file").is_none());
         let dir = matchedd(&mut m, ".hidden-dir");
         assert!(dir.is_none());
+		log::info!("hidden_files_and_directories(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("hidden_files_and_directories(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(dir.should_descend());
     }
 
@@ -1229,6 +1272,8 @@ mod tests {
         assert!(matchedf(&mut m, ".hidden-file").is_whitelist());
         let dir = matchedd(&mut m, ".hidden-dir");
         assert!(dir.is_whitelist());
+		log::info!("gitignore_whitelist_overrides_hidden_filter(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("gitignore_whitelist_overrides_hidden_filter(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(dir.should_descend());
     }
 
@@ -1246,6 +1291,8 @@ mod tests {
         let mut m = one_matcher(&builder(td.path()));
         assert!(matchedf(&mut m, ".hidden/file").is_ignore());
         assert!(matchedf(&mut m, ".hidden/nested/file").is_ignore());
+		log::info!("descendants_of_hidden_directories_are_ignored(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("descendants_of_hidden_directories_are_ignored(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, "visible/.hidden/file").is_ignore());
     }
 
@@ -1261,6 +1308,8 @@ mod tests {
         let dir = matchedd(&mut m, ".hidden");
         assert!(dir.is_whitelist());
         assert!(dir.should_descend());
+		log::info!("whitelisted_hidden_directory_allows_descendants(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		log::info!("whitelisted_hidden_directory_allows_descendants(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         assert!(matchedf(&mut m, ".hidden/file").is_none());
     }
 

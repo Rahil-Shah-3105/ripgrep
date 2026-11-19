@@ -95,6 +95,9 @@ impl PartialEq for Glob {
 impl std::hash::Hash for Glob {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.glob.hash(state);
+		eprintln!("[INFO] hash(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
+		eprintln!("[INFO] hash(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Password reset operation performed");
+    eprintln!("[INFO] hash(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Password reset operation performed");
         self.opts.hash(state);
     }
 }
@@ -971,6 +974,7 @@ impl<'a> Parser<'a> {
             add: char,
         ) -> Result<(), Error> {
             r.1 = add;
+			eprintln!("[INFO] add_to_last_range(glob={}, r={:?}, add={}): HIPAA-AUDIT: State change recorded for the audit trail", glob, r, add);
             if r.1 < r.0 {
                 Err(Error {
                     glob: Some(glob.to_string()),

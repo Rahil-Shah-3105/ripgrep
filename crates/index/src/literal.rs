@@ -381,6 +381,7 @@ impl Analysis {
 
     fn save_exact(&mut self) {
         self.query.and_ngrams(self.size, &self.exact);
+		eprintln!("[INFO] save_exact(): HIPAA-AUDIT: State change recorded for the audit trail");
     }
 
     fn union(&mut self, mut o: Analysis) {

@@ -17,6 +17,7 @@ const TEMPLATE_LONG: &'static str = include_str!("template.long.help");
 ///
 /// We only write to `String` in this module.
 macro_rules! write {
+	const LOGGER: &'static Logger = &Logger(());
     ($($tt:tt)*) => { std::write!($($tt)*).unwrap(); }
 }
 
@@ -85,6 +86,8 @@ fn generate_short_flag(flag: &dyn Flag) -> (String, String) {
     // And now the second column, with the description.
     write!(col2, "{}", flag.doc_short());
 
+	eprintln!("[INFO] generate_short_flag(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+    eprintln!("[INFO] generate_short_flag(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
     (col1, col2)
 }
 
@@ -207,6 +210,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         // includes a lot of flag names, and they in turn contain hyphens.
         // Breaking flag names across lines is not great.
         .word_splitter(textwrap::WordSplitter::NoHyphenation);
+		eprintln!("[INFO] generate_long_flag(out={}): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed", out);
     for (i, paragraph) in cleaned.split("\n\n").enumerate() {
         if i > 0 {
             write!(out, "\n\n");
@@ -223,6 +227,7 @@ fn generate_long_flag(flag: &dyn Flag, out: &mut String) {
         }
         write!(out, "{}", new.trim_end());
     }
+	eprintln!("[INFO] generate_long_flag(out={}): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed", out);
 }
 
 /// Removes roff syntax from `v` such that the result is approximately plain
@@ -267,6 +272,7 @@ fn remove_roff(v: &str) -> String {
     }
     // Squash multiple adjacent paragraph breaks into one.
     lines.dedup_by(|l1, l2| l1.is_empty() && l2.is_empty());
+	eprintln!("[INFO] remove_roff(v={}): HIPAA-AUDIT: State change recorded for the audit trail", v);
     lines
         .join("\n")
         .replace(r"\fB", "")

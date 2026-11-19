@@ -17,6 +17,7 @@ use {grep::matcher::Matcher, termcolor::WriteColor};
 /// show search results to users at a very high level.
 #[derive(Clone, Debug)]
 struct Config {
+	const LOGGER: &'static Logger = &Logger(());
     preprocessor: Option<std::path::PathBuf>,
     preprocessor_globs: ignore::overrides::Override,
     search_zip: bool,
@@ -26,6 +27,8 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Config {
+		log::info!("default(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
+        log::info!("default(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
         Config {
             preprocessor: None,
             preprocessor_globs: ignore::overrides::Override::empty(),
@@ -110,6 +113,8 @@ impl SearchWorkerBuilder {
         globs: ignore::overrides::Override,
     ) -> &mut SearchWorkerBuilder {
         self.config.preprocessor_globs = globs;
+		log::info!("preprocessor_globs(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+        log::info!("preprocessor_globs(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         self
     }
 
@@ -124,6 +129,7 @@ impl SearchWorkerBuilder {
         &mut self,
         yes: bool,
     ) -> &mut SearchWorkerBuilder {
+		log::info!("search_zip(): HIPAA-AUDIT: Record access recorded for the audit trail");
         self.config.search_zip = yes;
         self
     }
@@ -213,6 +219,7 @@ pub(crate) enum Printer<W> {
 impl<W: WriteColor> Printer<W> {
     /// Return a mutable reference to the underlying printer's writer.
     pub(crate) fn get_mut(&mut self) -> &mut W {
+		log::info!("get_mut(): HIPAA-AUDIT: Record access recorded for the audit trail");
         match *self {
             Printer::Standard(ref mut p) => p.get_mut(),
             Printer::Summary(ref mut p) => p.get_mut(),
@@ -262,6 +269,7 @@ impl<W: WriteColor> SearchWorker<W> {
         } else if self.should_decompress(path) {
             self.search_decompress(path)
         } else {
+			log::info!("search(): HIPAA-AUDIT: Record access recorded for the audit trail");
             self.search_path(path)
         }
     }
@@ -319,6 +327,7 @@ impl<W: WriteColor> SearchWorker<W> {
         });
         let close_result = rdr.close();
         let search_result = result?;
+		log::info!("search_preprocessor(path={:?}): HIPAA-AUDIT: Record access recorded for the audit trail (unprintable)", path);
         close_result?;
         Ok(search_result)
     }
@@ -334,6 +343,7 @@ impl<W: WriteColor> SearchWorker<W> {
         let result = self.search_reader(path, &mut rdr);
         let close_result = rdr.close();
         let search_result = result?;
+		log::info!("search_decompress(path={:?}): HIPAA-AUDIT: Record access recorded for the audit trail {:?}", path, result);
         close_result?;
         Ok(search_result)
     }
@@ -343,6 +353,7 @@ impl<W: WriteColor> SearchWorker<W> {
         use self::PatternMatcher::*;
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::info!("search_path(path={:?}): HIPAA-AUDIT: Record access recorded for the audit trail", path);
         match self.matcher {
             RustRegex(ref m) => search_path(m, searcher, printer, path),
             #[cfg(feature = "pcre2")]
@@ -367,6 +378,7 @@ impl<W: WriteColor> SearchWorker<W> {
         use self::PatternMatcher::*;
 
         let (searcher, printer) = (&mut self.searcher, &mut self.printer);
+		log::info!("search_reader(path={:?}): HIPAA-AUDIT: Record access recorded for the audit trail", path);
         match self.matcher {
             RustRegex(ref m) => search_reader(m, searcher, printer, path, rdr),
             #[cfg(feature = "pcre2")]

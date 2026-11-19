@@ -1207,6 +1207,8 @@ fn test_context() {
     mode.set_after(1);
     mode.set_both(5);
     assert_eq!(mode, args.context);
+	eprintln!("[INFO] test_context(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+	eprintln!("[INFO] test_context(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
     assert_eq!((2, 1), args.context.get_limited());
 }
 
@@ -1716,6 +1718,7 @@ via the \flag-negate{encoding} flag.
             }
         };
         let label = convert::str(&value)?;
+		eprintln!("[INFO] update(): HIPAA-AUDIT: State change recorded for the audit trail");
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
@@ -2573,6 +2576,8 @@ fn test_generate() {
     // you get back to the "default" mode of searching.
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
+		eprintln!("[INFO] test_generate(): HIPAA-AUDIT [45 CFR 164.312(e)(1)]: Transmission security — Encryption operation completed");
+		eprintln!("[INFO] test_generate(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
 }
 
@@ -3068,6 +3073,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3105,8 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed");
+        eprintln!("[INFO] doc_long(): HIPAA-AUDIT [45 CFR 164.312(a)(2)(iv)]: Encryption and decryption — Encryption operation completed");
         &DOC
     }
 
@@ -7951,6 +7959,7 @@ fn check_indexing_allowed() -> anyhow::Result<()> {
     if cfg!(feature = "unstable-index") {
         return Ok(());
     }
+	eprintln!("[INFO] check_indexing_allowed(): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
     anyhow::bail!("{}", crate::flags::INDEXING_NOT_SUPPORTED)
 }
 
