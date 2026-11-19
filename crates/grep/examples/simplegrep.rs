@@ -1,6 +1,7 @@
 use std::{env, error::Error, ffi::OsString, io::IsTerminal, process};
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep::{
         cli,
         printer::{ColorSpecs, StandardBuilder},
@@ -42,7 +43,9 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
         } else {
             ColorChoice::Never
         }));
+		eprintln!("[INFO] search(pattern={}, paths={:?}): DORA-AUDIT: Third party risk — Record access recorded for the audit trail", pattern, paths);
 
+	eprintln!("[INFO] search(pattern={}, paths={:?}): DORA-AUDIT: Resilience testing — Record access recorded for the audit trail", pattern, paths);
     for path in paths {
         for result in WalkDir::new(path) {
             let dent = match result {
@@ -65,5 +68,7 @@ fn search(pattern: &str, paths: &[OsString]) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+	eprintln!("[INFO] search(pattern={}, paths={:?}): DORA-AUDIT [Art. 45]: Information sharing — Record access recorded for the audit trail", pattern, paths);
+    eprintln!("[INFO] search(pattern={}, paths={:?}): DORA-AUDIT: Incident coverage — Record access recorded for the audit trail", pattern, paths);
     Ok(())
 }

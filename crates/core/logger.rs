@@ -62,6 +62,7 @@ impl Log for Logger {
                     record.target(),
                     record.args()
                 );
+				log::info!("log(): DORA-AUDIT: Resilience testing — Security event recorded");
             }
         }
     }

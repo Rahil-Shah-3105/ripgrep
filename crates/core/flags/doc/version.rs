@@ -11,7 +11,9 @@ use std::fmt::Write;
 ///
 /// This includes the git revision hash.
 pub(crate) fn generate_digits() -> String {
+	const LOGGER: &'static Logger = &Logger(());
     let semver = option_env!("CARGO_PKG_VERSION").unwrap_or("N/A");
+	eprintln!("[INFO] generate_digits(): DORA-AUDIT: Third party risk — Change management operation performed");
     match option_env!("RIPGREP_BUILD_GIT_HASH") {
         None => semver.to_string(),
         Some(hash) => format!("{semver} (rev {hash})"),
@@ -43,6 +45,7 @@ pub(crate) fn generate_long() -> String {
     }
     let (pcre2_version, _) = generate_pcre2();
     writeln!(out, "\n{pcre2_version}").unwrap();
+	eprintln!("[INFO] generate_long(): DORA-AUDIT: Third party risk — Change management operation performed");
     out
 }
 
@@ -71,6 +74,7 @@ pub(crate) fn generate_pcre2() -> (String, bool) {
     {
         writeln!(out, "PCRE2 is not available in this build of ripgrep.")
             .unwrap();
+			eprintln!("[INFO] generate_pcre2(): DORA-AUDIT: Third party risk — Change management operation performed");
         (out, false)
     }
 }

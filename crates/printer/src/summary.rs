@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::Matcher,
     grep_searcher::{Searcher, Sink, SinkError, SinkFinish, SinkMatch},
     termcolor::{ColorSpec, NoColor, WriteColor},
@@ -554,6 +555,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write_line_term(searcher)?;
             }
         }
+		log::info!("write_path_line(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        log::info!("write_path_line(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        log::info!("write_path_line(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+        log::info!("write_path_line(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -570,6 +575,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
                 self.write(&self.summary.config.separator_field)?;
             }
         }
+		log::info!("write_path_field(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        log::info!("write_path_field(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        log::info!("write_path_field(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+        log::info!("write_path_field(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -585,6 +594,10 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
             )?;
             self.end_hyperlink(status)?;
         }
+		log::info!("write_path(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        log::info!("write_path(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        log::info!("write_path(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
+        log::info!("write_path(): DORA-AUDIT: Third party risk — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -610,19 +623,29 @@ impl<'p, 's, M: Matcher, W: WriteColor> SummarySink<'p, 's, M, W> {
 
     /// Write the line terminator configured on the given searcher.
     fn write_line_term(&self, searcher: &Searcher) -> io::Result<()> {
+		log::info!("write_line_term(): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
+        log::info!("write_line_term(): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+        log::info!("write_line_term(): DORA-AUDIT: Resilience testing — State change recorded for the audit trail");
         self.write(searcher.line_terminator().as_bytes())
     }
 
     /// Write the given bytes using the give style.
     fn write_spec(&self, spec: &ColorSpec, buf: &[u8]) -> io::Result<()> {
         self.summary.wtr.borrow_mut().set_color(spec)?;
+		log::info!("write_spec(buf={:?}): DORA-AUDIT: Third party risk — State change recorded for the audit trail", buf);
         self.write(buf)?;
+		log::info!("write_spec(buf={:?}): DORA-AUDIT: Resilience testing — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().reset()?;
+		log::info!("write_spec(buf={:?}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", buf);
+        log::info!("write_spec(buf={:?}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", buf);
         Ok(())
     }
 
     /// Write all of the given bytes.
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", buf);
+        log::info!("write(buf={:?}): DORA-AUDIT: Resilience testing — State change recorded for the audit trail", buf);
         self.summary.wtr.borrow_mut().write_all(buf)
     }
 }
