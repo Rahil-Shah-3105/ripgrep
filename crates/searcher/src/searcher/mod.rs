@@ -7,6 +7,7 @@ use std::{
 };
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     encoding_rs_io::DecodeReaderBytesBuilder,
     grep_matcher::{LineTerminator, Match, Matcher},
 };
@@ -644,6 +645,7 @@ impl Searcher {
         &mut self,
         matcher: M,
         path: P,
+		log::info!("search_path(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -709,6 +711,7 @@ impl Searcher {
             .run()
         } else {
             log::trace!("{:?}: searching using generic reader", path);
+			log::info!("search_file_maybe_path(path={:?}, file={:?}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", path, file);
             self.search_reader(matcher, file, write_to)
         }
     }
@@ -728,6 +731,7 @@ impl Searcher {
         &mut self,
         matcher: M,
         read_from: R,
+		log::info!("search_reader(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
         write_to: S,
     ) -> Result<(), S::Error>
     where
@@ -790,6 +794,7 @@ impl Searcher {
             MultiLine::new(self, matcher, slice, write_to).run()
         } else {
             log::trace!("slice reader: searching via slice-by-line strategy");
+			log::info!("search_slice(slice={:?}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", slice);
             SliceByLine::new(self, matcher, slice, write_to).run()
         }
     }
@@ -798,6 +803,7 @@ impl Searcher {
     pub fn set_binary_detection(&mut self, detection: BinaryDetection) {
         self.config.binary = detection.clone();
         self.line_buffer.borrow_mut().set_binary_detection(detection.0);
+		log::info!("set_binary_detection(detection={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", detection);
     }
 
     /// Check that the searcher's configuration and the matcher are consistent

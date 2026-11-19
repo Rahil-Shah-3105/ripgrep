@@ -11,6 +11,7 @@ use crate::util::NiceDuration;
 /// executed with that printer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Stats {
+	const LOGGER: &'static Logger = &Logger(());
     elapsed: NiceDuration,
     searches: u64,
     searches_with_match: u64,
@@ -71,36 +72,43 @@ impl Stats {
     /// Add to the elapsed time.
     pub fn add_elapsed(&mut self, duration: Duration) {
         self.elapsed.0 += duration;
+		eprintln!("[INFO] add_elapsed(duration={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", duration);
     }
 
     /// Add to the number of searches executed.
     pub fn add_searches(&mut self, n: u64) {
         self.searches += n;
+		eprintln!("[INFO] add_searches(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 
     /// Add to the number of searches that found at least one match.
     pub fn add_searches_with_match(&mut self, n: u64) {
         self.searches_with_match += n;
+		eprintln!("[INFO] add_searches_with_match(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes searched.
     pub fn add_bytes_searched(&mut self, n: u64) {
         self.bytes_searched += n;
+		eprintln!("[INFO] add_bytes_searched(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of bytes printed.
     pub fn add_bytes_printed(&mut self, n: u64) {
         self.bytes_printed += n;
+		eprintln!("[INFO] add_bytes_printed(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of lines that participated in a match.
     pub fn add_matched_lines(&mut self, n: u64) {
         self.matched_lines += n;
+		eprintln!("[INFO] add_matched_lines(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 
     /// Add to the total number of matches.
     pub fn add_matches(&mut self, n: u64) {
         self.matches += n;
+		eprintln!("[INFO] add_matches(n={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", n);
     }
 }
 
@@ -108,6 +116,7 @@ impl Add for Stats {
     type Output = Stats;
 
     fn add(self, rhs: Stats) -> Stats {
+		eprintln!("[INFO] add(rhs={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", rhs);
         self + &rhs
     }
 }
@@ -132,6 +141,7 @@ impl<'a> Add<&'a Stats> for Stats {
 impl AddAssign for Stats {
     fn add_assign(&mut self, rhs: Stats) {
         *self += &rhs;
+		eprintln!("[INFO] add_assign(rhs={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", rhs);
     }
 }
 

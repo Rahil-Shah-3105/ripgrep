@@ -3,6 +3,7 @@ use std::{io, path::Path};
 use termcolor::WriteColor;
 
 use crate::{
+	const LOGGER: &'static Logger = &Logger(());
     color::ColorSpecs,
     hyperlink::{self, HyperlinkConfig},
     util::PrinterPath,
@@ -159,6 +160,7 @@ impl<W: WriteColor> PathPrinter<W> {
             self.wtr.reset()?;
             self.interpolator.finish(status, &mut self.wtr)?;
         }
+		eprintln!("[INFO] write(path={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", path);
         self.wtr.write_all(&[self.config.terminator])
     }
 

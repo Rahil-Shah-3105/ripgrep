@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use {
+	const LOGGER: &'static Logger = &Logger(());
     grep_matcher::{Captures, Match, Matcher},
     pcre2::bytes::{CaptureLocations, Regex, RegexBuilder},
 };
@@ -243,6 +244,7 @@ impl RegexMatcherBuilder {
         note = "now a no-op due to new PCRE2 features"
     )]
     pub fn disable_utf_check(&mut self) -> &mut RegexMatcherBuilder {
+		log::info!("disable_utf_check(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self
     }
 
@@ -321,6 +323,7 @@ impl Matcher for RegexMatcher {
         haystack: &[u8],
         at: usize,
     ) -> Result<Option<Match>, Error> {
+		log::info!("find_at(haystack={:?}, at={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", haystack, at);
         Ok(self
             .regex
             .find_at(haystack, at)
@@ -399,6 +402,7 @@ impl Captures for RegexCaptures {
     }
 
     fn get(&self, i: usize) -> Option<Match> {
+		log::info!("get(i={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", i);
         self.locs.get(i).map(|(s, e)| Match::new(s, e))
     }
 }

@@ -585,6 +585,7 @@ impl GlobSetBuilder {
     /// Add a new pattern to this set.
     pub fn add(&mut self, pat: Glob) -> &mut GlobSetBuilder {
         self.pats.push(pat);
+		log::info!("add(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self
     }
 }
@@ -716,6 +717,7 @@ impl LiteralStrategy {
 
     fn add(&mut self, global_index: usize, lit: String) {
         self.0.entry(lit.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, lit={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", global_index, lit);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -786,6 +788,7 @@ impl ExtensionStrategy {
 
     fn add(&mut self, global_index: usize, ext: String) {
         self.0.entry(ext.into_bytes()).or_insert(vec![]).push(global_index);
+		log::info!("add(global_index={}, ext={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", global_index, ext);
     }
 
     fn is_match(&self, candidate: &Candidate<'_>) -> bool {
@@ -991,6 +994,7 @@ impl RegexSetStrategy {
         let mut patset = self.patset.get();
         patset.clear();
         self.matcher.which_overlapping_matches(&input, &mut patset);
+		log::info!("find_matches(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail (unprintable)");
         patset
     }
 
@@ -1030,6 +1034,7 @@ impl MultiStrategyBuilder {
         }
         self.map.push(global_index);
         self.literals.push(literal);
+		log::info!("add(global_index={}, literal={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", global_index, literal);
     }
 
     fn prefix(self) -> PrefixStrategy {
@@ -1080,6 +1085,7 @@ impl RequiredExtensionStrategyBuilder {
             .entry(ext.into_bytes())
             .or_insert(vec![])
             .push((global_index, regex));
+			log::info!("add(global_index={}, ext={}, regex={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", global_index, ext, regex);
     }
 
     fn build(self) -> Result<RequiredExtensionStrategy, Error> {
@@ -1163,6 +1169,7 @@ mod tests {
         assert_eq!(2, matches.len());
         assert_eq!(0, matches[0]);
         assert_eq!(2, matches[1]);
+		log::info!("set_works(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     }
 
     #[test]
@@ -1291,6 +1298,7 @@ mod tests {
 
         let matches = set.matches("nada");
         assert_eq!(0, matches.len());
+		log::info!("set_does_not_remember(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
     }
 
     #[test]

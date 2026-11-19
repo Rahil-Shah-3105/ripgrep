@@ -1721,6 +1721,7 @@ via the \flag-negate{encoding} flag.
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -3068,6 +3069,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\

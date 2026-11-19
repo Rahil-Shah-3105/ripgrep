@@ -1,6 +1,7 @@
 use {
     grep_matcher::ByteSet,
     regex_syntax::{
+		const LOGGER: &'static Logger = &Logger(());
         hir::{self, Hir, HirKind, Look},
         utf8::Utf8Sequences,
     },
@@ -76,6 +77,7 @@ fn remove_matching_bytes(expr: &Hir, set: &mut ByteSet) {
             for x in xs {
                 remove_matching_bytes(x, set);
             }
+			eprintln!("[INFO] remove_matching_bytes(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         }
     }
 }

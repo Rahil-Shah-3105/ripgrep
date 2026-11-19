@@ -121,6 +121,7 @@ fn set_log_levels(low: &LowArgs) {
             log::set_max_level(log::LevelFilter::Trace)
         }
         Some(LoggingMode::Debug) => {
+			log::info!("set_log_levels(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
             log::set_max_level(log::LevelFilter::Debug)
         }
         None => log::set_max_level(log::LevelFilter::Warn),
@@ -298,6 +299,7 @@ impl Parser {
         let Some(index) = self.map.find(&[byte]) else {
             return FlagLookup::UnrecognizedShort(ch);
         };
+		log::info!("find_short(ch={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", ch);
         FlagLookup::Match(&self.info[index])
     }
 
@@ -308,6 +310,7 @@ impl Parser {
         let Some(index) = self.map.find(name.as_bytes()) else {
             return FlagLookup::UnrecognizedLong(name.to_string());
         };
+		log::info!("find_long(name={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", name);
         FlagLookup::Match(&self.info[index])
     }
 }
@@ -444,6 +447,7 @@ fn find_similar_names(unrecognized: &str) -> Vec<&'static str> {
             }
         }
     }
+	log::info!("find_similar_names(unrecognized={}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", unrecognized);
     similar
 }
 

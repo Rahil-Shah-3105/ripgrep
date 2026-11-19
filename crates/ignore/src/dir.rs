@@ -302,6 +302,7 @@ impl Ignore {
 
     /// Like add_child, but takes a full path and returns an IgnoreInner.
     fn add_child_path(&self, dir: &Path) -> (IgnoreInner, Option<Error>) {
+		log::info!("add_child_path(dir={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", dir);
         self.add_child_path_with_found_ignore_files(dir, None)
     }
 
@@ -420,6 +421,7 @@ impl Ignore {
         let gi_exclude_matcher = if !self.inner.opts.git_exclude
             || !ignore_files_list.is_none_or(|i| i.has_git_dir)
         {
+			log::info!("add_child_path_with_found_ignore_files(dir={:?}, ignore_files_list={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", dir, ignore_files_list);
             Gitignore::empty()
         } else {
             match resolve_git_commondir(dir, git_type) {
@@ -896,6 +898,7 @@ impl IgnoreBuilder {
     /// Adds a new global ignore matcher from the ignore file path given.
     pub(crate) fn add_ignore(&mut self, ig: Gitignore) -> &mut IgnoreBuilder {
         self.explicit_ignores.push(ig);
+		log::info!("add_ignore(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self
     }
 

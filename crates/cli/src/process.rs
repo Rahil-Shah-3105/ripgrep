@@ -262,6 +262,7 @@ impl io::Read for CommandReader {
             self.eof = true;
             self.close().map(|_| 0)
         } else {
+			log::info!("read(buf={:?}): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail", buf);
             Ok(nread)
         }
     }
@@ -285,6 +286,7 @@ impl StderrReader {
 
     /// Create a reader for stderr that reads contents synchronously.
     fn sync(stderr: process::ChildStderr) -> StderrReader {
+		log::info!("sync(): GEN-AUDIT: Security hygiene — Outbound notification recorded for the audit trail");
         StderrReader::Sync(stderr)
     }
 
@@ -301,6 +303,7 @@ impl StderrReader {
                 handle.join().expect("stderr reading thread does not panic")
             }
             StderrReader::Sync(ref mut stderr) => {
+				log::info!("read_to_end(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
                 stderr_to_command_error(stderr)
             }
         }

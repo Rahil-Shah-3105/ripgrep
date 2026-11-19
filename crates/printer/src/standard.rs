@@ -1185,6 +1185,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         prelude.write_line_number(line_number)?;
         prelude.write_column_number(column)?;
         prelude.write_byte_offset(absolute_byte_offset)?;
+		log::info!("write_prelude(absolute_byte_offset={}, line_number={:?}, column={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", absolute_byte_offset, line_number, column);
         prelude.end()
     }
 
@@ -1213,6 +1214,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_line(line={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1234,6 +1236,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         } else {
             self.write_colored_matches(bytes, line, matches, &mut 0)?;
             self.write_line_term()?;
+			log::info!("write_colored_line(bytes={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", bytes);
             Ok(())
         }
     }
@@ -1284,6 +1287,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         }
         self.end_color_match()?;
         self.end_line_highlight()?;
+		log::info!("write_colored_matches(bytes={:?}, match_index={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1348,6 +1352,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             }
         }
         self.write_line_term()?;
+		log::info!("write_exceeded_line(bytes={:?}, match_index={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", bytes, match_index);
         Ok(())
     }
 
@@ -1364,6 +1369,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
                 self.write_line_term()?;
             }
         }
+		log::info!("write_path_line(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1382,6 +1388,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         if self.config().heading {
             self.write_path_line()?;
         }
+		log::info!("write_search_prelude(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 
@@ -1415,6 +1422,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             );
             self.write(remainder.as_bytes())?;
         }
+		log::info!("write_binary_message(offset={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1423,10 +1431,12 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
             self.write(sep)?;
             self.write_line_term()?;
         }
+		log::info!("write_context_separator(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 
     fn write_line_term(&self) -> io::Result<()> {
+		log::info!("write_line_term(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self.write(self.searcher.line_terminator().as_bytes())
     }
 
@@ -1435,6 +1445,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         wtr.set_color(spec)?;
         wtr.write_all(buf)?;
         wtr.reset()?;
+		log::info!("write_spec(buf={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", buf);
         Ok(())
     }
 
@@ -1442,12 +1453,14 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
         let mut wtr = self.wtr().borrow_mut();
         wtr.set_color(self.config().colors.path())?;
         wtr.write_all(path.as_bytes())?;
+		log::info!("write_path(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         wtr.reset()
     }
 
     fn write_path_hyperlink(&self, path: &PrinterPath) -> io::Result<()> {
         let status = self.start_hyperlink(path, None, None)?;
         self.write_path(path)?;
+		log::info!("write_path_hyperlink(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         self.end_hyperlink(status)
     }
 
@@ -1517,6 +1530,7 @@ impl<'a, M: Matcher, W: WriteColor> StandardImpl<'a, M, W> {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<()> {
+		log::info!("write(buf={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", buf);
         self.wtr().borrow_mut().write_all(buf)
     }
 
@@ -1684,6 +1698,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         let n = DecimalFormatter::new(line_number);
         self.std.write_spec(self.config().colors.line(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_line_number(line={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", line);
         Ok(())
     }
 
@@ -1698,6 +1713,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         let n = DecimalFormatter::new(column_number);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_column_number(column={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", column);
         Ok(())
     }
 
@@ -1711,6 +1727,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
         let n = DecimalFormatter::new(offset);
         self.std.write_spec(self.config().colors.column(), n.as_bytes())?;
         self.next_separator = PreludeSeparator::FieldSeparator;
+		log::info!("write_byte_offset(offset={}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", offset);
         Ok(())
     }
 
@@ -1732,6 +1749,7 @@ impl<'a, M: Matcher, W: WriteColor> PreludeWriter<'a, M, W> {
             }
         }
         self.next_separator = PreludeSeparator::None;
+		log::info!("write_separator(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         Ok(())
     }
 

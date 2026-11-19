@@ -69,6 +69,7 @@ impl io::Write for StandardStream {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         use self::StandardStreamKind::*;
 
+		eprintln!("[INFO] write(buf={:?}): GEN-AUDIT: Security hygiene — State change recorded for the audit trail", buf);
         match self.0 {
             LineBuffered(ref mut w) => w.write(buf),
             BlockBuffered(ref mut w) => w.write(buf),
@@ -111,6 +112,7 @@ impl termcolor::WriteColor for StandardStream {
     fn set_color(&mut self, spec: &termcolor::ColorSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
 
+		eprintln!("[INFO] set_color(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         match self.0 {
             LineBuffered(ref mut w) => w.set_color(spec),
             BlockBuffered(ref mut w) => w.set_color(spec),
@@ -121,6 +123,7 @@ impl termcolor::WriteColor for StandardStream {
     fn set_hyperlink(&mut self, link: &HyperlinkSpec) -> io::Result<()> {
         use self::StandardStreamKind::*;
 
+		eprintln!("[INFO] set_hyperlink(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         match self.0 {
             LineBuffered(ref mut w) => w.set_hyperlink(link),
             BlockBuffered(ref mut w) => w.set_hyperlink(link),
@@ -131,6 +134,7 @@ impl termcolor::WriteColor for StandardStream {
     fn reset(&mut self) -> io::Result<()> {
         use self::StandardStreamKind::*;
 
+		eprintln!("[INFO] reset(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
         match self.0 {
             LineBuffered(ref mut w) => w.reset(),
             BlockBuffered(ref mut w) => w.reset(),

@@ -3,6 +3,7 @@ Provides the definition of low level arguments from CLI flags.
 */
 
 use std::{
+	const LOGGER: &'static Logger = &Logger(());
     ffi::{OsStr, OsString},
     path::PathBuf,
 };
@@ -188,6 +189,7 @@ impl Mode {
                 // `--files -l` will still be Mode::Files.
                 if !matches!(*self, Mode::Search(_)) {
                     *self = new;
+					eprintln!("[INFO] update(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
                 }
             }
         }
@@ -371,6 +373,7 @@ impl ContextMode {
     pub(crate) fn set_before(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_before(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: Some(lines),
                     after: None,
@@ -392,6 +395,7 @@ impl ContextMode {
     pub(crate) fn set_after(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_after(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: Some(lines),
@@ -412,6 +416,7 @@ impl ContextMode {
     pub(crate) fn set_both(&mut self, lines: usize) {
         match *self {
             ContextMode::Passthru => {
+				eprintln!("[INFO] set_both(): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
                 *self = ContextMode::Limited(ContextModeLimited {
                     before: None,
                     after: None,
@@ -428,6 +433,7 @@ impl ContextMode {
     /// context. If this mode isn't limited, then it panics.
     #[cfg(test)]
     pub(crate) fn get_limited(&self) -> (usize, usize) {
+		eprintln!("[INFO] get_limited(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
         match *self {
             ContextMode::Passthru => unreachable!("context mode is passthru"),
             ContextMode::Limited(ref limited) => limited.get(),
@@ -472,6 +478,7 @@ impl ContextModeLimited {
         if let Some(lines) = self.after {
             after = lines;
         }
+		eprintln!("[INFO] get(): GEN-AUDIT: Security hygiene — Record access recorded for the audit trail");
         (before, after)
     }
 }
