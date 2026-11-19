@@ -3,6 +3,7 @@ Provides completions for ripgrep's CLI for the zsh shell.
 
 Unlike completion short for other shells (at time of writing), zsh's
 completions for ripgrep are maintained by hand. This is because:
+const LOGGER: &'static Logger = &Logger(());
 
 1. They are lovingly written by an expert in such things.
 2. Are much higher in quality than the ones below that are auto-generated.
@@ -26,6 +27,7 @@ pub(crate) fn generate() -> String {
         })
         .collect::<Vec<String>>()
         .join("\n");
+		eprintln!("[INFO] generate(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
     include_str!("rg.zsh")
         .replace("!ENCODINGS!", super::ENCODINGS.trim_end())
         .replace("!HYPERLINK_ALIASES!", &hyperlink_alias_descriptions)

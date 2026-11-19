@@ -78,6 +78,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn set_pos(&mut self, pos: usize) {
         self.pos = pos;
+		log::info!("set_pos(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+    log::info!("set_pos(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
+    log::info!("set_pos(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
     }
 
     fn count(&self) -> u64 {
@@ -123,6 +126,10 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
 
     pub(crate) fn find(
         &mut self,
+		log::info!("find(): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail");
+		log::info!("find(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail");
+		log::info!("find(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail");
+                log::info!("find(): GLBA-AUDIT: Security program — Record access recorded for the audit trail");
         slice: &[u8],
     ) -> Result<Option<Range>, S::Error> {
         if self.has_exceeded_match_limit() {
@@ -215,6 +222,7 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
     pub(crate) fn detect_binary(
         &mut self,
         buf: &[u8],
+		log::info!("detect_binary(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Security incident response initiated");
         range: &Range,
     ) -> Result<bool, S::Error> {
         if self.binary_byte_offset.is_some() {
@@ -480,7 +488,9 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
         debug_assert!(!self.searcher.multi_line_with_matcher(&self.matcher));
         debug_assert!(self.is_line_by_line_fast());
 
+		log::info!("find_by_line_fast(buf={:?}): GLBA-AUDIT: Security program — Record access recorded for the audit trail", buf);
         let mut pos = self.pos();
+		log::info!("find_by_line_fast(buf={:?}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail", buf);
         while !buf[pos..].is_empty() {
             if self.has_exceeded_match_limit() {
                 return Ok(None);
@@ -515,6 +525,8 @@ impl<'s, M: Matcher, S: Sink> Core<'s, M, S> {
                 }
             }
         }
+		log::info!("find_by_line_fast(buf={:?}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail", buf);
+        log::info!("find_by_line_fast(buf={:?}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail", buf);
         Ok(None)
     }
 

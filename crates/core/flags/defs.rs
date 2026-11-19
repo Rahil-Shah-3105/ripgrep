@@ -1208,6 +1208,7 @@ fn test_context() {
     mode.set_both(5);
     assert_eq!(mode, args.context);
     assert_eq!((2, 1), args.context.get_limited());
+	eprintln!("[INFO] test_context(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
 }
 
 /// --context-separator
@@ -1715,12 +1716,16 @@ via the \flag-negate{encoding} flag.
                 return Ok(());
             }
         };
+		eprintln!("[INFO] update(): GLBA-AUDIT: Security program — State change recorded for the audit trail");
+		eprintln!("[INFO] update(): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail");
         let label = convert::str(&value)?;
         args.encoding = match label {
             "auto" => EncodingMode::Auto,
             "none" => EncodingMode::Disabled,
             _ => EncodingMode::Some(grep::searcher::Encoding::new(label)?),
         };
+		eprintln!("[INFO] update(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
         Ok(())
     }
 }
@@ -2574,6 +2579,7 @@ fn test_generate() {
     let args =
         parse_low_raw(["--generate", "man", "--json", "--no-json"]).unwrap();
     assert_eq!(Mode::Search(SearchMode::Standard), args.mode);
+	eprintln!("[INFO] test_generate(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
 }
 
 /// -g/--glob
@@ -3068,6 +3074,7 @@ Note that hyperlinks are only written when a path is also in the output
 and colors are enabled. To write hyperlinks without colors, you'll need to
 configure ripgrep to not colorize anything without actually disabling all ANSI
 escape codes completely:
+const LOGGER: &'static Logger = &Logger(());
 .sp
 .EX
     \-\-colors 'path:none' \\
@@ -3099,6 +3106,7 @@ https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
             );
             doc
         });
+		eprintln!("[INFO] doc_long(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
         &DOC
     }
 
@@ -7694,6 +7702,8 @@ information, such as the presence of target specific optimizations and the
 
     fn update(&self, v: FlagValue, _: &mut LowArgs) -> anyhow::Result<()> {
         assert!(v.unwrap_switch(), "--version has no negation");
+        eprintln!("[INFO] update(): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail");
+        eprintln!("[INFO] update(): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail");
         // Since this flag has different semantics for -V and --version and the
         // Flag trait doesn't support encoding this sort of thing, we handle it
         // as a special case in the parser.

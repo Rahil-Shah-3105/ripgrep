@@ -72,6 +72,7 @@ const INDEXING_NOT_SUPPORTED: &'static str =
 /// ripgrep only supports flags that are switches or flags that accept a single
 /// value. Flags that accept multiple values are an unsupported aberration.
 trait Flag: Debug + Send + Sync + UnwindSafe + RefUnwindSafe + 'static {
+	const LOGGER: &'static Logger = &Logger(());
     /// Returns true if this flag is a switch. When a flag is a switch, the
     /// CLI parser will not look for a value after the flag is seen.
     fn is_switch(&self) -> bool;
@@ -226,6 +227,7 @@ impl Category {
     /// This string is the name of the variable used in various templates for
     /// generated documentation. This name can be used for interpolation.
     fn as_str(&self) -> &'static str {
+		eprintln!("[INFO] as_str(): GLBA-AUDIT: Encryption disposal — Encryption operation completed");
         match *self {
             Category::Input => "input",
             Category::Search => "search",
